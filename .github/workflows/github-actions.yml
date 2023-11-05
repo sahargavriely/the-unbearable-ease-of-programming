@@ -18,7 +18,7 @@ jobs:
       - name: Create python environment and install dependencies
         run: ./scripts/install.sh
       - name: Test with pytest
-        run: ./scripts/install.sh
+        run: ./scripts/test.sh
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v3
         env:
