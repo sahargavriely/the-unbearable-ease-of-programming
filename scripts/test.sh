@@ -3,7 +3,7 @@
 
 function main {
     source .env/bin/activate
-    python -m pytest --cov-report html --cov brain_computer_interface tests/
+    pytest --cov-report=html --cov-report=xml --cov-report=term --cov=brain_computer_interface tests/
     export TEST_STATUS=$?
     rm -f tests-status.RUNNING
     if [[ ${TEST_STATUS} -eq 0 ]]; then

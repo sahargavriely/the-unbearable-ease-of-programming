@@ -4,18 +4,21 @@ on: [push]
 
 jobs:
   build:
-    strategy:
-      matrix:
-        python-version: ["3.9"]
-
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v4
-        with:
-          python-version: ${{ matrix.python-version }}
-      - name: Create python environment and install dependencies
-        run: ./scripts/install.sh
-      - name: Test with pytest
-        run: ./scripts/test.sh
+    - uses: actions/checkout@v3
+    - name: Set up Python 3.9
+      uses: actions/setup-python@v3
+      with:
+        python-version: "3.9"
+    - name: Create python environment and install dependencies
+      run: ./scripts/install.sh
+    - name: Lint with flake8
+      run: |
+        pip install flake8
+        # stop the build if there are Python syntax errors or undefined names
+        flake8 brain_computer_interface/ --count --show-source --statistics
+        flake8 tests/ --count --show-source --statistics
+        flake8 setup.py --count --show-source --statistics
+    - name: Test with pytest
+      run: ./scripts/test.sh
