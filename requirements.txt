@@ -6,11 +6,13 @@ blinker==1.7.0
 certifi==2019.9.11
 chardet==3.0.4
 click==8.1.7
+coverage==7.3.2
 decorator==5.1.1
 distlib==0.3.7
 executing==1.0.0
 filelock==3.12.4
 flake8==5.0.4
+flake8-kwargs-spaces @ file:///home/saharg/self/the_unbearable_ease_of_programming/the-unbearable-ease-of-programming/scripts/flake8_kwargs_spaces-0.1.0-py3-none-any.whl#sha256=a617c4b1dd4a8ad0de8f8338af38e9ab1432b09fa8aa584d7f3237f6194e8aec
 Flask==3.0.0
 idna==2.8
 importlib-metadata==6.8.0
@@ -38,9 +40,11 @@ pyflakes==2.5.0
 Pygments==2.13.0
 pyparsing==2.4.2
 pytest==5.2.2
+pytest-cov==4.1.0
 requests==2.22.0
 six==1.12.0
 stack-data==0.5.0
+tomli==2.0.1
 traitlets==5.3.0
 urllib3==1.25.6
 virtualenv==20.24.5
