@@ -17,10 +17,8 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Create python environment and install dependencies
         run: ./scripts/install.sh
-      - name: Activate python environment
-        run: source .env/bin/activate
       - name: Test with pytest
-        run: python -m pytest --cov-report html --cov brain_computer_interface tests/
+        run: ./scripts/install.sh
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v3
         env:
