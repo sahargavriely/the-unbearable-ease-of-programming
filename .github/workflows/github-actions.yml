@@ -19,10 +19,8 @@ jobs:
         run: ./scripts/install.sh
       - name: Activate python environment
         run: source .env/bin/activate
-      - name: Display Python version
-        run: pytest --cov-report html --cov brain_computer_interface tests/
-      - name: Activate python environment
-        run: source .env/bin/activate
+      - name: Test with pytest
+        run: python -m pytest --cov-report html --cov brain_computer_interface tests/
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v3
         env:
