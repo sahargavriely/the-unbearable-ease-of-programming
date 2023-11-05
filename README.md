@@ -1,9 +1,13 @@
+[![codecov](https://codecov.io/gh/sahargavriely/the-unbearable-ease-of-programming/graph/badge.svg?token=W0V7MR7T8S)](https://codecov.io/gh/sahargavriely/the-unbearable-ease-of-programming)
+
 # brain-computer-interface
 
+A brain-computer-interface (BCI), a direct communication pathway between the brain's electrical activity and an external device, most commonly a computer or robotic limb.
 The following package allows to run two servers, a server which receives __thoughts__ and a webserver to make those accessible.
 The package also supplies a client to upload a __thoughts__.
 
-For further information take a look ate [full documentation](https://brain-computer-interface.readthedocs.io/en/latest/).
+
+For further information take a look at [full documentation](https://brain-computer-interface.readthedocs.io/en/latest/).
 
 
 ## Installation

@@ -1,4 +1,4 @@
-name: Python package
+name: Python package testing
 
 on: [push]
 
@@ -19,7 +19,3 @@ jobs:
         run: ./scripts/install.sh
       - name: Test with pytest
         run: ./scripts/test.sh
-      - name: Upload coverage reports to Codecov
-        uses: codecov/codecov-action@v3
-        env:
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
