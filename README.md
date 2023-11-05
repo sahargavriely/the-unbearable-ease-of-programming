@@ -11,9 +11,9 @@ For further information take a look ate [full documentation](https://brain-compu
 1. Clone the repository and enter it:
 
     ```sh
-    $ git clone git@github.com:sahargavriely/brain-computer-interface.git
+    $ git clone git@github.com:sahargavriely/the-unbearable-ease-of-programming.git
     ...
-    $ cd brain-computer-interface/
+    $ cd the-unbearable-ease-of-programming/
     ```
 
 2. Run the installation script and activate the virtual environment:

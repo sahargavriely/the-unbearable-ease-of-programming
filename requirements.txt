@@ -11,7 +11,7 @@ distlib==0.3.7
 executing==1.0.0
 filelock==3.12.4
 flake8==5.0.4
-flake8-kwargs-spaces @ file:///mnt/c/Users/saharg/d9ed/self/flake8-kwargs-spaces/wheels/flake8_kwargs_spaces-0.1.0-py3-none-any.whl#sha256=a617c4b1dd4a8ad0de8f8338af38e9ab1432b09fa8aa584d7f3237f6194e8aec
+flake8-kwargs-spaces @ file:///home/saharg/self/the_unbearable_ease_of_programming/the-unbearable-ease-of-programming/scripts/flake8_kwargs_spaces-0.1.0-py3-none-any.whl#sha256=a617c4b1dd4a8ad0de8f8338af38e9ab1432b09fa8aa584d7f3237f6194e8aec
 Flask==3.0.0
 idna==2.8
 importlib-metadata==6.8.0
