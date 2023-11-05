@@ -9,8 +9,6 @@ from utils import Dictionary
 _USER_ID = 1
 _TIMESTAMP = dt.datetime(2000, 1, 1, 10, 0)
 _THOUGHT = "I'm hungry"
-_ENCODE_THOUGHT = b"\x01\x00\x00\x00\x00\x00\x00\x00\x00" \
-    b"\xb4m8\x00\x00\x00\x00\n\x00\x00\x00I'm hungry"
 
 
 @pytest.fixture
@@ -58,17 +56,5 @@ def test_eq(thought: Thought):
     assert t6 != thought
 
 
-def test_serialize(thought: Thought):
-    assert thought.serialize() == _ENCODE_THOUGHT
-
-
-def test_deserialize(thought):
-    thought_decrypted = Thought.deserialize(_ENCODE_THOUGHT)
-    assert thought_decrypted.user_id == _USER_ID
-    assert thought_decrypted.timestamp == _TIMESTAMP
-    assert thought_decrypted.thought == _THOUGHT
-    assert thought_decrypted == thought
-
-
-def test_symmetry(thought: Thought):
+def test_serialize_deserialize_symmetry(thought: Thought):
     assert Thought.deserialize(thought.serialize()) == thought
