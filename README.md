@@ -7,7 +7,7 @@ The following package allows to run two servers, a server which receives __thoug
 The package also supplies a client to upload a __thoughts__.
 
 
-For further information take a look at [full documentation](https://brain-computer-interface.readthedocs.io/en/latest/).
+For further information take a look at [full documentation](https://the-unbearable-ease-of-programming.readthedocs.io/en/latest/).
 
 
 ## Installation

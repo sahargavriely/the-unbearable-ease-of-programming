@@ -38,7 +38,7 @@ def get_package_configuration():
         long_description_content_type = 'text/markdown',
         url = github_url,
         project_urls = {
-            'Documentation': github_url,
+            'Documentation': 'https://the-unbearable-ease-of-programming.readthedocs.io/en/latest/',
             'Source': github_url,
             'Tracker': f'{github_url}/issues',
         },

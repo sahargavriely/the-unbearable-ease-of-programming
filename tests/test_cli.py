@@ -42,7 +42,7 @@ def test_run_server(conf):
            '-d', str(conf.DATA_DIR)]
     process = subprocess.Popen(cmd, stdout=subprocess.PIPE)
     try:
-        time.sleep(0.2)
+        time.sleep(0.4)
         args = conf, conf.USER_20, conf.TIMESTAMP_20, conf.THOUGHT_20
         mock_upload_thought(*args)
         args = conf, conf.USER_22, conf.TIMESTAMP_22, conf.THOUGHT_22
