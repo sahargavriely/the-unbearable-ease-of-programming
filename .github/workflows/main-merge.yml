@@ -1,10 +1,9 @@
-name: Generate coverage report and docs
+name: Generate coverage report
 
 on:
   pull_request:
     types:
       - closed
-
 
 jobs:
   if_merged:
