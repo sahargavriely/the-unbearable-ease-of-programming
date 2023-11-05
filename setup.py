@@ -7,7 +7,8 @@ root = pathlib.Path(__file__).absolute().parent
 package_path = root / 'brain_computer_interface'
 readme_path = root / 'README.md'
 requirements_path = root / 'requirements.txt'
-github_url = 'https://github.com/sahargavriely/the-unbearable-ease-of-programming'
+github_url = 'https://github.com/sahargavriely/'
+'the-unbearable-ease-of-programming'
 
 
 def get_version():
@@ -33,12 +34,17 @@ def get_package_configuration():
         version = get_version(),
         author = 'Sahar Gavriely',
         author_email = 'gav6sa@gmail.com',
-        description = "A brain-computer-interface (BCI), a direct communication pathway between the brain's electrical activity and an external device, most commonly a computer or robotic limb.",
+        description = "A brain-computer-interface (BCI), a direct"
+                      "communication pathway between the brain's "
+                      "electrical activity and an external device, "
+                      "most commonly a computer or robotic limb.",
         long_description = get_documentation(),
         long_description_content_type = 'text/markdown',
         url = github_url,
         project_urls = {
-            'Documentation': 'https://the-unbearable-ease-of-programming.readthedocs.io/en/latest/',
+            'Documentation':
+                'https://the-unbearable-ease-of-programming.'
+                'readthedocs.io/en/latest/',
             'Source': github_url,
             'Tracker': f'{github_url}/issues',
         },
@@ -52,7 +58,8 @@ def get_package_configuration():
         install_requires = get_requirements(),
         entry_points = {
             'console_scripts': [
-                'brain_computer_interface = brain_computer_interface.__main__:main',
+                'brain_computer_interface = '
+                'brain_computer_interface.__main__:main',
             ],
         },
     )
