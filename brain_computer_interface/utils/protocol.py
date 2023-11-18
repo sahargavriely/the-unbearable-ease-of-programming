@@ -1,7 +1,17 @@
 from datetime import datetime
+from enum import Enum
 import struct
 
 from PIL import Image
+
+
+TYPE_FORMAT = '<I'
+TYPE_SIZE = struct.calcsize('<I')
+
+
+class Types(Enum):
+    MIND = 0
+    THOUGHT = 1
 
 
 ########################################################
@@ -34,8 +44,9 @@ class User:
 
     def serialize(self):
         return struct.pack(id_format, self.id) \
+            + struct.pack(name_len_format, len(self.name.encode())) \
             + self.name.encode() \
-            + struct.pack(b_day_format, self.b_day.timestamp()) \
+            + struct.pack(b_day_format, int(self.b_day.timestamp())) \
             + self.gender.encode()
 
     @classmethod
@@ -78,6 +89,15 @@ class Config:
 
 
 class Snapshot:
+    config = [
+        'timestamp',
+        'translation',
+        'rotation',
+        'color_image',
+        'depth_image',
+        'feelings',
+    ]
+
     def __init__(self, timestamp: datetime, translation, rotation, color_image: Image.Image, depth_image: Image.Image, feelings):
         self.timestamp = timestamp
         self.translation = translation
@@ -85,14 +105,6 @@ class Snapshot:
         self.color_image = color_image
         self.depth_image = depth_image
         self.feelings = feelings
-        self.config = [
-            'timestamp',
-            'translation',
-            'rotation',
-            'color_image',
-            'depth_image',
-            'feelings',
-        ]
 
     def set_default(self, key):
         if key == 'timestamp':
@@ -112,7 +124,7 @@ class Snapshot:
     def serialize(self):
         return struct.pack(timestamp_format, int(self.timestamp.timestamp() * 1000)) \
             + struct.pack(translation_format, *self.translation) \
-            + struct.pack(rotation_format, self.rotation) \
+            + struct.pack(rotation_format, *self.rotation) \
             + struct.pack(width_format, self.color_image.width) \
             + struct.pack(height_format, self.color_image.height) \
             + self.color_image.tobytes() \
@@ -126,11 +138,11 @@ class Snapshot:
         prefix = 0
         (timestamp, ), prefix = cut_and_decode(bytes, prefix, timestamp_format)
         timestamp = datetime.fromtimestamp(timestamp / 1000)
-        (translation, ), prefix = cut_and_decode(bytes, prefix, translation_format)
-        (rotation, ), prefix = cut_and_decode(bytes, prefix, rotation_format)
+        translation, prefix = cut_and_decode(bytes, prefix, translation_format)
+        rotation, prefix = cut_and_decode(bytes, prefix, rotation_format)
         color_image, prefix = image_cut_and_decode(bytes, prefix, 'RGB')
         depth_image, prefix = image_cut_and_decode(bytes, prefix, 'F')
-        (feelings, ), prefix = cut_and_decode(bytes, prefix, feelings_format)
+        feelings, prefix = cut_and_decode(bytes, prefix, feelings_format)
         return Snapshot(timestamp, translation, rotation, color_image, depth_image, feelings)
 
 
@@ -143,6 +155,8 @@ def cut_and_decode(bytes: bytes, prefix: int, format: str) -> tuple[tuple, int]:
 def image_cut_and_decode(bytes: bytes, prefix: int, mode: str) -> tuple[Image.Image, int]:
     (width, ), prefix = cut_and_decode(bytes, prefix, width_format)
     (height, ), prefix = cut_and_decode(bytes, prefix, height_format)
+    if not height or not width:
+        return Image.new(mode, (width, height)), prefix
     if mode == 'RGB':
         suffix = prefix + height * width * 3
         image_data = bytes[prefix: suffix]

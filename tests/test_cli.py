@@ -13,7 +13,7 @@ from utils import (
 
 
 def test_upload_thought(conf, get_message):
-    cmd = ['python', '-m', 'brain_computer_interface', 'upload-thought',
+    cmd = ['python', '-m', 'brain_computer_interface', 'client', 'upload-thought',
            '-h', conf.REQUEST_HOST, '-p', str(conf.SERVER_PORT),
            str(conf.USER_20), conf.THOUGHT_20]
     process = subprocess.Popen(cmd, stdout=subprocess.PIPE)
@@ -27,7 +27,7 @@ def test_upload_thought(conf, get_message):
 
 
 def test_upload_thought_error(conf):
-    cmd = ['python', '-m', 'brain_computer_interface', 'upload-thought',
+    cmd = ['python', '-m', 'brain_computer_interface', 'client', 'upload-thought',
            '-h', conf.REQUEST_HOST, '-p', str(conf.SERVER_PORT),
            str(conf.USER_20), conf.THOUGHT_20]
     process = subprocess.Popen(cmd, stdout=subprocess.PIPE)

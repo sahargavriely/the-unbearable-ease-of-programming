@@ -10,6 +10,9 @@ from .listener import Listener
 from .protocol import (
     Config,
     Snapshot,
+    TYPE_FORMAT,
+    TYPE_SIZE,
+    Types,
     User,
 )
 from .thought import Thought
@@ -26,5 +29,8 @@ __all__ = [
     'Snapshot',
     'WEBSERVER_PORT',
     'Thought',
+    'TYPE_FORMAT',
+    'TYPE_SIZE',
+    'Types',
     'User',
 ]

@@ -7,12 +7,16 @@ import threading
 import time
 
 from brain_computer_interface import run_server, run_webserver
+from brain_computer_interface.utils import (
+    TYPE_FORMAT,
+    TYPE_SIZE,
+    Types,
+)
 
 
 _SERVER_BACKLOG = 1000
 _HEADER_FORMAT = 'LLI'
 _HEADER_SIZE = struct.calcsize(_HEADER_FORMAT)
-
 
 class Dictionary(dict):
 
@@ -80,6 +84,8 @@ def _run_mock_server(conf, pipe):
 
 def _handle_connection(connection, pipe):
     with connection:
+        protocol_type = _receive_all(connection, TYPE_SIZE)  # ignore for now
+        protocol_type, = struct.unpack(TYPE_FORMAT, protocol_type)  # ignore for now
         header_data = _receive_all(connection, _HEADER_SIZE)
         user_id, timestamp, size = struct.unpack(_HEADER_FORMAT, header_data)
         data = _receive_all(connection, size)
@@ -114,8 +120,9 @@ def mock_upload_thought(conf, user_id, timestamp, thought):
 
 
 def _serialize_thought(user_id, timestamp, thought):
+    protocol_type = struct.pack(TYPE_FORMAT, Types.THOUGHT.value)
     header = struct.pack(_HEADER_FORMAT, user_id, timestamp, len(thought))
-    return header + thought.encode()
+    return protocol_type + header + thought.encode()
 
 
 def _get_path(dir, user_id, timestamp):
