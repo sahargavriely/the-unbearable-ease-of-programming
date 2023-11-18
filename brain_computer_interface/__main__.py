@@ -48,6 +48,25 @@ def error_():
 
 
 @main.command()
+@click.argument('path', type=Path)
+def read(path):
+    reader = brain_computer_interface.Reader(path)
+    gender = 'male' if reader.user_gender == 'm' else 'female' if reader.user_gender == 'f' else 'other'
+    print(
+        f'User {reader.user_id}: {reader.username},',
+        f'born {reader.user_b_day:%B %d, %Y} ({gender})'
+    )
+    timestamp_format = '%B %d, %Y at %T.%f'
+    for snapshot in reader:
+        print(
+            f'{snapshot.timestamp.strftime(timestamp_format)[:-3]}',
+            f'on {snapshot.translation} / {snapshot.rotation}',
+            f'with a {snapshot.color_image.width}X{snapshot.color_image.height} color image',
+            f'and a {snapshot.depth_image.width}X{snapshot.depth_image.height} depth image'
+        )
+
+
+@main.command()
 @click.argument('user_id', type=int)
 @click.argument('thought', type=str)
 @click.option('-h', '--host', type=str, default=REQUEST_HOST)
