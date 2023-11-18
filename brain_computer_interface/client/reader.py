@@ -5,21 +5,22 @@ import struct
 
 from PIL import Image
 
-from .snapshot import (
-    timestamp_format,
-    translation_format,
-    rotation_format,
-    height_format,
-    width_format,
-    pixel_format,
-    feelings_format,
+from ..utils import (
     Snapshot,
+    User,
 )
 
 
 id_format = '<Q'
-username_len_format = '<I'
+name_len_format = '<I'
 b_day_format = '<I'
+timestamp_format = '<Q'
+translation_format = '<ddd'
+rotation_format = '<dddd'
+height_format = '<I'
+width_format = '<I'
+pixel_format = '<f'
+feelings_format = '<ffff'
 
 
 class Reader:
@@ -30,17 +31,12 @@ class Reader:
 
     def read_user(self):
         with self as file:
-            self.user_id, = read_and_decode(file, id_format)
-            username_len, = read_and_decode(file, username_len_format)
-            self.username = file.read(username_len).decode()
-            self.user_b_day = datetime.fromtimestamp(read_and_decode(file, b_day_format)[0])
-            self.user_gender = file.read(1).decode()
-
-    def serialize_user(self):
-        return struct.pack(id_format, self.user_id) \
-            + self.username.encode() \
-            + struct.pack(b_day_format, self.user_b_day.timestamp()) \
-            + self.user_gender.encode()
+            id, = read_and_decode(file, id_format)
+            name_len, = read_and_decode(file, name_len_format)
+            name = file.read(name_len).decode()
+            b_day = datetime.fromtimestamp(read_and_decode(file, b_day_format)[0])
+            gender = file.read(1).decode()
+        self.user = User(id, name, b_day, gender)
 
     def __iter__(self):
         return self

@@ -1,5 +1,5 @@
 from .client import upload_thought
-from .client.utils import Reader
+from .client import Reader
 from .server import run_server
 from .webserver import run_webserver
 from .utils import Thought

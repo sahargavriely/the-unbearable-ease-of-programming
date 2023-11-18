@@ -1,4 +1,10 @@
-from .client import upload_thought
+from .client import (
+    Reader,
+    upload_thought,
+)
 
 
-__all__ = ['upload_thought']
+__all__ = [
+    'Reader',
+    'upload_thought',
+]

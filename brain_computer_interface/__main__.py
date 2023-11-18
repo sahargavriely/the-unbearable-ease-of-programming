@@ -51,10 +51,10 @@ def error_():
 @click.argument('path', type=Path)
 def read(path):
     reader = brain_computer_interface.Reader(path)
-    gender = 'male' if reader.user_gender == 'm' else 'female' if reader.user_gender == 'f' else 'other'
+    gender = 'male' if reader.user.gender == 'm' else 'female' if reader.user.gender == 'f' else 'other'
     print(
-        f'User {reader.user_id}: {reader.username},',
-        f'born {reader.user_b_day:%B %d, %Y} ({gender})'
+        f'User {reader.user.id}: {reader.user.name},',
+        f'born {reader.user.b_day:%B %d, %Y} ({gender})'
     )
     timestamp_format = '%B %d, %Y at %T.%f'
     for snapshot in reader:
