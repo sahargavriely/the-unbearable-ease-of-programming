@@ -29,12 +29,12 @@ def test_repr(thought: Thought):
 
 def test_str(thought: Thought):
     assert thought.__str__() == \
-        f'[{_TIMESTAMP:%Y-%m-%d %H:%M:%S}] user {_USER_ID}: {_THOUGHT}'
+        f'[{_TIMESTAMP:%F %T}] user {_USER_ID}: {_THOUGHT}'
 
 
 def test_file_format(thought: Thought):
     assert thought.file_formatted_timestamp == \
-        f'{_TIMESTAMP:%Y-%m-%d_%H-%M-%S}'
+        f'{_TIMESTAMP:%F_%H-%M-%S}'
 
 
 def test_eq(thought: Thought):

@@ -120,4 +120,4 @@ def _serialize_thought(user_id, timestamp, thought):
 
 def _get_path(dir, user_id, timestamp):
     datetime = dt.datetime.fromtimestamp(timestamp)
-    return dir / f'{user_id}/{datetime:%Y-%m-%d_%H-%M-%S}.txt'
+    return dir / f'{user_id}/{datetime:%F_%H-%M-%S}.txt'
