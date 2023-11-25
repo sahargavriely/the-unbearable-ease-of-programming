@@ -73,6 +73,8 @@ def read_and_decode(file: BufferedReader, format: str):
 def read_and_decode_image(file: BufferedReader, mode: str):
     height, = read_and_decode(file, height_format)
     width, = read_and_decode(file, width_format)
+    if not height or not width:
+        return Image.new(mode, (width, height))
     image_data = b''
     if mode == 'RGB':
         image_data = list()
