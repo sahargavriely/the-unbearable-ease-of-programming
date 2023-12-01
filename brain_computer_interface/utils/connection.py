@@ -2,11 +2,10 @@ import socket
 import struct
 
 
-length_format = '<I'
-length_size = struct.calcsize(length_format)
-
-
 class Connection:
+    length_format = '<I'
+    length_size = struct.calcsize(length_format)
+
     def __init__(self, socket: socket.socket):
         self._socket = socket
 
@@ -34,7 +33,7 @@ class Connection:
         self._socket.sendall(data)
 
     def send_length_follow_by_value(self, data: bytes):
-        self.send(struct.pack(length_format, len(data)))
+        self.send(struct.pack(self.length_format, len(data)))
         self.send(data)
 
     def receive(self, size: int):
@@ -48,7 +47,8 @@ class Connection:
         return b''.join(chunks)
 
     def receive_length_follow_by_value(self):
-        value_length, = struct.unpack(length_format, self.receive(length_size))
+        value_length, = struct.unpack(
+            self.length_format, self.receive(self.length_size))
         return self.receive(value_length)
 
     def close(self):

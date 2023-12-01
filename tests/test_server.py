@@ -1,41 +1,44 @@
+import datetime as dt
 import socket
 import time
 
 from utils import (
-    _get_path,
+    mock_upload_mind,
     mock_upload_thought,
+    _get_path,
     _serialize_thought,
 )
 
 
-def test_user_id(conf, server):
+def test_mind(conf, server, user, snapshot):
+    datetime = dt.datetime.fromtimestamp(snapshot.datetime / 1000)
+    mind_path = conf.DATA_DIR / f'{user.id}/{datetime:%F_%H-%M-%S-%f}'
+    assert not mind_path.exists()
+    mock_upload_mind(conf, user, snapshot)
+    user_dir = conf.DATA_DIR / str(user.id)
+    assert user_dir.exists()
+    assert user_dir.is_dir()
+    assert mind_path.exists()
+    assert mind_path.is_dir()
+
+
+def test_thought(conf, server):
+    thought_path = _get_path(conf.DATA_DIR, conf.USER_20, conf.TIMESTAMP_20)
+    assert not thought_path.exists()
     mock_upload_thought(conf, conf.USER_20, conf.TIMESTAMP_20, conf.THOUGHT_20)
     user_dir = conf.DATA_DIR / str(conf.USER_20)
     assert user_dir.exists()
     assert user_dir.is_dir()
-    mock_upload_thought(conf, conf.USER_22, conf.TIMESTAMP_20, conf.THOUGHT_20)
+    assert thought_path.exists()
+    assert thought_path.read_text() == conf.THOUGHT_20
+
+    thought_path = _get_path(conf.DATA_DIR, conf.USER_22, conf.TIMESTAMP_22)
+    assert not thought_path.exists()
+    mock_upload_thought(conf, conf.USER_22, conf.TIMESTAMP_22, conf.THOUGHT_22)
     user_dir = conf.DATA_DIR / str(conf.USER_22)
     assert user_dir.exists()
     assert user_dir.is_dir()
-
-
-def test_timestamp(conf, server):
-    thought_path = _get_path(conf.DATA_DIR, conf.USER_20, conf.TIMESTAMP_20)
-    assert not thought_path.exists()
-    mock_upload_thought(conf, conf.USER_20, conf.TIMESTAMP_20, conf.THOUGHT_20)
     assert thought_path.exists()
-    thought_path = _get_path(conf.DATA_DIR, conf.USER_20, conf.TIMESTAMP_22)
-    assert not thought_path.exists()
-    mock_upload_thought(conf, conf.USER_20, conf.TIMESTAMP_22, conf.THOUGHT_20)
-    assert thought_path.exists()
-
-
-def test_thought(conf, server):
-    mock_upload_thought(conf, conf.USER_20, conf.TIMESTAMP_20, conf.THOUGHT_20)
-    thought_path = _get_path(conf.DATA_DIR, conf.USER_20, conf.TIMESTAMP_20)
-    assert thought_path.read_text() == conf.THOUGHT_20
-    mock_upload_thought(conf, conf.USER_22, conf.TIMESTAMP_22, conf.THOUGHT_22)
-    thought_path = _get_path(conf.DATA_DIR, conf.USER_22, conf.TIMESTAMP_22)
     assert thought_path.read_text() == conf.THOUGHT_22
 
 

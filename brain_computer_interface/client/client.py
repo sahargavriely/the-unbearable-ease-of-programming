@@ -1,26 +1,23 @@
 import datetime as dt
-from pathlib import Path
 from struct import pack
 
-from .reader import Reader
-from ..utils import (
+from ..protocol import (
     Config,
+    Types,
+    TYPE_FORMAT,
+)
+from ..reader import Reader
+from ..utils import (
     Connection,
     REQUEST_HOST,
     SERVER_PORT,
     Thought,
-    TYPE_FORMAT,
-    Types,
 )
 
 
-def upload_mind(path: Path, host: str = REQUEST_HOST, port: int = SERVER_PORT):
+def upload_mind(path: str, host: str = REQUEST_HOST, port: int = SERVER_PORT):
     reader = Reader(path)
-    i = 0
     for snapshot in reader:
-        if i == 2:
-            break
-        i += 1
         # we are opening new connection on every snapshot to simulate a real scenario
         with Connection.connect(host, port) as connection:
             _send_type(connection, Types.MIND)

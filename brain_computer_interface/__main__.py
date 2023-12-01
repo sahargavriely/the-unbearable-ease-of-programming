@@ -51,22 +51,12 @@ def error_():
 
 
 @main.command()
-@click.argument('path', type=Path)
+@click.argument('path', type=str)
 def read(path):
     reader = brain_computer_interface.Reader(path)
-    gender = 'male' if reader.user.gender == 'm' else 'female' if reader.user.gender == 'f' else 'other'
-    print(
-        f'User {reader.user.id}: {reader.user.name},',
-        f'born {reader.user.b_day:%B %d, %Y} ({gender})'
-    )
-    timestamp_format = '%B %d, %Y at %T.%f'
+    print(reader.user)
     for snapshot in reader:
-        print(
-            f'{snapshot.timestamp.strftime(timestamp_format)[:-3]}',
-            f'on {snapshot.translation} / {snapshot.rotation}',
-            f'with a {snapshot.color_image.width}X{snapshot.color_image.height} color image',
-            f'and a {snapshot.depth_image.width}X{snapshot.depth_image.height} depth image'
-        )
+        print(snapshot)
 
 
 @main.group()
@@ -75,7 +65,7 @@ def client():
 
 
 @client.command()
-@click.argument('path', type=Path)
+@click.argument('path', type=str)
 @click.option('-h', '--host', type=str, default=REQUEST_HOST)
 @click.option('-p', '--port', type=int, default=SERVER_PORT)
 def upload_mind(host, port, path):

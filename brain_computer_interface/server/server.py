@@ -1,24 +1,26 @@
 import contextlib
+import datetime as dt
 from pathlib import Path
 import socket
 import struct
 import threading
 
-from .parser import Parser
-from .parsers import parsers
+from ..parser import Parser
+from ..protocol import (
+    Config,
+    Snapshot,
+    Types,
+    TYPE_FORMAT,
+    TYPE_FORMAT_SIZE,
+    User,
+)
 from ..utils import (
     Connection,
-    Config,
     DATA_DIR,
     Listener,
     LISTEN_HOST,
     SERVER_PORT,
-    Snapshot,
     Thought,
-    TYPE_FORMAT,
-    TYPE_SIZE,
-    Types,
-    User,
 )
 
 
@@ -26,8 +28,6 @@ def run_server(host: str = LISTEN_HOST, port: int = SERVER_PORT, data_dir: Path 
     lock = threading.Lock()
     
     parser = Parser(data_dir=data_dir)
-    for parser_name, obj in parsers:
-        parser(parser_name)(obj)
 
     with Listener(port, host) as listener:
         while True:
@@ -58,10 +58,11 @@ def _handle_connection(lock: threading.Lock, connection: Connection, data_dir: P
 
 def _recive_mind(connection: Connection, lock, data_dir: Path, parser: Parser):
     user = User.from_bytes(connection.receive_length_follow_by_value())
-    config_request = Config(['timestamp', *parser.parsers.keys()])
+    config_request = Config(['datetime', *parser.parsers.keys()])
     connection.send_length_follow_by_value(config_request.serialize())
     snapshot = Snapshot.from_bytes(connection.receive_length_follow_by_value())
-    cur_user_dir = data_dir / str(user.id) / f'{snapshot.timestamp:%F_%H-%M-%S-%f}'
+    datetime = dt.datetime.fromtimestamp(snapshot.datetime / 1000)
+    cur_user_dir = data_dir / str(user.id) / f'{datetime:%F_%H-%M-%S-%f}'
     with lock:
         cur_user_dir.mkdir(parents=True, exist_ok=True)
         parser.parse(cur_user_dir, snapshot)
@@ -89,6 +90,6 @@ def _handle_thought(data_dir: Path, thought: Thought):
 
 
 def _receive_type(connection: Connection):
-    protocol_type = connection.receive(TYPE_SIZE)
+    protocol_type = connection.receive(TYPE_FORMAT_SIZE)
     protocol_type, = struct.unpack(TYPE_FORMAT, protocol_type)
     return protocol_type

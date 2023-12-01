@@ -1,8 +1,8 @@
-from .client import upload_thought
 from .client import (
-    Reader,
+    upload_thought,
     upload_mind,
 )
+from .reader import Reader
 from .server import run_server
 from .webserver import run_webserver
 from .utils import Thought

@@ -7,16 +7,19 @@ import threading
 import time
 
 from brain_computer_interface import run_server, run_webserver
-from brain_computer_interface.utils import (
+from brain_computer_interface.protocol import (
     TYPE_FORMAT,
-    TYPE_SIZE,
+    TYPE_FORMAT_SIZE,
     Types,
 )
+from brain_computer_interface.protocol import Config, Snapshot, User
+from brain_computer_interface.utils.connection import Connection
 
 
 _SERVER_BACKLOG = 1000
-_HEADER_FORMAT = 'LLI'
+_HEADER_FORMAT = '<QQI'
 _HEADER_SIZE = struct.calcsize(_HEADER_FORMAT)
+
 
 class Dictionary(dict):
 
@@ -84,13 +87,50 @@ def _run_mock_server(conf, pipe):
 
 def _handle_connection(connection, pipe):
     with connection:
-        protocol_type = _receive_all(connection, TYPE_SIZE)  # ignore for now
-        protocol_type, = struct.unpack(TYPE_FORMAT, protocol_type)  # ignore for now
-        header_data = _receive_all(connection, _HEADER_SIZE)
-        user_id, timestamp, size = struct.unpack(_HEADER_FORMAT, header_data)
-        data = _receive_all(connection, size)
-        thought = data.decode()
-        pipe.send([user_id, timestamp, thought])
+        protocol_type = _receive_all(connection, TYPE_FORMAT_SIZE)
+        protocol_type, = struct.unpack(TYPE_FORMAT, protocol_type)
+        if protocol_type == Types.MIND.value:
+            _receive_mind(connection, pipe)
+        elif protocol_type == Types.THOUGHT.value:
+            _receive_thought(connection, pipe)
+        else:
+            pass
+
+
+def _receive_mind(connection, pipe):
+    user = _receive_user(connection)
+    _send_config(connection, Config(Snapshot.config[:-1]))
+    snapshot = _receive_snapshot(connection)
+    pipe.send([user.serialize(), snapshot.serialize(), Snapshot.config[-1]])
+
+
+def _receive_user(connection) -> User:
+    decoded_user_length = _receive_all(connection, Connection.length_size)
+    user_length, = struct.unpack(
+        Connection.length_format, decoded_user_length)
+    return User.from_bytes(_receive_all(connection, user_length))
+
+
+def _receive_snapshot(connection) -> Snapshot:
+    decoded_snapshot_length = _receive_all(connection, Connection.length_size)
+    snapshot_length, = struct.unpack(
+        Connection.length_format, decoded_snapshot_length)
+    return Snapshot.from_bytes(_receive_all(connection, snapshot_length))
+
+
+def _send_config(connection, config: Config):
+    config_data = config.serialize()
+    config_len = struct.pack(Connection.length_format, len(config_data))
+    connection.sendall(config_len)
+    connection.sendall(config_data)
+
+
+def _receive_thought(connection, pipe):
+    header_data = _receive_all(connection, _HEADER_SIZE)
+    user_id, timestamp, size = struct.unpack(_HEADER_FORMAT, header_data)
+    data = _receive_all(connection, size)
+    thought = data.decode()
+    pipe.send([user_id, timestamp, thought])
 
 
 def _receive_all(connection, size):
@@ -109,6 +149,20 @@ def _assert_now(timestamp):
     assert abs(now - timestamp) < 5
 
 
+def mock_upload_mind(conf, user: User, snapshot: Snapshot):
+    with socket.socket() as connection:
+        time.sleep(0.1)  # Wait for server to start listening.
+        connection.settimeout(2)
+        connection.connect((conf.REQUEST_HOST, conf.SERVER_PORT))
+        connection.sendall(_serialize_user(user))
+        config = _receive_config(connection)
+        for c in snapshot.config:
+            if c not in config:
+                snapshot.set_default(c)
+        connection.sendall(_serialize_snapshot(snapshot))
+    time.sleep(0.2)  # Wait for server to write thought.
+
+
 def mock_upload_thought(conf, user_id, timestamp, thought):
     message = _serialize_thought(user_id, timestamp, thought)
     with socket.socket() as connection:
@@ -117,6 +171,26 @@ def mock_upload_thought(conf, user_id, timestamp, thought):
         connection.connect((conf.REQUEST_HOST, conf.SERVER_PORT))
         connection.sendall(message)
     time.sleep(0.2)  # Wait for server to write thought.
+
+
+def _serialize_user(user):
+    protocol_type = struct.pack(TYPE_FORMAT, Types.MIND.value)
+    user_data = user.serialize()
+    user_data_len = struct.pack(Connection.length_format, len(user_data))
+    return protocol_type + user_data_len + user_data
+
+
+def _serialize_snapshot(snapshot):
+    snapshot_data = snapshot.serialize()
+    snapshot_data_len = struct.pack(Connection.length_format, len(snapshot_data))
+    return snapshot_data_len + snapshot_data
+
+
+def _receive_config(connection) -> Config:
+    decoded_config_length = _receive_all(connection, Connection.length_size)
+    config_length, = struct.unpack(
+        Connection.length_format, decoded_config_length)
+    return Config.from_bytes(_receive_all(connection, config_length))
 
 
 def _serialize_thought(user_id, timestamp, thought):
