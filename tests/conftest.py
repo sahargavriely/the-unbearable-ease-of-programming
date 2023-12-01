@@ -1,13 +1,38 @@
-
 import datetime as dt
+import gzip
 from pathlib import Path
 import multiprocessing
 import shutil
+from struct import pack
+import time
 
 import pytest
 
-from brain_computer_interface.utils import config
-
+from brain_computer_interface.reader.drivers import (
+    length_format,
+    id_format,
+    name_len_format,
+    birthday_format,
+    datetime_format,
+    translation_format,
+    rotation_format,
+    height_format,
+    width_format,
+    pixel_format,
+    feelings_format,
+)
+from brain_computer_interface.protocol import (
+    DepthImage,
+    ColorImage,
+    Config,
+    Feelings,
+    Pose,
+    Rotation,
+    Snapshot,
+    Translation,
+    User,
+)
+from brain_computer_interface.utils import config as config_module
 from utils import (
     Dictionary,
     _run_server,
@@ -15,6 +40,10 @@ from utils import (
     _run_mock_server,
     _serve_thread,
 )
+
+
+##########################################################################
+# Configuration
 
 
 @pytest.fixture(scope='session')
@@ -54,13 +83,111 @@ def conf(patch_conf, other_conf):
 @pytest.fixture(autouse=True)
 def patch(monkeypatch, patch_conf):
     for key, value in patch_conf.items():
-        monkeypatch.setattr(config, key, value)
+        monkeypatch.setattr(config_module, key, value)
 
 
 @pytest.fixture(autouse=True)
 def clean_db(conf):
     if conf.DATA_DIR.exists():
         shutil.rmtree(str(conf.DATA_DIR))
+
+
+##########################################################################
+# Protocol
+
+
+@pytest.fixture(scope='module')
+def config():
+    return Config(
+        Snapshot.config
+    )
+
+
+@pytest.fixture(scope='module')
+def snapshot():
+    return Snapshot(
+        int(time.time() * 1000),
+        Pose(
+            Translation(.1, .2, .3),
+            Rotation(.1, .2, .3, .4)
+        ),
+        ColorImage(1, 1, b'\x00\x00\x00'),
+        DepthImage(1, 1, [.5]),
+        Feelings(.1, .2, .3, .4)
+    )
+
+
+@pytest.fixture(scope='module')
+def user():
+    return User(
+        1,
+        'Sahar Gavriely',
+        int(dt.datetime.strptime('June 6, 1994', '%B %d, %Y').timestamp()),
+        0
+    )
+
+
+##########################################################################
+# Reader
+
+
+@pytest.fixture(scope='module')
+def mind_dir(tmp_path_factory):
+    return tmp_path_factory.mktemp('minds')
+
+
+@pytest.fixture(scope='module')
+def mind_file(mind_dir: Path, user: User, snapshot: Snapshot):
+    file = mind_dir / 'sample.mind'
+    file.touch(0o777)
+    user_bytes = list()
+    user_bytes.append(pack(id_format, user.id))
+    name = user.name.encode()
+    user_bytes.append(pack(name_len_format, len(name)))
+    user_bytes.append(name)
+    user_bytes.append(pack(birthday_format, user.birthday))
+    gender = 'm' if user.gender == 0 else 'f' if user.gender == 1 else 'o'
+    user_bytes.append(gender.encode())
+    snapshot_bytes = list()
+    snapshot_bytes.append(pack(datetime_format, snapshot.datetime))
+    tran = snapshot.pose.translation
+    translation = tran.x, tran.y, tran.z
+    snapshot_bytes.append(pack(translation_format, *translation))
+    rot = snapshot.pose.rotation
+    rotation = rot.x, rot.y, rot.z, rot.w
+    snapshot_bytes.append(pack(rotation_format, *rotation))
+    snapshot_bytes.append(pack(height_format, snapshot.color_image.height))
+    snapshot_bytes.append(pack(width_format, snapshot.color_image.width))
+    snapshot_bytes.append(snapshot.color_image.data)
+    snapshot_bytes.append(pack(height_format, snapshot.depth_image.height))
+    snapshot_bytes.append(pack(width_format, snapshot.depth_image.width))
+    depth_data = list()
+    for pixel in snapshot.depth_image.data:
+        depth_data.append(pack(pixel_format, pixel))
+    snapshot_bytes.append(b''.join(depth_data))
+    feels = snapshot.feelings
+    feelings = feels.hunger, feels.thirst, feels.exhaustion, feels.happiness
+    snapshot_bytes.append(pack(feelings_format, *feelings))
+    with file.open('wb') as f:
+        f.write(b''.join(user_bytes))
+        f.write(b''.join(snapshot_bytes))
+    return file
+
+
+@pytest.fixture(scope='module')
+def compressed_mind_file(mind_dir: Path, user: User, snapshot: Snapshot):
+    file = mind_dir / 'sample.mind.gz'
+    file.touch(0o777)
+    with gzip.open(str(file), 'wb') as f:
+        f.write(pack(length_format, len(user.serialize())))
+        f.write(user.serialize())
+        f.write(pack(length_format, len(snapshot.serialize())))
+        f.write(snapshot.serialize())
+    return file
+
+
+##########################################################################
+# Servers
 
 
 @pytest.fixture(scope='module')

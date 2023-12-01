@@ -1,4 +1,5 @@
 import socket
+import struct
 import time
 
 import pytest
@@ -57,11 +58,33 @@ def test_send(server):
     assert b''.join(chunks) == _DATA
 
 
+def test_send_length_follow_by_value(server):
+    connection = Connection.connect(_HOST, _PORT)
+    with connection:
+        client, _ = server.accept()
+        connection.send_length_follow_by_value(_DATA)
+    chunks = []
+    while True:
+        chunk = client.recv(4096)
+        if not chunk:
+            break
+        chunks.append(chunk)
+    assert b''.join(chunks)[Connection.length_size:] == _DATA
+
+
 def test_receive(server):
     with Connection.connect(_HOST, _PORT) as connection:
         client, _ = server.accept()
         client.sendall(_DATA)
         assert connection.receive(len(_DATA)) == _DATA
+
+
+def test_receive_length_follow_by_value(server):
+    with Connection.connect(_HOST, _PORT) as connection:
+        client, _ = server.accept()
+        client.sendall(struct.pack(Connection.length_format, len(_DATA)))
+        client.sendall(_DATA)
+        assert connection.receive_length_follow_by_value() == _DATA
 
 
 def test_incomplete_data(server, connection: Connection):

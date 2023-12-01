@@ -12,6 +12,7 @@ Welcome to brain-computer-interface's documentation!
 
    api
    cli
+   mind_file
 
 Indices and tables
 ==================

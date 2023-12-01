@@ -3,8 +3,8 @@ import struct
 
 
 class Thought:
-    _str_format = '%Y-%m-%d %H:%M:%S'
-    _file_format = '%Y-%m-%d_%H-%M-%S'
+    _str_format = '%F %T'
+    _file_format = '%F_%H-%M-%S'
     header_format = '<QQI'
     header_size = struct.calcsize(header_format)
 

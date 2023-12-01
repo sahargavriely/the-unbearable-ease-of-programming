@@ -11,7 +11,7 @@ def user_dir(conf):
     user_dir = conf.DATA_DIR / str(conf.USER_20)
     user_dir.mkdir()
     datetime = dt.datetime.fromtimestamp(conf.TIMESTAMP_20)
-    thought_file = user_dir / f'{datetime:%Y-%m-%d_%H-%M-%S}.txt'
+    thought_file = user_dir / f'{datetime:%F_%H-%M-%S}.txt'
     thought_file.write_text(conf.THOUGHT_20)
     yield user_dir
 
@@ -30,7 +30,7 @@ def test_user(webserver, conf, user_dir):
     response = requests.get(f'{conf.WEBSERVER_URL}/users/{user_dir.name}')
     assert f'User {user_dir.name}' in response.text
     datetime = dt.datetime.fromtimestamp(conf.TIMESTAMP_20)
-    assert f'{datetime:%Y-%m-%d %H:%M:%S}' in response.text
+    assert f'{datetime:%F %T}' in response.text
     assert conf.THOUGHT_20 in response.text
 
 

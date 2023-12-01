@@ -26,7 +26,10 @@ class Log:
         if self.quiet:
             return
         if self.traceback and sys.exc_info():  # there's an active exception
-            message += os.linesep + traceback.format_exc().strip()
+            trace = traceback.format_exc().strip()
+            if trace != 'NoneType: None':
+                message = message or ''
+                message += os.linesep + trace
         click.echo(message)
 
 
@@ -48,6 +51,28 @@ def error_():
 
 
 @main.command()
+@click.argument('path', type=str)
+def read(path):
+    reader = brain_computer_interface.Reader(path)
+    print(reader.user)
+    for snapshot in reader:
+        print(snapshot)
+
+
+@main.group()
+def client():
+    pass
+
+
+@client.command()
+@click.argument('path', type=str)
+@click.option('-h', '--host', type=str, default=REQUEST_HOST)
+@click.option('-p', '--port', type=int, default=SERVER_PORT)
+def upload_mind(host, port, path):
+    log(brain_computer_interface.upload_mind(path, host, port))
+
+
+@client.command()
 @click.argument('user_id', type=int)
 @click.argument('thought', type=str)
 @click.option('-h', '--host', type=str, default=REQUEST_HOST)

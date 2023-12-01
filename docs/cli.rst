@@ -32,7 +32,7 @@ To see the version, do the following:
 
 
 The ``run-server`` Command
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+--------------------------
 
 Runs the server which listens to thoughts.
 
@@ -50,7 +50,7 @@ Options:
 
 
 The ``run-webserver`` Command
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-----------------------------
 
 Runs the webserver which makes the users' thoughts accessible.
 
@@ -67,14 +67,64 @@ Options:
 - ``--help``                   Show similar message and exit.
 
 
-The ``upload-thought`` Command
+.. _target to read:
+
+The ``read`` Command
+----------------------
+
+Receives :ref:`mind file <target to mind file>` and prints its contents in a humanly fashion.
+
+.. code:: bash
+
+    $ python -m brain_computer_interface read [OPTIONS] PATH
+
+Options:
+- ``--help``                  Show similar message and exit.
+
+
+The ``client`` Command
+----------------------
+
+Receives user id and though, and uploads it to the server.
+
+.. code:: bash
+
+    $ python -m brain_computer_interface client [OPTIONS] SUBCOMMAND [ARGS]...
+
+Options:
+- ``--help``                  Show similar message and exit.
+
+Commands:
+-  ``upload-mind``
+-  ``upload-thought``
+
+
+.. _target to upload-mind:
+
+The ``upload-mind`` subcommand
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Receives :ref:`mind file <target to mind file>`, and uploads it to the server.
+
+.. code:: bash
+
+    $ python -m brain_computer_interface client upload-mind [OPTIONS] PATH
+
+Options:
+
+- ``-h``, ``--host`` TEXT     [default: 127.0.0.1]
+- ``-p``, ``--port`` INTEGER  [default: 5000]
+- ``--help``                  Show similar message and exit.
+
+
+The ``upload-thought`` subcommand
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Receives user id and though, and uploads it to the server.
 
 .. code:: bash
 
-    $ python -m brain_computer_interface upload-thought [OPTIONS] USER_ID THOUGHT
+    $ python -m brain_computer_interface client upload-thought [OPTIONS] USER_ID THOUGHT
 
 Options:
 
@@ -84,7 +134,7 @@ Options:
 
 
 The ``error`` Command
-~~~~~~~~~~~~~~~~~~~~~~~~
+---------------------
 
 Raises an exception and prints it to the screen.
 
