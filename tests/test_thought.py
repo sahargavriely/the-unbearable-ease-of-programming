@@ -6,6 +6,7 @@ from brain_computer_interface.utils import Thought
 
 from utils import Dictionary
 
+
 _USER_ID = 1
 _TIMESTAMP = dt.datetime(2000, 1, 1, 10, 0)
 _THOUGHT = "I'm hungry"
