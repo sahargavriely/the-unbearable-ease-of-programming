@@ -186,7 +186,6 @@ def compressed_mind_file(mind_dir: Path, user: User, snapshot: Snapshot):
     return file
 
 
-
 ##########################################################################
 # Servers
 

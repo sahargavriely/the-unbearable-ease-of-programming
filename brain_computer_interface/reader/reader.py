@@ -1,5 +1,3 @@
-import os
-
 from .drivers import drivers
 from ..protocol import Snapshot
 

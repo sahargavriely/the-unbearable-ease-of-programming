@@ -36,9 +36,11 @@ def collect_driver(extension):
     if inspect.isclass(extension):
         drivers['default'] = extension
         return extension
+
     def decorator(cls):
         drivers[extension] = cls
         return cls
+
     return decorator
 
 
@@ -54,7 +56,7 @@ class Compressed:
         length, = read_and_decode(file, length_format)
         encoded_user = file.read(length)
         return User.from_bytes(encoded_user)
-    
+
     def read_snapshot(self, file: gzip.GzipFile) -> Snapshot:
         length, = read_and_decode(file, length_format)
         encoded_snapshot = file.read(length)
@@ -81,7 +83,7 @@ class Default:
     def read_snapshot(self, file: BufferedReader) -> Snapshot:
         datetime, = read_and_decode(file, datetime_format)
         pose = Pose(Translation(*read_and_decode(file, translation_format)),
-                Rotation(*read_and_decode(file, rotation_format)))
+                    Rotation(*read_and_decode(file, rotation_format)))
         color_image = ColorImage(*read_and_decode_color_image(file))
         depth_image = DepthImage(*read_and_decode_depth_image(file))
         feelings = Feelings(*read_and_decode(file, feelings_format))
@@ -105,7 +107,8 @@ def read_and_decode_height_and_width(file: BufferedReader) -> tuple[int, int]:
     return width, height
 
 
-def read_and_decode_depth_image(file: BufferedReader) -> tuple[int, int, list[float]]:
+def read_and_decode_depth_image(
+        file: BufferedReader) -> tuple[int, int, list[float]]:
     width, height = read_and_decode_height_and_width(file)
     data = list()
     for _ in range(height * width):
@@ -114,7 +117,8 @@ def read_and_decode_depth_image(file: BufferedReader) -> tuple[int, int, list[fl
     return width, height, data
 
 
-def read_and_decode_color_image(file: BufferedReader) -> tuple[int, int, bytes]:
+def read_and_decode_color_image(
+        file: BufferedReader) -> tuple[int, int, bytes]:
     width, height = read_and_decode_height_and_width(file)
     # data = list()
     # for _ in range(height * width):

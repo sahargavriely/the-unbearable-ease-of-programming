@@ -2,8 +2,6 @@ from datetime import datetime as dt
 from enum import Enum
 import struct
 
-from PIL import Image
-
 from . import mind_pb2
 
 
@@ -124,7 +122,8 @@ class DepthImage:
 
 
 class Feelings:
-    def __init__(self, hunger: float, thirst: float, exhaustion: float, happiness: float):
+    def __init__(self, hunger: float, thirst: float, exhaustion: float,
+                 happiness: float):
         self.hunger = hunger
         self.thirst = thirst
         self.exhaustion = exhaustion
@@ -154,16 +153,17 @@ class Snapshot:
         depth_image: DepthImage,
         feelings: Feelings
     ):
-        self.datetime = datetime 
+        self.datetime = datetime
         self.pose = pose
         self.color_image = color_image
         self.depth_image = depth_image
         self.feelings = feelings
 
     def __repr__(self) -> str:
+        datetime = dt.fromtimestamp(self.datetime / 1000)
         return f'<{self.__class__.__name__} at ' \
-            f'{dt.fromtimestamp(self.datetime / 1000).strftime("%B %d, %Y at %T.%f")[:-3]} ' \
-            f'on {self.pose} with a {self.color_image}, a {self.depth_image} ' \
+            f'{datetime:"%B %d, %Y at %T.%f"} on {self.pose} ' \
+            f'with a {self.color_image}, a {self.depth_image} ' \
             f'and {self.feelings}>'
 
     def set_default(self, key):
@@ -221,13 +221,14 @@ class Snapshot:
         rotation = snapshot.pose.rotation
         rotation = Rotation(rotation.x, rotation.y, rotation.z, rotation.w)
         feelings = snapshot.feelings
-        feelings = Feelings(feelings.hunger, feelings.thirst, feelings.exhaustion, feelings.happiness)
-        color_image = snapshot.color_image
-        depth_image = snapshot.depth_image
+        feelings = Feelings(feelings.hunger, feelings.thirst,
+                            feelings.exhaustion, feelings.happiness)
+        color_im = snapshot.color_image
+        depth_im = snapshot.depth_image
         return Snapshot(
             snapshot.datetime,
             Pose(translation, rotation),
-            ColorImage(color_image.width, color_image.height, color_image.data),
-            DepthImage(depth_image.width, depth_image.height, depth_image.data),
+            ColorImage(color_im.width, color_im.height, color_im.data),
+            DepthImage(depth_im.width, depth_im.height, depth_im.data),
             feelings
         )

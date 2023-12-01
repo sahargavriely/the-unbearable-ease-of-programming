@@ -18,11 +18,13 @@ from ..utils import (
 def upload_mind(path: str, host: str = REQUEST_HOST, port: int = SERVER_PORT):
     reader = Reader(path)
     for snapshot in reader:
-        # we are opening new connection on every snapshot to simulate a real scenario
+        # we are opening new connection on every snapshot
+        # to simulate a real scenario
         with Connection.connect(host, port) as connection:
             _send_type(connection, Types.MIND)
             connection.send_length_follow_by_value(reader.user.serialize())
-            config = Config.from_bytes(connection.receive_length_follow_by_value())
+            decoded_conf = connection.receive_length_follow_by_value()
+            config = Config.from_bytes(decoded_conf)
             for conf in snapshot.config:
                 if conf not in config:
                     snapshot.set_default(conf)

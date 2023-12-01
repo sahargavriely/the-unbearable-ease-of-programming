@@ -24,9 +24,9 @@ from ..utils import (
 )
 
 
-def run_server(host: str = LISTEN_HOST, port: int = SERVER_PORT, data_dir: Path = DATA_DIR):
+def run_server(host: str = LISTEN_HOST, port: int = SERVER_PORT,
+               data_dir: Path = DATA_DIR):
     lock = threading.Lock()
-    
     parser = Parser(data_dir=data_dir)
 
     with Listener(port, host) as listener:
@@ -45,7 +45,8 @@ def run_server(host: str = LISTEN_HOST, port: int = SERVER_PORT, data_dir: Path 
                 break
 
 
-def _handle_connection(lock: threading.Lock, connection: Connection, data_dir: Path, parser: Parser):
+def _handle_connection(lock: threading.Lock, connection: Connection,
+                       data_dir: Path, parser: Parser):
     with connection:
         protocol_type = _receive_type(connection)
         if protocol_type == Types.MIND.value:

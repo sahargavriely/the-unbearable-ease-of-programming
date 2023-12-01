@@ -182,8 +182,8 @@ def _serialize_user(user):
 
 def _serialize_snapshot(snapshot):
     snapshot_data = snapshot.serialize()
-    snapshot_data_len = struct.pack(Connection.length_format, len(snapshot_data))
-    return snapshot_data_len + snapshot_data
+    snapshot_len = struct.pack(Connection.length_format, len(snapshot_data))
+    return snapshot_len + snapshot_data
 
 
 def _receive_config(connection) -> Config:

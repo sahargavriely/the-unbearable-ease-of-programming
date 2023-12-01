@@ -3,7 +3,8 @@ from brain_computer_interface import upload_mind, upload_thought
 from utils import _assert_now
 
 
-def test_upload_mind(conf, mind_file, compressed_mind_file, user, snapshot, get_message):
+def test_upload_mind(conf, mind_file, compressed_mind_file, user, snapshot,
+                     get_message):
     upload_mind(str(mind_file), conf.REQUEST_HOST, conf.SERVER_PORT)
     decoded_user, decoded_snapshot, popped_key = get_message()
     snapshot.set_default(popped_key)

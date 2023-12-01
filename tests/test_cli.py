@@ -28,7 +28,8 @@ def test_read(mind_file, snapshot: Snapshot, user: User):
 
 
 def test_compressed_read(compressed_mind_file, snapshot: Snapshot, user: User):
-    cmd = ['python', '-m', 'brain_computer_interface', 'read', str(compressed_mind_file)]
+    cmd = ['python', '-m', 'brain_computer_interface', 'read',
+           str(compressed_mind_file)]
     process = subprocess.Popen(cmd, stdout=subprocess.PIPE)
     process.wait(1)
     stdout, _ = process.communicate()
@@ -36,9 +37,11 @@ def test_compressed_read(compressed_mind_file, snapshot: Snapshot, user: User):
     assert repr(snapshot) in stdout.decode()
 
 
-def test_upload_mind(conf, mind_file, compressed_mind_file, user, snapshot, get_message):
+def test_upload_mind(conf, mind_file, compressed_mind_file, user, snapshot,
+                     get_message):
     cmd = ['python', '-m', 'brain_computer_interface', 'client', 'upload-mind',
-           '-h', conf.REQUEST_HOST, '-p', str(conf.SERVER_PORT), str(mind_file)]
+           '-h', conf.REQUEST_HOST, '-p', str(conf.SERVER_PORT),
+           str(mind_file)]
     process = subprocess.Popen(cmd, stdout=subprocess.PIPE)
     process.wait(3)
     stdout, _ = process.communicate()
@@ -50,7 +53,8 @@ def test_upload_mind(conf, mind_file, compressed_mind_file, user, snapshot, get_
     assert decoded_snapshot == snapshot.serialize()
 
     cmd = ['python', '-m', 'brain_computer_interface', 'client', 'upload-mind',
-           '-h', conf.REQUEST_HOST, '-p', str(conf.SERVER_PORT), str(compressed_mind_file)]
+           '-h', conf.REQUEST_HOST, '-p', str(conf.SERVER_PORT),
+           str(compressed_mind_file)]
     process = subprocess.Popen(cmd, stdout=subprocess.PIPE)
     process.wait(3)
     stdout, _ = process.communicate()
@@ -63,9 +67,9 @@ def test_upload_mind(conf, mind_file, compressed_mind_file, user, snapshot, get_
 
 
 def test_upload_thought(conf, get_message):
-    cmd = ['python', '-m', 'brain_computer_interface', 'client', 'upload-thought',
-           '-h', conf.REQUEST_HOST, '-p', str(conf.SERVER_PORT),
-           str(conf.USER_20), conf.THOUGHT_20]
+    cmd = ['python', '-m', 'brain_computer_interface', 'client',
+           'upload-thought', '-h', conf.REQUEST_HOST,
+           '-p', str(conf.SERVER_PORT), str(conf.USER_20), conf.THOUGHT_20]
     process = subprocess.Popen(cmd, stdout=subprocess.PIPE)
     process.wait(3)
     stdout, _ = process.communicate()
@@ -77,9 +81,9 @@ def test_upload_thought(conf, get_message):
 
 
 def test_upload_thought_error(conf):
-    cmd = ['python', '-m', 'brain_computer_interface', 'client', 'upload-thought',
-           '-h', conf.REQUEST_HOST, '-p', str(conf.SERVER_PORT),
-           str(conf.USER_20), conf.THOUGHT_20]
+    cmd = ['python', '-m', 'brain_computer_interface', 'client',
+           'upload-thought', '-h', conf.REQUEST_HOST,
+           '-p', str(conf.SERVER_PORT), str(conf.USER_20), conf.THOUGHT_20]
     process = subprocess.Popen(cmd, stdout=subprocess.PIPE)
     process.wait(1)
     stdout, _ = process.communicate()

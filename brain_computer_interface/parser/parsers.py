@@ -13,8 +13,9 @@ def parse_translation(cur_user_dir: Path, snapshot: Snapshot):
             y = snapshot.pose.translation.y,
             z = snapshot.pose.translation.z
         ), file)
-parse_translation.field = 'translation'
 
+
+parse_translation.field = 'translation'
 
 
 class ColorImageParser:

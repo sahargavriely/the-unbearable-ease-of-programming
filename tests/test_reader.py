@@ -15,7 +15,8 @@ def test_read_mind_file(mind_file: Path, user: User, snapshot: Snapshot):
         assert snap.serialize() == snapshot.serialize()
 
 
-def test_read_compressed_mind_file(compressed_mind_file: Path, user: User, snapshot: Snapshot):
+def test_read_compressed_mind_file(compressed_mind_file: Path, user: User,
+                                   snapshot: Snapshot):
     reader = Reader(str(compressed_mind_file))
     assert reader.user.serialize() == user.serialize()
     for snap in reader:
