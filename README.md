@@ -1,4 +1,6 @@
+[![github-workflow](https://github.com/sahargavriely/the-unbearable-ease-of-programming/actions/workflows/github-action.yml/badge.svg)](https://github.com/sahargavriely/the-unbearable-ease-of-programming/actions/workflows/github-action.yml)
 [![codecov](https://codecov.io/gh/sahargavriely/the-unbearable-ease-of-programming/graph/badge.svg?token=W0V7MR7T8S)](https://codecov.io/gh/sahargavriely/the-unbearable-ease-of-programming)
+[![readthedocs](https://readthedocs.org/projects/the-unbearable-ease-of-programming/badge/?version=latest)](https://the-unbearable-ease-of-programming.readthedocs.io/en/latest/?badge=latest)
 
 # brain-computer-interface
 
