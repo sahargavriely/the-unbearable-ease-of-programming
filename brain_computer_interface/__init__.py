@@ -17,7 +17,7 @@ from .server import run_server
 from .webserver import run_webserver
 
 
-version = '0.1.0'
+version = '0.2.0'
 
 
 __all__ = [
