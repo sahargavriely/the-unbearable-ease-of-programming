@@ -33,6 +33,10 @@ feelings_format = '<ffff'
 
 
 def collect_driver(extension):
+    '''
+    Collecting reader drivers of different "mind" hardwares.
+    Distinguishing driver by the file extension.
+    '''
     if inspect.isclass(extension):
         drivers['default'] = extension
         return extension
@@ -120,14 +124,13 @@ def read_and_decode_depth_image(
 def read_and_decode_color_image(
         file: BufferedReader) -> tuple[int, int, bytes]:
     width, height = read_and_decode_height_and_width(file)
-    # data = list()
-    # for _ in range(height * width):
-    #     b = file.read(1)
-    #     g = file.read(1)
-    #     r = file.read(1)
-    #     data.append(r)
-    #     data.append(g)
-    #     data.append(b)
-    # data = b''.join(data)
-    data = file.read(height * width * 3)
+    data = list()
+    for _ in range(height * width):
+        b = file.read(1)
+        g = file.read(1)
+        r = file.read(1)
+        data.append(r)
+        data.append(g)
+        data.append(b)
+    data = b''.join(data)
     return width, height, data
