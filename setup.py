@@ -28,8 +28,8 @@ def get_requirements():
     return requirements_path.read_text().splitlines()
 
 
-def get_package_configuration():
-    config = dict(
+def get_package_configuration() -> dict:
+    return dict(
         name = 'brain_computer_interface',
         version = get_version(),
         author = 'Sahar Gavriely',
@@ -63,7 +63,6 @@ def get_package_configuration():
             ],
         },
     )
-    return config
 
 
 if __name__ == '__main__':
