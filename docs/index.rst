@@ -11,6 +11,7 @@ Welcome to brain-computer-interface's documentation!
    :caption: Contents:
 
    api
+   client
    cli
    mind_file
 

@@ -162,7 +162,7 @@ class Snapshot:
     def __repr__(self) -> str:
         datetime = dt.fromtimestamp(self.datetime / 1000)
         return f'<{self.__class__.__name__} at ' \
-            f'{datetime:"%B %d, %Y at %T.%f"} on {self.pose} ' \
+            f'{datetime:%B %d, %Y at %T.%f} on {self.pose} ' \
             f'with a {self.color_image}, a {self.depth_image} ' \
             f'and {self.feelings}>'
 

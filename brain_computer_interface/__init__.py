@@ -1,3 +1,6 @@
+version = '0.2.0'
+
+
 from .client import (
     upload_thought,
     upload_mind,
@@ -15,9 +18,6 @@ from .protocol import (
 from .reader import Reader
 from .server import run_server
 from .webserver import run_webserver
-
-
-version = '0.2.0'
 
 
 __all__ = [
