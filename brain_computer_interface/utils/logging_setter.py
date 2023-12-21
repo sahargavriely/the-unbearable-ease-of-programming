@@ -3,8 +3,8 @@ import logging
 from logging.handlers import SysLogHandler, RotatingFileHandler
 
 
-def setup_logging(name: str, log_lvl=logging.INFO,
-                  stream_to_syslog=False, stream_to_screen=False):
+def setup_logging(name: str, log_lvl=logging.WARNING,
+                  stream_to_syslog=True, stream_to_screen=True):
 
     logs_dir = pathlib.Path(__file__).parent.parent.parent / 'logs'
     logs_dir.mkdir(parents=True, exist_ok=True)
