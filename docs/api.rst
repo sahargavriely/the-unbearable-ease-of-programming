@@ -22,26 +22,6 @@ run_webserver
     You may provide an address (host and port) which the webserver listens to (defaults are set to ``'0.0.0.0'`` and ``8000``, respectfully) a directory in which the server will save the thoughts to (default is set to ``data/``). 
 
 
-.. _target to upload_mind:
-
-upload_mind
------------
-
-.. function:: upload_mind(mind_path, host='127.0.0.1', port=5000)
-
-    This function sends a given :ref:`mind file <target to mind file>` to the server.
-    You may also provide an address (host and port) which the function send the information to (defaults are set to ``'127.0.0.1'`` and ``5000``, respectfully). 
-
-
-upload_thought
---------------
-
-.. function:: upload_thought(user_id, thought, host='127.0.0.1', port=5000)
-
-    This function sends a given thought (*string*) of a given user id (*int*) to the server.
-    You may also provide an address (host and port) which the function send the information to (defaults are set to ``'127.0.0.1'`` and ``5000``, respectfully).
-
-
 .. _target to color image:
 
 ColorImage

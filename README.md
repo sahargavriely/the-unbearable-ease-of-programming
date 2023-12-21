@@ -41,6 +41,11 @@ For further information take a look at [full documentation](https://the-unbearab
 
 ## Usage
 
+The package expose several sub-packages which can be run separately on a different machines.
+The sub-packages are:
+
+* [`client`](/brain_computer_interface/client/README.md) - uploads mind and thoughts to the server.
+
 The `brain_computer_interface` packages provides the following functions:
 
 - `run_server`
@@ -71,34 +76,6 @@ The `brain_computer_interface` packages provides the following functions:
     * Debug mode: on
     * Running on http://127.0.0.1:8000/ (Press CTRL+C to quit)
 
-    ```
-
-- `upload_mind`
-
-    This function sends a given mind to the server.
-    You may also provide an address (host and port) which the function send the information to (defaults are set to ``'127.0.0.1'`` and ``5000``, respectfully). 
-
-    ```pycon
-    >>> from brain_computer_interface import upload_mind
-    >>> upload_mind(mind_path, host='127.0.0.1', port=5000)
-    complete snapshot
-    complete snapshot
-    complete snapshot
-    ...
-    complete user
-    >>>
-    ```
-
-- `upload_thought`
-
-    This function sends a given thought of a given user id to the server.
-    You may also provide an address (host and port) which the function send the information to (defaults are set to ``'127.0.0.1'`` and ``5000``, respectfully). 
-
-    ```pycon
-    >>> from brain_computer_interface import upload_thought
-    >>> upload_thought(user_id=1, thought='I think therefore I am', host='127.0.0.1', port=5000)
-    done!
-    >>>
     ```
 
 
@@ -167,44 +144,6 @@ Commands:
 
     Options:
     - ``--help``                  Show similar message and exit.
-
-- `client`
-
-    Expose the client subcommands.
-
-    ```sh
-    $ python -m brain_computer_interface upload-thought  client [OPTIONS] SUBCOMMAND [ARGS]...
-    ```
-
-    Options:
-    - ``--help``                  Show similar message and exit.
-
-    Commands:
-    - `upload-mind`
-
-        Receives mind path and uploads it to the server.
-
-        ```sh
-        $ python -m brain_computer_interface client upload-mind [OPTIONS] PATH
-        ```
-
-        Options:
-        - ``-h``, ``--host`` TEXT     [default: 127.0.0.1]
-        - ``-p``, ``--port`` INTEGER  [default: 5000]
-        - ``--help``                  Show similar message and exit.
-
-    - `upload-thought`
-
-        Receives user id and though, and uploads it to the server.
-
-        ```sh
-        $ python -m brain_computer_interface client upload-thought [OPTIONS] USER_ID THOUGHT
-        ```
-
-        Options:
-        - ``-h``, ``--host`` TEXT     [default: 127.0.0.1]
-        - ``-p``, ``--port`` INTEGER  [default: 5000]
-        - ``--help``                  Show similar message and exit.
 
 - `error`
 
