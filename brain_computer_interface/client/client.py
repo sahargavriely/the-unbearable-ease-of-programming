@@ -1,12 +1,12 @@
 import datetime as dt
 from struct import pack
 
+from .reader import Reader
 from ..protocol import (
     Config,
     Types,
     TYPE_FORMAT,
 )
-from ..reader import Reader
 from ..utils import (
     Connection,
     setup_logging,

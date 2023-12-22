@@ -4,6 +4,7 @@ from . import (
     upload_mind,
     upload_thought,
 )
+from .reader import Reader
 from ..utils import (
     log,
     main,
@@ -11,6 +12,15 @@ from ..utils import (
     REQUEST_HOST,
     SERVER_PORT,
 )
+
+
+@main.command()
+@click.argument('path', type=str)
+def read(path):
+    reader = Reader(path)
+    print(reader.user)
+    for snapshot in reader:
+        print(snapshot)
 
 
 @main.command('upload-mind')

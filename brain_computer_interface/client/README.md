@@ -37,6 +37,17 @@ The `brain_computer_interface.client` packages provides the following functions:
     >>>
     ```
 
+- `read`
+
+    Receives mind path and prints its contents in a humanly fashion.
+
+    ```sh
+    $ python -m brain_computer_interface.client read [OPTIONS] PATH
+    ```
+
+    Options:
+    - ``--help``                  Show similar message and exit.
+
 
 ## Command Line Interface
 

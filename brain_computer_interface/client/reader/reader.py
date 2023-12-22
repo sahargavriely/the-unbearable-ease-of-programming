@@ -1,12 +1,49 @@
-from .drivers import drivers
-from ..protocol import Snapshot
-from ..utils import setup_logging
+import importlib
+import inspect
+import pathlib
+
+from ...protocol import Snapshot
+from ...utils import setup_logging
 
 
 logger = setup_logging(__name__)
+drivers = dict()
 
 
-def find_driver(path: str):
+def collect_driver(extension):
+    '''
+    Collecting drivers of different "mind" hardwares.
+    Distinguishing driver by the path extension.
+    '''
+    if inspect.isclass(extension):
+        drivers['default'] = extension
+        return extension
+
+    def decorator(cls):
+        logger.info('collecting a %s driver class %s', extension, cls.__name__)
+        drivers[extension] = cls
+        return cls
+
+    return decorator
+
+
+def load_drivers():
+    '''
+    Loading drivers under drivers directory, relative  to here.
+    '''
+    drivers = pathlib.Path(__file__).parent / 'drivers'
+    for file in drivers.iterdir():
+        if any([file.suffix != '.py',
+                file.name.startswith('_'),
+                not file.stem.endswith('driver')]):
+            logger.info('did not load %s', file.name)
+            continue
+        logger.info('loading module driver %s', file.name)
+        importlib.import_module(f'.{drivers.name}.{file.stem}', __package__)
+
+
+def match_driver(path: str):
+    load_drivers()
     extension = path.split('.')[-1]
     driver = drivers.get(extension, drivers.get('default'))
     logger.info('initiating %s driver for %s extension',
@@ -17,7 +54,7 @@ def find_driver(path: str):
 class Reader:
     def __init__(self, path: str):
         logger.info('initiating reader for path %s', path)
-        self.driver = find_driver(path)
+        self.driver = match_driver(path)
         self.file_pointer = 0
         with self as file:
             logger.debug('reading user')

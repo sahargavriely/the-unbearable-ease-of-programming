@@ -8,8 +8,7 @@ import time
 
 import pytest
 
-from brain_computer_interface.reader.drivers import (
-    length_format,
+from brain_computer_interface.client.reader.drivers.default_driver import (
     id_format,
     name_len_format,
     birthday_format,
@@ -21,6 +20,8 @@ from brain_computer_interface.reader.drivers import (
     pixel_format,
     feelings_format,
 )
+from brain_computer_interface.client.reader.drivers.protobuf_driver import \
+    length_format
 from brain_computer_interface.protocol import (
     DepthImage,
     ColorImage,
@@ -40,7 +41,6 @@ from utils import (
     _run_mock_server,
     _serve_thread,
 )
-
 
 ##########################################################################
 # Configuration
@@ -137,7 +137,7 @@ def mind_dir(tmp_path_factory):
 
 
 @pytest.fixture(scope='module')
-def mind_file(mind_dir: Path, user: User, snapshot: Snapshot):
+def default_mind_file(mind_dir: Path, user: User, snapshot: Snapshot):
     file = mind_dir / 'sample.mind'
     file.touch(0o777)
     user_bytes = list()
@@ -175,7 +175,7 @@ def mind_file(mind_dir: Path, user: User, snapshot: Snapshot):
 
 
 @pytest.fixture(scope='module')
-def compressed_mind_file(mind_dir: Path, user: User, snapshot: Snapshot):
+def protobuf_mind_file(mind_dir: Path, user: User, snapshot: Snapshot):
     file = mind_dir / 'sample.mind.gz'
     file.touch(0o777)
     with gzip.open(str(file), 'wb') as f:

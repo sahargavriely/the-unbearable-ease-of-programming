@@ -3,15 +3,15 @@ from brain_computer_interface import upload_mind, upload_thought
 from utils import _assert_now
 
 
-def test_upload_mind(conf, mind_file, compressed_mind_file, user, snapshot,
-                     get_message):
-    upload_mind(str(mind_file), conf.REQUEST_HOST, conf.SERVER_PORT)
+def test_upload_mind(conf, default_mind_file, protobuf_mind_file, user,
+                     snapshot, get_message):
+    upload_mind(str(default_mind_file), conf.REQUEST_HOST, conf.SERVER_PORT)
     decoded_user, decoded_snapshot, popped_key = get_message()
     snapshot.set_default(popped_key)
     assert decoded_user == user.serialize()
     assert decoded_snapshot == snapshot.serialize()
 
-    upload_mind(str(compressed_mind_file), conf.REQUEST_HOST, conf.SERVER_PORT)
+    upload_mind(str(protobuf_mind_file), conf.REQUEST_HOST, conf.SERVER_PORT)
     decoded_user, decoded_snapshot, popped_key = get_message()
     snapshot.set_default(popped_key)
     assert decoded_user == user.serialize()
