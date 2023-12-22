@@ -2,6 +2,7 @@ version = '0.2.0'
 
 
 from .client import (
+    Reader,
     upload_thought,
     upload_mind,
 )
@@ -15,7 +16,6 @@ from .protocol import (
     Translation,
     User,
 )
-from .reader import Reader
 from .server import run_server
 from .webserver import run_webserver
 

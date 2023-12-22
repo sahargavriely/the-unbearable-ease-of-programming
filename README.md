@@ -134,16 +134,6 @@ brain_computer_interface, version 0.1.0
     - ``--help``                   Show similar message and exit.
 
 Commands:
-- `read`
-
-    Receives mind path and prints its contents in a humanly fashion.
-
-    ```sh
-    $ python -m brain_computer_interface client read [OPTIONS] PATH
-    ```
-
-    Options:
-    - ``--help``                  Show similar message and exit.
 
 - `error`
 

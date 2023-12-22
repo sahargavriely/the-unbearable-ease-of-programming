@@ -67,21 +67,6 @@ Options:
 - ``--help``                   Show similar message and exit.
 
 
-.. _target to read:
-
-The ``read`` Command
-----------------------
-
-Receives :ref:`mind file <target to mind file>` and prints its contents in a humanly fashion.
-
-.. code:: bash
-
-    $ python -m brain_computer_interface read [OPTIONS] PATH
-
-Options:
-- ``--help``                  Show similar message and exit.
-
-
 The ``error`` Command
 ---------------------
 

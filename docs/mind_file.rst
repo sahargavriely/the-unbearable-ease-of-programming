@@ -33,9 +33,9 @@ Voila we have a mind file.
 Once we can put our hands on a proper hardware we should be able to transmit user information without mind files, using other drivers.
 To use other driver we can:
 
-1. Look at the `drivers <https://github.com/sahargavriely/the-unbearable-ease-of-programming/blob/main/brain_computer_interface/reader/drivers.py>`_ choose one that suffices your needs and save accordingly.
+1. Look at the `drivers <https://github.com/sahargavriely/the-unbearable-ease-of-programming/blob/main/brain_computer_interface/client/reader/drivers/>`_ choose one that suffices your needs and save a file accordingly.
 
-2. Another option would be to add your own driver to `drivers <https://github.com/sahargavriely/the-unbearable-ease-of-programming/blob/main/brain_computer_interface/reader/drivers.py>`_, that suffices the following code-block.
+2. Another option would be to add your own driver to `drivers <https://github.com/sahargavriely/the-unbearable-ease-of-programming/blob/main/brain_computer_interface/client/reader/drivers/>`_, that suffices the following code-block.
 
     .. code-block:: python
 

@@ -19,7 +19,7 @@ from .utils import (
 @main.command()
 @click.argument('path', type=str)
 def read(path):
-    reader = brain_computer_interface.Reader(path)
+    reader = brain_computer_interface.client.Reader(path)
     print(reader.user)
     for snapshot in reader:
         print(snapshot)

@@ -1,10 +1,8 @@
-import gzip
 from io import BufferedReader
-import inspect
 import struct
-from typing import Union
 
-from ..protocol import (
+from ..reader import collect_driver
+from ....protocol import (
     ColorImage,
     DepthImage,
     Feelings,
@@ -16,10 +14,6 @@ from ..protocol import (
 )
 
 
-drivers = dict()
-
-length_format = '<I'
-
 id_format = '<Q'
 name_len_format = '<I'
 birthday_format = '<I'
@@ -30,41 +24,6 @@ height_format = '<I'
 width_format = '<I'
 pixel_format = '<f'
 feelings_format = '<ffff'
-
-
-def collect_driver(extension):
-    '''
-    Collecting reader drivers of different "mind" hardwares.
-    Distinguishing driver by the file extension.
-    '''
-    if inspect.isclass(extension):
-        drivers['default'] = extension
-        return extension
-
-    def decorator(cls):
-        drivers[extension] = cls
-        return cls
-
-    return decorator
-
-
-@collect_driver('gz')
-class Compressed:
-    def __init__(self, path: str):
-        self.path = path
-
-    def open(self) -> gzip.GzipFile:
-        return gzip.open(self.path, 'rb')
-
-    def read_user(self, file: gzip.GzipFile) -> User:
-        length, = read_and_decode(file, length_format)
-        encoded_user = file.read(length)
-        return User.from_bytes(encoded_user)
-
-    def read_snapshot(self, file: gzip.GzipFile) -> Snapshot:
-        length, = read_and_decode(file, length_format)
-        encoded_snapshot = file.read(length)
-        return Snapshot.from_bytes(encoded_snapshot)
 
 
 @collect_driver
@@ -100,7 +59,7 @@ class Default:
         )
 
 
-def read_and_decode(file: Union[gzip.GzipFile, BufferedReader], format: str):
+def read_and_decode(file: BufferedReader, format: str):
     size = struct.calcsize(format)
     return struct.unpack(format, file.read(size))
 
