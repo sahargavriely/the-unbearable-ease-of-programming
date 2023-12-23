@@ -11,9 +11,10 @@ Welcome to brain-computer-interface's documentation!
    :caption: Contents:
 
    api
-   client
+   client/client
    cli
    mind_file
+   server/server
 
 Indices and tables
 ==================

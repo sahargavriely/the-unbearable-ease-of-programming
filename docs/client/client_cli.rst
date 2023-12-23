@@ -100,7 +100,7 @@ To showcase these options, consider `error` command, which raises an exception:
     RuntimeError: something went terrible wrong :[
 
 
-Do note that each command's options should be passed to *that* command, for example the ``-q`` and ``-t`` options should be passed to ``brain_computer_interface.client`` and not to ``run-server``, ``run_webserver`` and ``upload-thought``.
+Do note that each command's options should be passed to *that* command, for example the ``-q`` and ``-t`` options should be passed to ``brain_computer_interface.client`` and not to ``upload-mind`` and ``upload-thought``.
 
 .. code:: bash
 

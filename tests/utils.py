@@ -6,7 +6,8 @@ import struct
 import threading
 import time
 
-from brain_computer_interface import run_server, run_webserver
+from brain_computer_interface import run_webserver
+from brain_computer_interface.server import run_server
 from brain_computer_interface.protocol import (
     TYPE_FORMAT,
     TYPE_FORMAT_SIZE,
