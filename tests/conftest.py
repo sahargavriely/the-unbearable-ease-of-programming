@@ -26,6 +26,7 @@ from brain_computer_interface.protocol import (
     DepthImage,
     ColorImage,
     Config,
+    CONFIG_OPTIONS,
     Feelings,
     Pose,
     Rotation,
@@ -98,9 +99,7 @@ def clean_db(conf):
 
 @pytest.fixture(scope='module')
 def config():
-    return Config(
-        Snapshot.config
-    )
+    return Config(CONFIG_OPTIONS)
 
 
 @pytest.fixture(scope='module')

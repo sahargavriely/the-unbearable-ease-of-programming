@@ -13,7 +13,12 @@ from brain_computer_interface.protocol import (
     TYPE_FORMAT_SIZE,
     Types,
 )
-from brain_computer_interface.protocol import Config, Snapshot, User
+from brain_computer_interface.protocol import (
+    Config,
+    CONFIG_OPTIONS,
+    Snapshot,
+    User,
+)
 from brain_computer_interface.utils.connection import Connection
 
 
@@ -100,9 +105,9 @@ def _handle_connection(connection, pipe):
 
 def _receive_mind(connection, pipe):
     user = _receive_user(connection)
-    _send_config(connection, Config(Snapshot.config[:-1]))
+    _send_config(connection, Config(CONFIG_OPTIONS[:-1]))
     snapshot = _receive_snapshot(connection)
-    pipe.send([user.serialize(), snapshot.serialize(), Snapshot.config[-1]])
+    pipe.send([user.serialize(), snapshot.serialize(), CONFIG_OPTIONS[-1]])
 
 
 def _receive_user(connection) -> User:
@@ -157,7 +162,7 @@ def mock_upload_mind(conf, user: User, snapshot: Snapshot):
         connection.connect((conf.REQUEST_HOST, conf.SERVER_PORT))
         connection.sendall(_serialize_user(user))
         config = _receive_config(connection)
-        for c in snapshot.config:
+        for c in CONFIG_OPTIONS:
             if c not in config:
                 snapshot.set_default(c)
         connection.sendall(_serialize_snapshot(snapshot))

@@ -26,7 +26,7 @@ def test_read_protobuf_mind_file(protobuf_mind_file: Path, user: User,
     reader = Reader(str(protobuf_mind_file))
     assert reader.user.serialize() == user.serialize()
     for snap in reader:
-        assert snap.serialize() == snapshot.serialize()
+        assert repr(snap) == repr(snapshot)
 
 
 def test_upload_mind(conf, default_mind_file, protobuf_mind_file, user,
@@ -35,13 +35,13 @@ def test_upload_mind(conf, default_mind_file, protobuf_mind_file, user,
     decoded_user, decoded_snapshot, popped_key = get_message()
     snapshot.set_default(popped_key)
     assert decoded_user == user.serialize()
-    assert decoded_snapshot == snapshot.serialize()
+    assert repr(Snapshot.from_bytes(decoded_snapshot)) == repr(snapshot)
 
     upload_mind(str(protobuf_mind_file), conf.REQUEST_HOST, conf.SERVER_PORT)
     decoded_user, decoded_snapshot, popped_key = get_message()
     snapshot.set_default(popped_key)
     assert decoded_user == user.serialize()
-    assert decoded_snapshot == snapshot.serialize()
+    assert repr(Snapshot.from_bytes(decoded_snapshot)) == repr(snapshot)
 
 
 def test_upload_thought(conf, get_message):

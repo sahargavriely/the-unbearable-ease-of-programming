@@ -3,10 +3,20 @@ from enum import Enum
 import struct
 
 from . import mind_pb2
+from .protobuf_wrapper import ProtobufWrapper
 
 
 TYPE_FORMAT = '<I'
 TYPE_FORMAT_SIZE = struct.calcsize(TYPE_FORMAT)
+
+CONFIG_OPTIONS = [
+    'datetime',
+    'translation',
+    'rotation',
+    'color_image',
+    'depth_image',
+    'feelings',
+]
 
 
 class Types(Enum):
@@ -14,13 +24,9 @@ class Types(Enum):
     THOUGHT = 1
 
 
-class Gender(Enum):
-    MALE = 0
-    FEMALE = 1
-    OTHER = 2
+class User(ProtobufWrapper):
+    _protobuf_type = mind_pb2.User
 
-
-class User:
     def __init__(self, id: int, name: str, birthday: int, gender: int):
         self.id = id
         self.name = name
@@ -28,26 +34,16 @@ class User:
         self.gender = gender
 
     def __repr__(self) -> str:
+        gender = 'male' if not self.gender \
+            else 'female' if self.gender == 1 \
+            else 'unicorn'
         return f'<{self.__class__.__name__} {self.id}: {self.name}, ' \
-            f'born {dt.fromtimestamp(self.birthday):%B %d, %Y} ' \
-            f'({Gender(self.gender)})>'
-
-    def serialize(self) -> bytes:
-        user = mind_pb2.User()
-        user.id = self.id
-        user.name = self.name
-        user.birthday = self.birthday
-        user.gender = self.gender
-        return user.SerializeToString()
-
-    @classmethod
-    def from_bytes(cls, bytes: bytes):
-        user = mind_pb2.User()
-        user.ParseFromString(bytes)
-        return User(user.id, user.name, user.birthday, user.gender)
+            f'born {dt.fromtimestamp(self.birthday):%B %d, %Y} ({gender})>'
 
 
-class Config:
+class Config(ProtobufWrapper):
+    _protobuf_type = mind_pb2.Config
+
     def __init__(self, config: list[str]):
         self.config = config
 
@@ -57,19 +53,10 @@ class Config:
     def __contains__(self, key):
         return key in self.config
 
-    def serialize(self):
-        config = mind_pb2.Config()
-        config.config.extend(self.config)
-        return config.SerializeToString()
 
-    @classmethod
-    def from_bytes(cls, bytes: bytes):
-        config = mind_pb2.Config()
-        config.ParseFromString(bytes)
-        return Config(config.config)
+class Translation(ProtobufWrapper):
+    _protobuf_type = mind_pb2.Pose.Translation  # type: ignore
 
-
-class Translation:
     def __init__(self, x, y, z):
         self.x = x
         self.y = y
@@ -79,7 +66,9 @@ class Translation:
         return f'({self.x}, {self.y}, {self.z})'
 
 
-class Rotation:
+class Rotation(ProtobufWrapper):
+    _protobuf_type = mind_pb2.Pose.Rotation  # type: ignore
+
     def __init__(self, x, y, z, w):
         self.x = x
         self.y = y
@@ -90,7 +79,9 @@ class Rotation:
         return f'({self.x}, {self.y}, {self.z}, {self.w})'
 
 
-class Pose:
+class Pose(ProtobufWrapper):
+    _protobuf_type = mind_pb2.Pose
+
     def __init__(self, translation: Translation, rotation: Rotation):
         self.translation = translation
         self.rotation = rotation
@@ -99,29 +90,33 @@ class Pose:
         return f'{self.translation} / {self.rotation}'
 
 
-class ColorImage:
+class ColorImage(ProtobufWrapper):
+    _protobuf_type = mind_pb2.ColorImage
+
     def __init__(self, width: int, height: int, data: bytes):
         self.width = width
         self.height = height
         self.data = data
 
     def __repr__(self) -> str:
-        return f'<{self.__class__.__name__} ' \
-            f'{self.width}X{self.height}>'
+        return f'<{self.__class__.__name__} {self.width}X{self.height}>'
 
 
-class DepthImage:
+class DepthImage(ProtobufWrapper):
+    _protobuf_type = mind_pb2.DepthImage
+
     def __init__(self, width: int, height: int, data: list[float]):
         self.width = width
         self.height = height
         self.data = data
 
     def __repr__(self) -> str:
-        return f'<{self.__class__.__name__} ' \
-            f'{self.width}X{self.height}>'
+        return f'<{self.__class__.__name__} {self.width}X{self.height}>'
 
 
-class Feelings:
+class Feelings(ProtobufWrapper):
+    _protobuf_type = mind_pb2.Feelings
+
     def __init__(self, hunger: float, thirst: float, exhaustion: float,
                  happiness: float):
         self.hunger = hunger
@@ -135,15 +130,8 @@ class Feelings:
             f'{self.exhaustion:.3f}, {self.happiness:.3f}>'
 
 
-class Snapshot:
-    config = [
-        'datetime',
-        'translation',
-        'rotation',
-        'color_image',
-        'depth_image',
-        'feelings',
-    ]
+class Snapshot(ProtobufWrapper):
+    _protobuf_type = mind_pb2.Snapshot
 
     def __init__(
         self,
@@ -179,56 +167,3 @@ class Snapshot:
             self.depth_image = DepthImage(0, 0, list())
         elif key == 'feelings':
             self.feelings = Feelings(0, 0, 0, 0)
-
-    def serialize(self) -> bytes:
-        snapshot = mind_pb2.Snapshot()
-        snapshot.datetime = self.datetime
-        pose = mind_pb2.Pose()
-        translation = pose.translation
-        translation.x = self.pose.translation.x
-        translation.y = self.pose.translation.y
-        translation.z = self.pose.translation.z
-        rotation = pose.rotation
-        rotation.x = self.pose.rotation.x
-        rotation.y = self.pose.rotation.y
-        rotation.z = self.pose.rotation.z
-        rotation.w = self.pose.rotation.w
-        snapshot.pose.CopyFrom(pose)
-        color_image = mind_pb2.ColorImage()
-        color_image.width = self.color_image.width
-        color_image.height = self.color_image.height
-        color_image.data = self.color_image.data
-        snapshot.color_image.CopyFrom(color_image)
-        depth_image = mind_pb2.DepthImage()
-        depth_image.width = self.depth_image.width
-        depth_image.height = self.depth_image.height
-        depth_image.data.extend(self.depth_image.data)
-        snapshot.depth_image.CopyFrom(depth_image)
-        feelings = mind_pb2.Feelings()
-        feelings.hunger = self.feelings.hunger
-        feelings.thirst = self.feelings.thirst
-        feelings.exhaustion = self.feelings.exhaustion
-        feelings.happiness = self.feelings.happiness
-        snapshot.feelings.CopyFrom(feelings)
-        return snapshot.SerializeToString()
-
-    @classmethod
-    def from_bytes(cls, bytes: bytes):
-        snapshot = mind_pb2.Snapshot()
-        snapshot.ParseFromString(bytes)
-        translation = snapshot.pose.translation
-        translation = Translation(translation.x, translation.y, translation.z)
-        rotation = snapshot.pose.rotation
-        rotation = Rotation(rotation.x, rotation.y, rotation.z, rotation.w)
-        feelings = snapshot.feelings
-        feelings = Feelings(feelings.hunger, feelings.thirst,
-                            feelings.exhaustion, feelings.happiness)
-        color_im = snapshot.color_image
-        depth_im = snapshot.depth_image
-        return Snapshot(
-            snapshot.datetime,
-            Pose(translation, rotation),
-            ColorImage(color_im.width, color_im.height, color_im.data),
-            DepthImage(depth_im.width, depth_im.height, depth_im.data),
-            feelings
-        )
