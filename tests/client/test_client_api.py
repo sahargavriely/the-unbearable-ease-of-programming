@@ -33,13 +33,13 @@ def test_upload_mind(conf, default_mind_file, protobuf_mind_file, user,
                      snapshot, get_message):
     upload_mind(str(default_mind_file), conf.REQUEST_HOST, conf.SERVER_PORT)
     decoded_user, decoded_snapshot, popped_key = get_message()
-    snapshot.set_default(popped_key)
+    delattr(snapshot, popped_key)
     assert decoded_user == user.serialize()
     assert repr(Snapshot.from_bytes(decoded_snapshot)) == repr(snapshot)
 
     upload_mind(str(protobuf_mind_file), conf.REQUEST_HOST, conf.SERVER_PORT)
     decoded_user, decoded_snapshot, popped_key = get_message()
-    snapshot.set_default(popped_key)
+    delattr(snapshot, popped_key)
     assert decoded_user == user.serialize()
     assert repr(Snapshot.from_bytes(decoded_snapshot)) == repr(snapshot)
 

@@ -105,7 +105,9 @@ def _handle_connection(connection, pipe):
 
 def _receive_mind(connection, pipe):
     user = _receive_user(connection)
-    _send_config(connection, Config(CONFIG_OPTIONS[:-1]))
+    config = Config()
+    config.config = CONFIG_OPTIONS[:-1]
+    _send_config(connection, config)
     snapshot = _receive_snapshot(connection)
     pipe.send([user.serialize(), snapshot.serialize(), CONFIG_OPTIONS[-1]])
 
@@ -164,7 +166,7 @@ def mock_upload_mind(conf, user: User, snapshot: Snapshot):
         config = _receive_config(connection)
         for c in CONFIG_OPTIONS:
             if c not in config:
-                snapshot.set_default(c)
+                delattr(snapshot, c)
         connection.sendall(_serialize_snapshot(snapshot))
     time.sleep(0.2)  # Wait for server to write thought.
 

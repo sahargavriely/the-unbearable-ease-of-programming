@@ -35,7 +35,7 @@ def upload_mind(path: str, host: str = REQUEST_HOST, port: int = SERVER_PORT):
             config = Config.from_bytes(decoded_conf)
             for conf in CONFIG_OPTIONS:
                 if conf not in config:
-                    snapshot.set_default(conf)
+                    delattr(snapshot, conf)
             connection.send_length_follow_by_value(snapshot.serialize())
         print(f'{pretty_print_datetime} snapshot uploaded')
         logger.debug('done uploading snapshot from %s:', pretty_print_datetime)

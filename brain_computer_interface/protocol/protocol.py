@@ -4,6 +4,7 @@ import struct
 
 from . import mind_pb2
 from .protobuf_wrapper import ProtobufWrapper
+from ..utils import TypedProperty
 
 
 TYPE_FORMAT = '<I'
@@ -11,8 +12,9 @@ TYPE_FORMAT_SIZE = struct.calcsize(TYPE_FORMAT)
 
 CONFIG_OPTIONS = [
     'datetime',
-    'translation',
-    'rotation',
+    'pose',
+    # 'translation',
+    # 'rotation',
     'color_image',
     'depth_image',
     'feelings',
@@ -27,11 +29,10 @@ class Types(Enum):
 class User(ProtobufWrapper):
     _protobuf_type = mind_pb2.User
 
-    def __init__(self, id: int, name: str, birthday: int, gender: int):
-        self.id = id
-        self.name = name
-        self.birthday = birthday
-        self.gender = gender
+    id = TypedProperty(int)
+    name = TypedProperty(str)
+    birthday = TypedProperty(int)
+    gender = TypedProperty(int)
 
     def __repr__(self) -> str:
         gender = 'male' if not self.gender \
@@ -44,8 +45,7 @@ class User(ProtobufWrapper):
 class Config(ProtobufWrapper):
     _protobuf_type = mind_pb2.Config
 
-    def __init__(self, config: list[str]):
-        self.config = config
+    config = TypedProperty(list)
 
     def __repr__(self) -> str:
         return f'<{self.__class__.__name__} {self.config}>'
@@ -57,10 +57,9 @@ class Config(ProtobufWrapper):
 class Translation(ProtobufWrapper):
     _protobuf_type = mind_pb2.Pose.Translation  # type: ignore
 
-    def __init__(self, x, y, z):
-        self.x = x
-        self.y = y
-        self.z = z
+    x = TypedProperty(float)
+    y = TypedProperty(float)
+    z = TypedProperty(float)
 
     def __repr__(self) -> str:
         return f'({self.x}, {self.y}, {self.z})'
@@ -69,11 +68,10 @@ class Translation(ProtobufWrapper):
 class Rotation(ProtobufWrapper):
     _protobuf_type = mind_pb2.Pose.Rotation  # type: ignore
 
-    def __init__(self, x, y, z, w):
-        self.x = x
-        self.y = y
-        self.z = z
-        self.w = w
+    x = TypedProperty(float)
+    y = TypedProperty(float)
+    z = TypedProperty(float)
+    w = TypedProperty(float)
 
     def __repr__(self) -> str:
         return f'({self.x}, {self.y}, {self.z}, {self.w})'
@@ -82,9 +80,8 @@ class Rotation(ProtobufWrapper):
 class Pose(ProtobufWrapper):
     _protobuf_type = mind_pb2.Pose
 
-    def __init__(self, translation: Translation, rotation: Rotation):
-        self.translation = translation
-        self.rotation = rotation
+    translation = TypedProperty(Translation)
+    rotation = TypedProperty(Rotation)
 
     def __repr__(self) -> str:
         return f'{self.translation} / {self.rotation}'
@@ -93,10 +90,9 @@ class Pose(ProtobufWrapper):
 class ColorImage(ProtobufWrapper):
     _protobuf_type = mind_pb2.ColorImage
 
-    def __init__(self, width: int, height: int, data: bytes):
-        self.width = width
-        self.height = height
-        self.data = data
+    width = TypedProperty(int)
+    height = TypedProperty(int)
+    data = TypedProperty(bytes)
 
     def __repr__(self) -> str:
         return f'<{self.__class__.__name__} {self.width}X{self.height}>'
@@ -105,10 +101,9 @@ class ColorImage(ProtobufWrapper):
 class DepthImage(ProtobufWrapper):
     _protobuf_type = mind_pb2.DepthImage
 
-    def __init__(self, width: int, height: int, data: list[float]):
-        self.width = width
-        self.height = height
-        self.data = data
+    width = TypedProperty(int)
+    height = TypedProperty(int)
+    data = TypedProperty(list)
 
     def __repr__(self) -> str:
         return f'<{self.__class__.__name__} {self.width}X{self.height}>'
@@ -117,12 +112,10 @@ class DepthImage(ProtobufWrapper):
 class Feelings(ProtobufWrapper):
     _protobuf_type = mind_pb2.Feelings
 
-    def __init__(self, hunger: float, thirst: float, exhaustion: float,
-                 happiness: float):
-        self.hunger = hunger
-        self.thirst = thirst
-        self.exhaustion = exhaustion
-        self.happiness = happiness
+    hunger = TypedProperty(float)
+    thirst = TypedProperty(float)
+    exhaustion = TypedProperty(float)
+    happiness = TypedProperty(float)
 
     def __repr__(self) -> str:
         return f'<{self.__class__.__name__} ' \
@@ -133,19 +126,11 @@ class Feelings(ProtobufWrapper):
 class Snapshot(ProtobufWrapper):
     _protobuf_type = mind_pb2.Snapshot
 
-    def __init__(
-        self,
-        datetime: int,
-        pose: Pose,
-        color_image: ColorImage,
-        depth_image: DepthImage,
-        feelings: Feelings
-    ):
-        self.datetime = datetime
-        self.pose = pose
-        self.color_image = color_image
-        self.depth_image = depth_image
-        self.feelings = feelings
+    datetime = TypedProperty(int)
+    pose = TypedProperty(Pose)
+    color_image = TypedProperty(ColorImage)
+    depth_image = TypedProperty(DepthImage)
+    feelings = TypedProperty(Feelings)
 
     def __repr__(self) -> str:
         datetime = dt.fromtimestamp(self.datetime / 1000)
@@ -153,17 +138,3 @@ class Snapshot(ProtobufWrapper):
             f'{datetime:%B %d, %Y at %T.%f} on {self.pose} ' \
             f'with a {self.color_image}, a {self.depth_image} ' \
             f'and {self.feelings}>'
-
-    def set_default(self, key):
-        if key == 'datetime':
-            self.datetime = 0
-        elif key == 'translation':
-            self.pose.translation = Translation(0, 0, 0)
-        elif key == 'rotation':
-            self.pose.rotation = Rotation(0, 0, 0, 0)
-        elif key == 'color_image':
-            self.color_image = ColorImage(0, 0, b'')
-        elif key == 'depth_image':
-            self.depth_image = DepthImage(0, 0, list())
-        elif key == 'feelings':
-            self.feelings = Feelings(0, 0, 0, 0)

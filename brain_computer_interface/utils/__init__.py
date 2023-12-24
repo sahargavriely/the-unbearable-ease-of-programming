@@ -14,6 +14,7 @@ from .connection import Connection
 from .listener import Listener
 from .logging_setter import setup_logging
 from .thought import Thought
+from .tpyed_property import TypedProperty
 
 
 __all__ = [
@@ -29,4 +30,5 @@ __all__ = [
     'setup_logging',
     'WEBSERVER_PORT',
     'Thought',
+    'TypedProperty',
 ]

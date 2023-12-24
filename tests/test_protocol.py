@@ -2,7 +2,6 @@ import pytest
 
 from brain_computer_interface.protocol import (
     Config,
-    CONFIG_OPTIONS,
     Snapshot,
     User,
 )
@@ -21,8 +20,6 @@ def test_snapshot(snapshot: Snapshot):
     assert repr(snapshot) == \
         repr(Snapshot.from_bytes(snapshot.serialize()))
     assert snapshot == Snapshot.from_json(snapshot.jsonify())
-    for con in CONFIG_OPTIONS:
-        snapshot.set_default(con)
 
 
 def test_user(user: User):

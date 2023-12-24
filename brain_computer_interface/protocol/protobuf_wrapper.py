@@ -25,7 +25,8 @@ class ProtobufWrapper:
     def jsonify(self) -> dict:
         json_obj = dict()
         for attr in dir(self):
-            if attr.startswith('_'):
+            if attr.startswith('_') \
+               or inspect.ismethod(getattr(self, attr)):
                 continue
             val = getattr(self, attr)
             if isinstance(val, ProtobufWrapper):
@@ -38,7 +39,8 @@ class ProtobufWrapper:
     def to_protobuf(self):
         protobuf_obj = self._protobuf_type()
         for attr in dir(self):
-            if attr.startswith('_'):
+            if attr.startswith('_') \
+               or inspect.ismethod(getattr(self, attr)):
                 continue
             val = getattr(self, attr)
             if isinstance(val, ProtobufWrapper):
@@ -55,23 +57,37 @@ class ProtobufWrapper:
 
     @classmethod
     def from_json(cls, json_obj: dict):
-        args = list()
-        for arg_name in inspect.getfullargspec(cls).args[1:]:
-            arg = json_obj[arg_name]
-            if isinstance(arg, dict):
-                arg = _get_protobuf_wrapped_class(arg_name).from_json(arg)
-            args.append(arg)
-        return cls(*args)
+        obj = cls()
+        for attr in dir(obj):
+            if any((attr.startswith('_'),
+                    inspect.ismethod(getattr(obj, attr)),
+                    attr not in json_obj)):
+                continue
+            val = json_obj[attr]
+            if isinstance(val, dict):
+                setattr(obj, attr,
+                        _get_protobuf_wrapped_class(attr).from_json(val))
+            elif isinstance(val, (list, bytes, str, numbers.Number)):
+                setattr(obj, attr, val)
+        return obj
 
     @classmethod
     def from_protobuf(cls, protobuf_obj):
-        args = list()
-        for arg_name in inspect.getfullargspec(cls).args[1:]:
-            arg = getattr(protobuf_obj, arg_name)
-            if isinstance(type(arg), GeneratedProtocolMessageType):
-                arg = _get_protobuf_wrapped_class(arg_name).from_protobuf(arg)
-            args.append(arg)
-        return cls(*args)
+        obj = cls()
+        for attr in dir(obj):
+            if any((attr.startswith('_'),
+                    inspect.ismethod(getattr(obj, attr)),
+                    not hasattr(protobuf_obj, attr))):
+                continue
+            val = getattr(protobuf_obj, attr)
+            if isinstance(type(val), GeneratedProtocolMessageType):
+                setattr(obj, attr,
+                        _get_protobuf_wrapped_class(attr).from_protobuf(val))
+            elif isinstance(val, (list, bytes, str, numbers.Number)):
+                setattr(obj, attr, val)
+            else:  # isinstance(val, RepeatedScalarContainer):
+                setattr(obj, attr, list(val))
+        return obj
 
     @classmethod
     def from_bytes(cls, bytes: bytes):

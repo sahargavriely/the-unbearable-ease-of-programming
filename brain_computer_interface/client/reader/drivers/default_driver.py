@@ -3,13 +3,7 @@ import struct
 
 from ..reader import collect_driver
 from ....protocol import (
-    ColorImage,
-    DepthImage,
-    Feelings,
-    Pose,
-    Rotation,
     Snapshot,
-    Translation,
     User,
 )
 
@@ -35,28 +29,32 @@ class Default:
         return open(self.path, 'rb')
 
     def read_user(self, file: BufferedReader) -> User:
-        id, = read_and_decode(file, id_format)
+        user = User()
+        user.id, = read_and_decode(file, id_format)
         name_len, = read_and_decode(file, name_len_format)
-        name = file.read(name_len).decode()
-        birthday, = read_and_decode(file, birthday_format)
+        user.name = file.read(name_len).decode()
+        user.birthday, = read_and_decode(file, birthday_format)
         g = file.read(1).decode()
-        gender = 0 if g == 'm' else 1 if g == 'f' else 2
-        return User(id, name, birthday, gender)
+        user.gender = 0 if g == 'm' else 1 if g == 'f' else 2
+        return user
 
     def read_snapshot(self, file: BufferedReader) -> Snapshot:
-        datetime, = read_and_decode(file, datetime_format)
-        pose = Pose(Translation(*read_and_decode(file, translation_format)),
-                    Rotation(*read_and_decode(file, rotation_format)))
-        color_image = ColorImage(*read_and_decode_color_image(file))
-        depth_image = DepthImage(*read_and_decode_depth_image(file))
-        feelings = Feelings(*read_and_decode(file, feelings_format))
-        return Snapshot(
-            datetime,
-            pose,
-            color_image,
-            depth_image,
-            feelings
-        )
+        snapshot = Snapshot()
+        snapshot.datetime, = read_and_decode(file, datetime_format)
+        snapshot.pose.translation.x, snapshot.pose.translation.y, \
+            snapshot.pose.translation.z = \
+            read_and_decode(file, translation_format)
+        snapshot.pose.rotation.x, snapshot.pose.rotation.y, \
+            snapshot.pose.rotation.z, snapshot.pose.rotation.w = \
+            read_and_decode(file, rotation_format)
+        snapshot.color_image.width, snapshot.color_image.height, \
+            snapshot.color_image.data = read_and_decode_color_image(file)
+        snapshot.depth_image.width, snapshot.depth_image.height, \
+            snapshot.depth_image.data = read_and_decode_depth_image(file)
+        snapshot.feelings.hunger, snapshot.feelings.thirst, \
+            snapshot.feelings.exhaustion, snapshot.feelings.happiness = \
+            read_and_decode(file, feelings_format)
+        return snapshot
 
 
 def read_and_decode(file: BufferedReader, format: str):

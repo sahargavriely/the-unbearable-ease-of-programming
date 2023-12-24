@@ -8,6 +8,7 @@ import threading
 from ..parser import Parser
 from ..protocol import (
     Config,
+    CONFIG_OPTIONS,
     Snapshot,
     Types,
     TYPE_FORMAT,
@@ -59,7 +60,8 @@ def _handle_connection(lock: threading.Lock, connection: Connection,
 
 def _recive_mind(connection: Connection, lock, data_dir: Path, parser: Parser):
     user = User.from_bytes(connection.receive_length_follow_by_value())
-    config_request = Config(['datetime', *parser.parsers.keys()])
+    config_request = Config()
+    config_request.config = CONFIG_OPTIONS
     connection.send_length_follow_by_value(config_request.serialize())
     snapshot = Snapshot.from_bytes(connection.receive_length_follow_by_value())
     datetime = dt.datetime.fromtimestamp(snapshot.datetime / 1000)

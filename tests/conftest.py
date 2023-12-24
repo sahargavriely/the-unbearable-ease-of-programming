@@ -23,15 +23,9 @@ from brain_computer_interface.client.reader.drivers.default_driver import (
 from brain_computer_interface.client.reader.drivers.protobuf_driver import \
     length_format
 from brain_computer_interface.protocol import (
-    DepthImage,
-    ColorImage,
     Config,
     CONFIG_OPTIONS,
-    Feelings,
-    Pose,
-    Rotation,
     Snapshot,
-    Translation,
     User,
 )
 from brain_computer_interface.utils import config as config_module
@@ -99,31 +93,44 @@ def clean_db(conf):
 
 @pytest.fixture(scope='module')
 def config():
-    return Config(CONFIG_OPTIONS)
+    config = Config()
+    config.config = CONFIG_OPTIONS
+    return config
 
 
 @pytest.fixture(scope='module')
 def snapshot():
-    return Snapshot(
-        int(time.time() * 1000),
-        Pose(
-            Translation(.1, .2, .3),
-            Rotation(.1, .2, .3, .4)
-        ),
-        ColorImage(1, 1, b'\x00\x00\x00'),
-        DepthImage(1, 1, [.5]),
-        Feelings(.1, .2, .3, .4)
-    )
+    snapshot = Snapshot()
+    snapshot.datetime = int(time.time() * 1000)
+    snapshot.pose.translation.x = .1
+    snapshot.pose.translation.y = .2
+    snapshot.pose.translation.z = .3
+    snapshot.pose.rotation.x = .1
+    snapshot.pose.rotation.y = .2
+    snapshot.pose.rotation.z = .3
+    snapshot.pose.rotation.w = .4
+    snapshot.color_image.height = 1
+    snapshot.color_image.width = 1
+    snapshot.color_image.data = b'\x00\x00\x00'
+    snapshot.depth_image.height = 1
+    snapshot.depth_image.width = 1
+    snapshot.depth_image.data = [.5]
+    snapshot.feelings.hunger = .1
+    snapshot.feelings.thirst = .2
+    snapshot.feelings.exhaustion = .3
+    snapshot.feelings.happiness = .4
+    return snapshot
 
 
 @pytest.fixture(scope='module')
 def user():
-    return User(
-        1,
-        'Sahar Gavriely',
-        int(dt.datetime.strptime('June 6, 1994', '%B %d, %Y').timestamp()),
-        0
-    )
+    user = User()
+    user.id = 1
+    user.name = 'Sahar Gavriely'
+    user.birthday = int(dt.datetime.strptime(
+        'June 6, 1994', '%B %d, %Y').timestamp())
+    user.gender = 0
+    return user
 
 
 ##########################################################################
