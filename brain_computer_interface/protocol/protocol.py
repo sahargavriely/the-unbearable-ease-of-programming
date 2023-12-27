@@ -1,21 +1,22 @@
 from datetime import datetime as dt
 from enum import Enum
+import gzip
 import struct
 
 from . import mind_pb2
 from .protobuf_wrapper import ProtobufWrapper
-
+from ..utils import keys
 
 TYPE_FORMAT = '<I'
 TYPE_FORMAT_SIZE = struct.calcsize(TYPE_FORMAT)
 
 CONFIG_OPTIONS = [
-    'datetime',
-    'translation',
-    'rotation',
-    'color_image',
-    'depth_image',
-    'feelings',
+    keys.datetime,
+    keys.translation,
+    keys.rotation,
+    keys.color_image,
+    keys.depth_image,
+    keys.feelings,
 ]
 
 
@@ -101,6 +102,24 @@ class ColorImage(ProtobufWrapper):
     def __repr__(self) -> str:
         return f'<{self.__class__.__name__} {self.width}X{self.height}>'
 
+    def jsonify(self, path=None) -> dict:
+        if path is None:
+            return super().jsonify(path)
+        save_as = f'{path}/{keys.color_image}'
+        with gzip.open(save_as, 'wb') as f:
+            f.write(self.data)  # type: ignore
+        self.data = save_as
+        return super().jsonify(path)
+
+    @classmethod
+    def from_json(cls, json_obj: dict):
+        if not isinstance(json_obj[keys.data], str):
+            return super().from_json(json_obj)
+        json_obj = json_obj.copy()
+        with gzip.open(json_obj[keys.data], 'rb') as file:
+            json_obj[keys.data] = file.read()
+        return super().from_json(json_obj)
+
 
 class DepthImage(ProtobufWrapper):
     _protobuf_type = mind_pb2.DepthImage
@@ -112,6 +131,26 @@ class DepthImage(ProtobufWrapper):
 
     def __repr__(self) -> str:
         return f'<{self.__class__.__name__} {self.width}X{self.height}>'
+
+    def jsonify(self, path=None) -> dict:
+        if path is None:
+            return super().jsonify(path)
+        save_as = f'{path}/{keys.depth_image}'
+        with gzip.open(save_as, 'wb') as f:
+            f.write(struct.pack(f'{len(self.data)}f', *self.data))
+        self.data = save_as
+        return super().jsonify(path)
+
+    @classmethod
+    def from_json(cls, json_obj: dict):
+        if not isinstance(json_obj[keys.data], str):
+            return super().from_json(json_obj)
+        json_obj = json_obj.copy()
+        with gzip.open(json_obj[keys.data], 'rb') as file:
+            json_obj[keys.data] = list(struct.unpack(
+                f'{json_obj[keys.height] * json_obj[keys.width]}f',
+                file.read()))  # type: ignore
+        return super().from_json(json_obj)
 
 
 class Feelings(ProtobufWrapper):
@@ -155,15 +194,15 @@ class Snapshot(ProtobufWrapper):
             f'and {self.feelings}>'
 
     def set_default(self, key):
-        if key == 'datetime':
+        if key == keys.datetime:
             self.datetime = 0
-        elif key == 'translation':
+        elif key == keys.translation:
             self.pose.translation = Translation(0, 0, 0)
-        elif key == 'rotation':
+        elif key == keys.rotation:
             self.pose.rotation = Rotation(0, 0, 0, 0)
-        elif key == 'color_image':
+        elif key == keys.color_image:
             self.color_image = ColorImage(0, 0, b'')
-        elif key == 'depth_image':
+        elif key == keys.depth_image:
             self.depth_image = DepthImage(0, 0, list())
-        elif key == 'feelings':
+        elif key == keys.feelings:
             self.feelings = Feelings(0, 0, 0, 0)

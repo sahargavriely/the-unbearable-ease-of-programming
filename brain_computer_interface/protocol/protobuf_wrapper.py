@@ -1,3 +1,4 @@
+from collections.abc import Iterable
 import importlib
 import inspect
 import numbers
@@ -22,17 +23,18 @@ class ProtobufWrapper:
                     if not attr.startswith('_')
                     and not inspect.ismethod(getattr(self, attr)))
 
-    def jsonify(self) -> dict:
+    def jsonify(self, path=None) -> dict:
         json_obj = dict()
         for attr in dir(self):
             if attr.startswith('_'):
                 continue
             val = getattr(self, attr)
             if isinstance(val, ProtobufWrapper):
-                json_obj[attr] = val.jsonify()
-            elif isinstance(val, (list, bytes, str, numbers.Number)):
-                # assuming lists are already in json format
+                json_obj[attr] = val.jsonify(path)
+            elif isinstance(val, (bytes, str, numbers.Number)):
                 json_obj[attr] = val
+            elif isinstance(val, Iterable):
+                json_obj[attr] = list(val)
         return json_obj
 
     def to_protobuf(self):
@@ -45,7 +47,7 @@ class ProtobufWrapper:
                 getattr(protobuf_obj, attr).CopyFrom(val.to_protobuf())
             elif isinstance(val, (bytes, str, numbers.Number)):
                 setattr(protobuf_obj, attr, val)
-            elif isinstance(val, list):
+            elif isinstance(val, (list, Iterable)):
                 getattr(protobuf_obj, attr).extend(val)
         return protobuf_obj
 

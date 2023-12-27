@@ -1,7 +1,9 @@
 import datetime as dt
+import json
 import socket
 import time
 
+from brain_computer_interface.protocol import Snapshot
 from utils import (
     mock_upload_mind,
     mock_upload_thought,
@@ -10,16 +12,28 @@ from utils import (
 )
 
 
-def test_mind(conf, server, user, snapshot):
-    datetime = dt.datetime.fromtimestamp(snapshot.datetime / 1000)
-    mind_path = conf.DATA_DIR / f'{user.id}/{datetime:%F_%H-%M-%S-%f}'
-    assert not mind_path.exists()
+def test_mind(conf, server, server_data_dir, user, snapshot):
+    if server_data_dir.exists():
+        assert not [p for p in server_data_dir.iterdir()]
     mock_upload_mind(conf, user, snapshot)
-    user_dir = conf.DATA_DIR / str(user.id)
-    assert user_dir.exists()
-    assert user_dir.is_dir()
-    assert mind_path.exists()
-    assert mind_path.is_dir()
+    datetime = dt.datetime.fromtimestamp(snapshot.datetime / 1000)
+    imgs_dir = server_data_dir / str(user.id) / f'{datetime:%F_%H-%M-%S-%f}'
+    user_file = imgs_dir.parent / 'user.json'
+    snapshot_file = imgs_dir / 'snapshot.json'
+    assert user_file.exists()
+    assert user_file.is_file()
+    with user_file.open('r') as file:
+        assert user.jsonify() == json.load(file)
+    assert snapshot_file.exists()
+    assert snapshot_file.is_file()
+    snap = {}
+    with snapshot_file.open('r') as file:
+        snap = json.load(file)
+    assert repr(snapshot) == repr(Snapshot.from_json(snap))
+    assert snapshot.color_image.data == Snapshot.from_json(
+        snap).color_image.data
+    assert snapshot.depth_image.data == Snapshot.from_json(
+        snap).depth_image.data
 
 
 def test_thought(conf, server):

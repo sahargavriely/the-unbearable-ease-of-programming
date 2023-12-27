@@ -1,5 +1,6 @@
 import datetime as dt
 import gzip
+import json
 from pathlib import Path
 import multiprocessing
 import shutil
@@ -34,7 +35,7 @@ from brain_computer_interface.protocol import (
     Translation,
     User,
 )
-from brain_computer_interface.utils import config as config_module
+from brain_computer_interface.utils import config as config_module, keys
 from utils import (
     Dictionary,
     _run_server,
@@ -42,6 +43,7 @@ from utils import (
     _run_mock_server,
     _serve_thread,
 )
+
 
 ##########################################################################
 # Configuration
@@ -190,14 +192,40 @@ def protobuf_mind_file(mind_dir: Path, user: User, snapshot: Snapshot):
 
 
 @pytest.fixture(scope='module')
-def server(conf):
-    with _serve_thread(conf, _run_server) as thread:
+def server_data_dir(tmp_path_factory):
+    return tmp_path_factory.mktemp('server_data')
+
+
+@pytest.fixture(autouse=True)
+def clean_server_data_dir(server_data_dir):
+    if server_data_dir.exists():
+        shutil.rmtree(server_data_dir)
+
+
+@pytest.fixture(scope='module')
+def server(conf, server_data_dir: Path):
+
+    def write_data(user, snapshot):
+        if server_data_dir.exists():
+            shutil.rmtree(server_data_dir)
+        imgs_dir = Path(snapshot[keys.color_image][keys.data]).parent
+        shutil.copytree(imgs_dir, server_data_dir)
+        user_dir = Path(server_data_dir) / imgs_dir.parent.name
+        user_dir.mkdir()
+        with (user_dir / 'user.json').open('w') as file:
+            json.dump(user, file)
+        snapshot_dir = user_dir / imgs_dir.name
+        snapshot_dir.mkdir()
+        with (snapshot_dir / 'snapshot.json').open('w') as file:
+            json.dump(snapshot, file)
+
+    with _serve_thread(_run_server, write_data, conf) as thread:
         yield thread
 
 
 @pytest.fixture(scope='module')
 def webserver(conf):
-    with _serve_thread(conf, _run_webserver) as thread:
+    with _serve_thread(_run_webserver, conf) as thread:
         yield thread
 
 

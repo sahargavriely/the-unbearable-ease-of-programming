@@ -45,8 +45,9 @@ class Dictionary(dict):
             raise AttributeError(key)
 
 
-def _run_server(conf):
-    run_server(conf.LISTEN_HOST, conf.SERVER_PORT, conf.DATA_DIR)
+def _run_server(publish_method, conf):
+    run_server(publish_method, conf.LISTEN_HOST,
+               conf.SERVER_PORT, conf.DATA_DIR)
 
 
 def _run_webserver(conf):
@@ -54,8 +55,8 @@ def _run_webserver(conf):
 
 
 @contextlib.contextmanager
-def _serve_thread(conf, serve):
-    thread = threading.Thread(target=serve, args=(conf,))
+def _serve_thread(serve, *args):
+    thread = threading.Thread(target=serve, args=args)
     thread.start()
     time.sleep(1)
     yield thread

@@ -1,8 +1,8 @@
 from .protocol import (
-    DepthImage,
     ColorImage,
     Config,
     CONFIG_OPTIONS,
+    DepthImage,
     Feelings,
     Pose,
     Rotation,
@@ -16,10 +16,10 @@ from .protocol import (
 
 
 __all__ = [
-    'DepthImage',
     'ColorImage',
     'Config',
     'CONFIG_OPTIONS',
+    'DepthImage',
     'Feelings',
     'Pose',
     'Rotation',
