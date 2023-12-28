@@ -15,15 +15,15 @@ def collect_driver(extension):
     Collecting drivers of different "mind" hardwares.
     Distinguishing driver by the path extension.
     '''
-    if inspect.isclass(extension):
-        drivers['default'] = extension
-        return extension
 
     def decorator(cls):
         logger.info('collecting a %s driver class %s', extension, cls.__name__)
         drivers[extension] = cls
         return cls
 
+    if inspect.isclass(extension):
+        cls, extension = extension, 'default'
+        return decorator(cls)
     return decorator
 
 

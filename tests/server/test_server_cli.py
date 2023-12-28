@@ -1,8 +1,9 @@
-import datetime as dt
+import json
 import signal
 import subprocess
 import time
 
+from brain_computer_interface.protocol import Snapshot
 from utils import (
     _get_path,
     mock_upload_mind,
@@ -10,10 +11,10 @@ from utils import (
 )
 
 
-def test_run_server(conf, user, snapshot):
+def test_run_server_by_scheme(conf, user, snapshot):
     cmd = ['python', '-m', 'brain_computer_interface.server', 'run-server',
-           '-h', conf.LISTEN_HOST, '-p', str(conf.SERVER_PORT),
-           '-d', str(conf.DATA_DIR)]
+           '-ps', str(conf.PUBLISH_SCHEME), '-h', conf.LISTEN_HOST,
+           '-p', str(conf.SERVER_PORT), '-d', str(conf.DATA_DIR)]
     process = subprocess.Popen(cmd, stdout=subprocess.PIPE)
     try:
         time.sleep(0.4)
@@ -30,7 +31,17 @@ def test_run_server(conf, user, snapshot):
     thought_path_2 = _get_path(conf.DATA_DIR, conf.USER_22, conf.TIMESTAMP_22)
     assert thought_path_1.read_text() == conf.THOUGHT_20
     assert thought_path_2.read_text() == conf.THOUGHT_22
-    datetime = dt.datetime.fromtimestamp(snapshot.datetime / 1000)
-    mind_path = conf.DATA_DIR / f'{user.id}/{datetime:%F_%H-%M-%S-%f}'
-    assert mind_path.exists()
-    assert mind_path.is_dir()
+
+    publish_data_file = conf.DATA_DIR / 'publish' / 'data.json'
+    assert publish_data_file.exists()
+    assert publish_data_file.is_file()
+    with publish_data_file.open('r') as file:
+        data = json.load(file)
+    user_json = data['user']
+    snapshot_json = data['snapshot']
+    assert user.jsonify() == user_json
+    assert repr(snapshot) == repr(Snapshot.from_json(snapshot_json))
+    assert snapshot.color_image.data == Snapshot.from_json(
+        snapshot_json).color_image.data
+    assert snapshot.depth_image.data == Snapshot.from_json(
+        snapshot_json).depth_image.data

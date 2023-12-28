@@ -35,7 +35,7 @@ from brain_computer_interface.protocol import (
     Translation,
     User,
 )
-from brain_computer_interface.utils import config as config_module, keys
+from brain_computer_interface.utils import config as config_module
 from utils import (
     Dictionary,
     _run_server,
@@ -69,6 +69,7 @@ def patch_conf(tmp_path_factory):
     return Dictionary({
         'DATA_DIR': Path(tmp_path),
         'LISTEN_HOST': '0.0.0.0',
+        'PUBLISH_SCHEME': f'file://{Path(tmp_path).absolute()}/publish/',
         'REQUEST_HOST': '127.0.0.1',
         'SERVER_PORT': 5356,
         'WEBSERVER_PORT': 8356,
@@ -192,32 +193,25 @@ def protobuf_mind_file(mind_dir: Path, user: User, snapshot: Snapshot):
 
 
 @pytest.fixture(scope='module')
-def server_data_dir(tmp_path_factory):
-    return tmp_path_factory.mktemp('server_data')
+def server_publish_dir(tmp_path_factory):
+    return tmp_path_factory.mktemp('server_publish_dir')
 
 
 @pytest.fixture(autouse=True)
-def clean_server_data_dir(server_data_dir):
-    if server_data_dir.exists():
-        shutil.rmtree(server_data_dir)
+def clean_server_publish_dir(server_publish_dir):
+    if server_publish_dir.exists():
+        shutil.rmtree(server_publish_dir)
 
 
 @pytest.fixture(scope='module')
-def server(conf, server_data_dir: Path):
+def server(conf, server_publish_dir: Path):
 
-    def write_data(user, snapshot):
-        if server_data_dir.exists():
-            shutil.rmtree(server_data_dir)
-        imgs_dir = Path(snapshot[keys.color_image][keys.data]).parent
-        shutil.copytree(imgs_dir, server_data_dir)
-        user_dir = Path(server_data_dir) / imgs_dir.parent.name
-        user_dir.mkdir()
-        with (user_dir / 'user.json').open('w') as file:
-            json.dump(user, file)
-        snapshot_dir = user_dir / imgs_dir.name
-        snapshot_dir.mkdir()
-        with (snapshot_dir / 'snapshot.json').open('w') as file:
-            json.dump(snapshot, file)
+    def write_data(data):
+        if server_publish_dir.exists():
+            shutil.rmtree(server_publish_dir)
+        server_publish_dir.mkdir(parents=True)
+        with (server_publish_dir / 'data.json').open('w') as file:
+            json.dump(data, file)
 
     with _serve_thread(_run_server, write_data, conf) as thread:
         yield thread

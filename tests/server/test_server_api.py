@@ -1,9 +1,11 @@
-import datetime as dt
 import json
 import socket
 import time
 
+import pytest
+
 from brain_computer_interface.protocol import Snapshot
+from brain_computer_interface.server import run_server_by_scheme
 from utils import (
     mock_upload_mind,
     mock_upload_thought,
@@ -12,28 +14,31 @@ from utils import (
 )
 
 
-def test_mind(conf, server, server_data_dir, user, snapshot):
-    if server_data_dir.exists():
-        assert not [p for p in server_data_dir.iterdir()]
+def test_run_server(conf, server, server_publish_dir, user, snapshot):
+    if server_publish_dir.exists():
+        assert not [p for p in server_publish_dir.iterdir()]
     mock_upload_mind(conf, user, snapshot)
-    datetime = dt.datetime.fromtimestamp(snapshot.datetime / 1000)
-    imgs_dir = server_data_dir / str(user.id) / f'{datetime:%F_%H-%M-%S-%f}'
-    user_file = imgs_dir.parent / 'user.json'
-    snapshot_file = imgs_dir / 'snapshot.json'
-    assert user_file.exists()
-    assert user_file.is_file()
-    with user_file.open('r') as file:
-        assert user.jsonify() == json.load(file)
-    assert snapshot_file.exists()
-    assert snapshot_file.is_file()
-    snap = {}
-    with snapshot_file.open('r') as file:
-        snap = json.load(file)
-    assert repr(snapshot) == repr(Snapshot.from_json(snap))
+    publish_data_file = server_publish_dir / 'data.json'
+    assert publish_data_file.exists()
+    assert publish_data_file.is_file()
+    with publish_data_file.open('r') as file:
+        data = json.load(file)
+    user_json = data['user']
+    snapshot_json = data['snapshot']
+    assert user.jsonify() == user_json
+    assert repr(snapshot) == repr(Snapshot.from_json(snapshot_json))
     assert snapshot.color_image.data == Snapshot.from_json(
-        snap).color_image.data
+        snapshot_json).color_image.data
     assert snapshot.depth_image.data == Snapshot.from_json(
-        snap).depth_image.data
+        snapshot_json).depth_image.data
+
+
+def test_run_server_by_scheme_error():
+    bad_scheme = 'sike'
+    url = f'{bad_scheme}:///nowhere'
+    error_msg = f'Publish scheme {bad_scheme!r} is not supported'
+    with pytest.raises(ValueError, match=error_msg):
+        run_server_by_scheme(url)
 
 
 def test_thought(conf, server):

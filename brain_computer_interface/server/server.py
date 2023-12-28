@@ -26,18 +26,23 @@ from ..utils import (
     LISTEN_HOST,
     PUBLISH_SCHEME,
     SERVER_PORT,
+    setup_logging,
     Thought,
 )
 
 
+logger = setup_logging(__name__)
+
+
 def run_server_by_scheme(publish_scheme: str = PUBLISH_SCHEME,
-                         host: str = LISTEN_HOST, port: int = SERVER_PORT):
+                         host: str = LISTEN_HOST, port: int = SERVER_PORT,
+                         data_dir: Path = DATA_DIR):
     url = furl(publish_scheme)
     publish_method = schemes.get(url.scheme)
     if not publish_method:
-        raise ValueError(f'Publish scheme {url.scheme!r} not supported :[')
+        raise ValueError(f'Publish scheme {url.scheme!r} is not supported')
     publish_method = functools.partial(publish_method, url)
-    run_server(publish_method, host, port)
+    run_server(publish_method, host, port, data_dir)
 
 
 def run_server(publish_method: typing.Callable,
@@ -84,7 +89,10 @@ def _recive_mind(connection: Connection, publish_method: typing.Callable,
     imgs_dir.mkdir(parents=True, exist_ok=True)
     with lock:
         json_snapshot = snapshot.jsonify(imgs_dir)
-    publish_method(user.jsonify(), json_snapshot)
+    publish_method({
+        'user': user.jsonify(),
+        'snapshot': json_snapshot
+    })
 
 
 def _recive_thought(connection: Connection, lock, data_dir: Path):
