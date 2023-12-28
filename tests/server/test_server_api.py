@@ -14,14 +14,12 @@ from utils import (
 )
 
 
-def test_run_server(conf, server, server_publish_dir, user, snapshot):
-    if server_publish_dir.exists():
-        assert not [p for p in server_publish_dir.iterdir()]
+def test_run_server(conf, server, server_publish_file, user, snapshot):
+    assert not server_publish_file.exists()
     mock_upload_mind(conf, user, snapshot)
-    publish_data_file = server_publish_dir / 'data.json'
-    assert publish_data_file.exists()
-    assert publish_data_file.is_file()
-    with publish_data_file.open('r') as file:
+    assert server_publish_file.exists()
+    assert server_publish_file.is_file()
+    with server_publish_file.open('r') as file:
         data = json.load(file)
     user_json = data['user']
     snapshot_json = data['snapshot']

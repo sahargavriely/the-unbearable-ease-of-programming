@@ -26,7 +26,7 @@ def collect_scheme(scheme):
 
 @collect_scheme
 def file(url: furl.furl, data):
-    path = pathlib.Path(str(url.path)) / 'data.json'
+    path = pathlib.Path(str(url.path))
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open('w') as f:
         json.dump(data, f)

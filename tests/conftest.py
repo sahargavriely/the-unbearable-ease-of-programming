@@ -193,24 +193,21 @@ def protobuf_mind_file(mind_dir: Path, user: User, snapshot: Snapshot):
 
 
 @pytest.fixture(scope='module')
-def server_publish_dir(tmp_path_factory):
-    return tmp_path_factory.mktemp('server_publish_dir')
+def server_publish_file(tmp_path_factory):
+    return tmp_path_factory.mktemp('publish') / 'data.json'
 
 
 @pytest.fixture(autouse=True)
-def clean_server_publish_dir(server_publish_dir):
-    if server_publish_dir.exists():
-        shutil.rmtree(server_publish_dir)
+def clean_server_publish_file(server_publish_file):
+    if server_publish_file.exists():
+        server_publish_file.unlink()
 
 
 @pytest.fixture(scope='module')
-def server(conf, server_publish_dir: Path):
+def server(conf, server_publish_file: Path):
 
     def write_data(data):
-        if server_publish_dir.exists():
-            shutil.rmtree(server_publish_dir)
-        server_publish_dir.mkdir(parents=True)
-        with (server_publish_dir / 'data.json').open('w') as file:
+        with server_publish_file.open('w') as file:
             json.dump(data, file)
 
     with _serve_thread(_run_server, write_data, conf) as thread:
