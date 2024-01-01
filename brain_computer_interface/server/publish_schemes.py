@@ -30,3 +30,6 @@ def file(url: furl.furl, data):
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open('w') as f:
         json.dump(data, f)
+
+
+collect_scheme('udp')(lambda *_: None)
