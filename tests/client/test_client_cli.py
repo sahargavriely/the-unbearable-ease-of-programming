@@ -1,6 +1,6 @@
 import subprocess
 
-from brain_computer_interface.protocol import (
+from brain_computer_interface.message import (
     Snapshot,
     User,
 )

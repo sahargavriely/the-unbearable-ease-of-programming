@@ -85,7 +85,7 @@ class ProtobufWrapper:
 def _get_protobuf_wrapped_class(cls_name: str) -> ProtobufWrapper:
     cls_name = ''.join(word.capitalize() for word in cls_name.split('_'))
     if not classes:
-        protocol = importlib.import_module('.protocol', __package__)
-        for name, obj in inspect.getmembers(protocol, inspect.isclass):
+        message = importlib.import_module('.message', __package__)
+        for name, obj in inspect.getmembers(message, inspect.isclass):
             classes[name] = obj
     return classes[cls_name]

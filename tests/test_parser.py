@@ -4,8 +4,8 @@ from pathlib import Path
 from PIL import Image
 import pytest
 
+from brain_computer_interface.message import Snapshot
 from brain_computer_interface.parser import Parser
-from brain_computer_interface.protocol.protocol import Snapshot
 
 
 _DATA = 'some data'

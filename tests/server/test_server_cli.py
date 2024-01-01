@@ -6,7 +6,7 @@ import time
 
 import furl
 
-from brain_computer_interface.protocol import Snapshot
+from brain_computer_interface.message import Snapshot
 from utils import (
     _get_path,
     mock_upload_mind,

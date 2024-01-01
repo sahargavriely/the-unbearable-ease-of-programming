@@ -1,12 +1,12 @@
 import pytest
 
-from brain_computer_interface.protocol import (
+from brain_computer_interface.message import (
     Config,
     CONFIG_OPTIONS,
     Snapshot,
     User,
 )
-from brain_computer_interface.protocol.protobuf_wrapper import ProtobufWrapper
+from brain_computer_interface.message.protobuf_wrapper import ProtobufWrapper
 
 
 def test_config(config: Config):

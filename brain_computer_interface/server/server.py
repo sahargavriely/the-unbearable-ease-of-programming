@@ -9,8 +9,7 @@ import typing
 
 from furl import furl
 
-from .publish_schemes import schemes
-from ..protocol import (
+from ..message import (
     Config,
     CONFIG_OPTIONS,
     Snapshot,
@@ -19,6 +18,7 @@ from ..protocol import (
     TYPE_FORMAT_SIZE,
     User,
 )
+from .publish_schemes import schemes
 from ..utils import (
     Connection,
     DATA_DIR,

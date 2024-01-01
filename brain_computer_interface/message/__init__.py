@@ -1,4 +1,4 @@
-from .protocol import (
+from .message import (
     ColorImage,
     Config,
     CONFIG_OPTIONS,

@@ -7,6 +7,7 @@ from . import mind_pb2
 from .protobuf_wrapper import ProtobufWrapper
 from ..utils import keys
 
+
 TYPE_FORMAT = '<I'
 TYPE_FORMAT_SIZE = struct.calcsize(TYPE_FORMAT)
 

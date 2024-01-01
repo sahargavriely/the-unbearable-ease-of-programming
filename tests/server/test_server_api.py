@@ -4,7 +4,7 @@ import time
 
 import pytest
 
-from brain_computer_interface.protocol import Snapshot
+from brain_computer_interface.message import Snapshot
 from brain_computer_interface.server import run_server_by_scheme
 from utils import (
     mock_upload_mind,

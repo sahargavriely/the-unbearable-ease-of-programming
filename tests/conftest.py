@@ -23,7 +23,7 @@ from brain_computer_interface.client.reader.drivers.default_driver import (
 )
 from brain_computer_interface.client.reader.drivers.protobuf_driver import \
     length_format
-from brain_computer_interface.protocol import (
+from brain_computer_interface.message import (
     DepthImage,
     ColorImage,
     Config,

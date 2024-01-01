@@ -1,7 +1,7 @@
 version = '0.2.0'
 
 
-from .protocol import (
+from .message import (
     ColorImage,
     DepthImage,
     Feelings,

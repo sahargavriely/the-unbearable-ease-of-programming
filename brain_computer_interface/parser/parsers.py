@@ -3,7 +3,7 @@ from pathlib import Path
 
 from PIL import Image
 
-from ..protocol import Snapshot
+from ..message import Snapshot
 
 
 def parse_translation(cur_user_dir: Path, snapshot: Snapshot):

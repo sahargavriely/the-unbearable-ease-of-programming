@@ -2,7 +2,7 @@ import importlib
 import inspect
 import pathlib
 
-from ...protocol import Snapshot
+from ...message import Snapshot
 from ...utils import setup_logging
 
 

@@ -2,7 +2,7 @@ import datetime as dt
 from struct import pack
 
 from .reader import Reader
-from ..protocol import (
+from ..message import (
     Config,
     CONFIG_OPTIONS,
     Types,

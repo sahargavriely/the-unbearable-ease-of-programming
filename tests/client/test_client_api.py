@@ -5,7 +5,7 @@ from brain_computer_interface.client import (
     upload_mind,
     upload_thought,
 )
-from brain_computer_interface.protocol import (
+from brain_computer_interface.message import (
     Snapshot,
     User,
 )
