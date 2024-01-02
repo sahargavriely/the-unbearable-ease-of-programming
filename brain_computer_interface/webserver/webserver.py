@@ -4,9 +4,9 @@ from pathlib import Path
 import flask
 
 from ..utils import (
-    DATA_DIR,
     LISTEN_HOST,
     SERVER_PORT,
+    SHARED_DIR,
 )
 
 
@@ -57,7 +57,7 @@ _USER_NOT_FOUND_HTML = '''
 def run_webserver(
     host: str = LISTEN_HOST,
     port: int = SERVER_PORT,
-    data_dir: Path = DATA_DIR,
+    data_dir: Path = SHARED_DIR,
     debug: bool = False
 ):
     app = flask.Flask(__name__)

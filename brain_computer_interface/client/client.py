@@ -2,8 +2,9 @@ import datetime as dt
 from struct import pack
 
 from .reader import Reader
-from ..protocol import (
+from ..message import (
     Config,
+    CONFIG_OPTIONS,
     Types,
     TYPE_FORMAT,
 )
@@ -32,7 +33,7 @@ def upload_mind(path: str, host: str = REQUEST_HOST, port: int = SERVER_PORT):
             connection.send_length_follow_by_value(reader.user.serialize())
             decoded_conf = connection.receive_length_follow_by_value()
             config = Config.from_bytes(decoded_conf)
-            for conf in snapshot.config:
+            for conf in CONFIG_OPTIONS:
                 if conf not in config:
                     snapshot.set_default(conf)
             connection.send_length_follow_by_value(snapshot.serialize())

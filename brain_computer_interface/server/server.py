@@ -1,13 +1,18 @@
 import contextlib
 import datetime as dt
+import functools
 from pathlib import Path
 import socket
 import struct
 import threading
+import typing
 
-from ..parser import Parser
-from ..protocol import (
+from furl import furl
+
+from .publish_schemes import schemes
+from ..message import (
     Config,
+    CONFIG_OPTIONS,
     Snapshot,
     Types,
     TYPE_FORMAT,
@@ -16,18 +21,38 @@ from ..protocol import (
 )
 from ..utils import (
     Connection,
-    DATA_DIR,
     Listener,
     LISTEN_HOST,
+    PUBLISH_SCHEME,
     SERVER_PORT,
+    setup_logging,
+    SHARED_DIR,
     Thought,
 )
 
 
-def run_server(host: str = LISTEN_HOST, port: int = SERVER_PORT,
-               data_dir: Path = DATA_DIR):
+logger = setup_logging(__name__)
+
+
+def run_server_by_scheme(publish_scheme: str = PUBLISH_SCHEME,
+                         host: str = LISTEN_HOST, port: int = SERVER_PORT,
+                         shared_dir: Path = SHARED_DIR):
+    url = furl(publish_scheme)
+    publish_method = schemes.get(url.scheme)
+    if not publish_method:
+        msg = f'Publish scheme {url.scheme!r} is not supported'
+        logger.error(msg.lower())
+        raise ValueError(msg)
+    publish_method = functools.partial(publish_method, url)
+    run_server(publish_method, host, port, shared_dir)
+
+
+def run_server(publish_method: typing.Callable,
+               host: str = LISTEN_HOST, port: int = SERVER_PORT,
+               shared_dir: Path = SHARED_DIR):
+    logger.info('starting server on %s:%s and shared directory at %s',
+                host, port, shared_dir)
     lock = threading.Lock()
-    parser = Parser(data_dir=data_dir)
 
     with Listener(port, host) as listener:
         while True:
@@ -36,7 +61,7 @@ def run_server(host: str = LISTEN_HOST, port: int = SERVER_PORT,
                     connection = listener.accept()
                     thread = threading.Thread(
                         target = _handle_connection,
-                        args = (lock, connection, data_dir, parser),
+                        args = (lock, connection, publish_method, shared_dir),
                         daemon = True
                     )
                     thread.start()
@@ -46,27 +71,34 @@ def run_server(host: str = LISTEN_HOST, port: int = SERVER_PORT,
 
 
 def _handle_connection(lock: threading.Lock, connection: Connection,
-                       data_dir: Path, parser: Parser):
+                       publish_method: typing.Callable, shared_dir: Path):
     with connection:
         protocol_type = _receive_type(connection)
         if protocol_type == Types.MIND.value:
-            _recive_mind(connection, lock, data_dir, parser)
+            _recive_mind(lock, connection, publish_method, shared_dir)
         elif protocol_type == Types.THOUGHT.value:
-            _recive_thought(connection, lock, data_dir)
+            _recive_thought(connection, lock, shared_dir)
         else:
             pass
 
 
-def _recive_mind(connection: Connection, lock, data_dir: Path, parser: Parser):
+def _recive_mind(lock: threading.Lock, connection: Connection,
+                 publish_method: typing.Callable, shared_dir: Path):
     user = User.from_bytes(connection.receive_length_follow_by_value())
-    config_request = Config(['datetime', *parser.parsers.keys()])
+    logger.debug('receiving mind from user %s', user.id)
+    config_request = Config(CONFIG_OPTIONS)  # TODO = available parsers
     connection.send_length_follow_by_value(config_request.serialize())
     snapshot = Snapshot.from_bytes(connection.receive_length_follow_by_value())
     datetime = dt.datetime.fromtimestamp(snapshot.datetime / 1000)
-    cur_user_dir = data_dir / str(user.id) / f'{datetime:%F_%H-%M-%S-%f}'
+    imgs_dir = shared_dir / str(user.id) / f'{datetime:%F_%H-%M-%S-%f}'
+    logger.debug('creating images shared directory at %s', imgs_dir)
+    imgs_dir.mkdir(parents=True, exist_ok=True)
     with lock:
-        cur_user_dir.mkdir(parents=True, exist_ok=True)
-        parser.parse(cur_user_dir, snapshot)
+        json_snapshot = snapshot.jsonify(imgs_dir)
+    publish_method({
+        'user': user.jsonify(),
+        'snapshot': json_snapshot
+    })
 
 
 def _recive_thought(connection: Connection, lock, data_dir: Path):

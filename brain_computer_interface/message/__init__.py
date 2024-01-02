@@ -1,9 +1,9 @@
-from .protocol import (
-    DepthImage,
+from .message import (
     ColorImage,
     Config,
+    CONFIG_OPTIONS,
+    DepthImage,
     Feelings,
-    Gender,
     Pose,
     Rotation,
     Snapshot,
@@ -16,11 +16,11 @@ from .protocol import (
 
 
 __all__ = [
-    'DepthImage',
     'ColorImage',
     'Config',
+    'CONFIG_OPTIONS',
+    'DepthImage',
     'Feelings',
-    'Gender',
     'Pose',
     'Rotation',
     'Snapshot',

@@ -45,20 +45,9 @@ The package expose several sub-packages which can be run separately on a differe
 The sub-packages are:
 
 * [`client`](/brain_computer_interface/client/README.md) - uploads mind and thoughts to the server.
+* [`server`](/brain_computer_interface/server/README.md) - receives mind and thoughts from clients.
 
 The `brain_computer_interface` packages provides the following functions:
-
-- `run_server`
-
-    This function starts the server which receives thoughts from users.
-    You may provide an address (host and port) which the server listens to (defaults are set to ``'0.0.0.0'`` and ``5000``, respectfully) a directory in which the server will save the thoughts to (default is set to ``data/``). 
-
-    ```pycon
-    >>> from brain_computer_interface import run_server
-    >>> from pathlib import Path
-    >>> run_server(host='0.0.0.0', port=5000, data_dir=Path('data/'))
-
-    ```
 
 - `run_webserver`
 
@@ -104,20 +93,6 @@ To see the version, do the following:
 $ python -m brain_computer_interface --version
 brain_computer_interface, version 0.1.0
 ```
-
-- ``run-server``
-
-    Runs the server which listens to thoughts.
-
-    ```sh
-    $ python -m brain_computer_interface run-server [OPTIONS]
-    ```
-    Options:
-    - ``-h``, ``--host`` TEXT      [default: 0.0.0.0]
-    - ``-p``, ``--port`` INTEGER   [default: 5000]
-    - ``-d``, ``--data_dir`` PATH  [default: data]
-    - ``-D``, ``--debug``
-    - ``--help``                   Show similar message and exit.
 
 - `run-webserver`
 

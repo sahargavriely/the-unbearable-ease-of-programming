@@ -1,5 +1,6 @@
 import datetime as dt
 import gzip
+import json
 from pathlib import Path
 import multiprocessing
 import shutil
@@ -22,10 +23,11 @@ from brain_computer_interface.client.reader.drivers.default_driver import (
 )
 from brain_computer_interface.client.reader.drivers.protobuf_driver import \
     length_format
-from brain_computer_interface.protocol import (
+from brain_computer_interface.message import (
     DepthImage,
     ColorImage,
     Config,
+    CONFIG_OPTIONS,
     Feelings,
     Pose,
     Rotation,
@@ -41,6 +43,7 @@ from utils import (
     _run_mock_server,
     _serve_thread,
 )
+
 
 ##########################################################################
 # Configuration
@@ -62,12 +65,13 @@ def other_conf():
 
 @pytest.fixture(scope='session')
 def patch_conf(tmp_path_factory):
-    tmp_path = tmp_path_factory.mktemp('data')
+    tmp_path = tmp_path_factory.mktemp('shared')
     return Dictionary({
-        'DATA_DIR': Path(tmp_path),
         'LISTEN_HOST': '0.0.0.0',
+        'PUBLISH_SCHEME': f'file://{Path(tmp_path).absolute()}/publish/',
         'REQUEST_HOST': '127.0.0.1',
         'SERVER_PORT': 5356,
+        'SHARED_DIR': Path(tmp_path),
         'WEBSERVER_PORT': 8356,
     })
 
@@ -88,8 +92,8 @@ def patch(monkeypatch, patch_conf):
 
 @pytest.fixture(autouse=True)
 def clean_db(conf):
-    if conf.DATA_DIR.exists():
-        shutil.rmtree(str(conf.DATA_DIR))
+    if conf.SHARED_DIR.exists():
+        shutil.rmtree(str(conf.SHARED_DIR))
 
 
 ##########################################################################
@@ -98,9 +102,7 @@ def clean_db(conf):
 
 @pytest.fixture(scope='module')
 def config():
-    return Config(
-        Snapshot.config
-    )
+    return Config(CONFIG_OPTIONS)
 
 
 @pytest.fixture(scope='module')
@@ -191,14 +193,30 @@ def protobuf_mind_file(mind_dir: Path, user: User, snapshot: Snapshot):
 
 
 @pytest.fixture(scope='module')
-def server(conf):
-    with _serve_thread(conf, _run_server) as thread:
+def server_publish_file(tmp_path_factory):
+    return tmp_path_factory.mktemp('publish') / 'data.json'
+
+
+@pytest.fixture(autouse=True)
+def clean_server_publish_file(server_publish_file):
+    if server_publish_file.exists():
+        server_publish_file.unlink()
+
+
+@pytest.fixture(scope='module')
+def server(conf, server_publish_file: Path):
+
+    def write_data(data):
+        with server_publish_file.open('w') as file:
+            json.dump(data, file)
+
+    with _serve_thread(_run_server, write_data, conf) as thread:
         yield thread
 
 
 @pytest.fixture(scope='module')
 def webserver(conf):
-    with _serve_thread(conf, _run_webserver) as thread:
+    with _serve_thread(_run_webserver, conf) as thread:
         yield thread
 
 

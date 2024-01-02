@@ -7,8 +7,8 @@ import pytest
 
 @pytest.fixture
 def user_dir(conf):
-    conf.DATA_DIR.mkdir()
-    user_dir = conf.DATA_DIR / str(conf.USER_20)
+    conf.SHARED_DIR.mkdir()
+    user_dir = conf.SHARED_DIR / str(conf.USER_20)
     user_dir.mkdir()
     datetime = dt.datetime.fromtimestamp(conf.TIMESTAMP_20)
     thought_file = user_dir / f'{datetime:%F_%H-%M-%S}.txt'

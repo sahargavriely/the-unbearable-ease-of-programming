@@ -2,7 +2,7 @@ import gzip
 import struct
 
 from ..reader import collect_driver
-from ....protocol import (
+from ....message import (
     Snapshot,
     User,
 )

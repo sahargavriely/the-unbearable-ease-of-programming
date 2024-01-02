@@ -4,8 +4,8 @@ from pathlib import Path
 from PIL import Image
 import pytest
 
+from brain_computer_interface.message import Snapshot
 from brain_computer_interface.parser import Parser
-from brain_computer_interface.protocol.protocol import Snapshot
 
 
 _DATA = 'some data'
@@ -28,7 +28,7 @@ def parser():
 
 
 def test_parser(conf, parser: Parser, snapshot: Snapshot):
-    user_dir = conf.DATA_DIR / 'some_user'
+    user_dir = conf.SHARED_DIR / 'some_user'
     parser.parse(user_dir, snapshot)
 
     assert (user_dir / 'function.txt').read_text() == _DATA

@@ -1,6 +1,6 @@
 import subprocess
 
-from brain_computer_interface.protocol import (
+from brain_computer_interface.message import (
     Snapshot,
     User,
 )
@@ -40,7 +40,7 @@ def test_upload_mind(conf, default_mind_file, protobuf_mind_file, user,
     decoded_user, decoded_snapshot, popped_key = get_message()
     snapshot.set_default(popped_key)
     assert decoded_user == user.serialize()
-    assert decoded_snapshot == snapshot.serialize()
+    assert repr(Snapshot.from_bytes(decoded_snapshot)) == repr(snapshot)
 
     cmd = ['python', '-m', 'brain_computer_interface.client', 'upload-mind',
            '-h', conf.REQUEST_HOST, '-p', str(conf.SERVER_PORT),
@@ -53,7 +53,7 @@ def test_upload_mind(conf, default_mind_file, protobuf_mind_file, user,
     decoded_user, decoded_snapshot, popped_key = get_message()
     snapshot.set_default(popped_key)
     assert decoded_user == user.serialize()
-    assert decoded_snapshot == snapshot.serialize()
+    assert repr(Snapshot.from_bytes(decoded_snapshot)) == repr(snapshot)
 
 
 def test_upload_thought(conf, get_message):

@@ -1,9 +1,8 @@
 import inspect
 from pathlib import Path
 
-from brain_computer_interface.protocol.protocol import Snapshot
-
 from . import parsers
+from ..message import Snapshot
 
 
 class Parser:

@@ -31,24 +31,6 @@ To see the version, do the following:
     brain_computer_interface, version 0.1.0
 
 
-The ``run-server`` Command
---------------------------
-
-Runs the server which listens to thoughts.
-
-.. code:: bash
-
-    $ python -m brain_computer_interface run-server [OPTIONS]
-
-Options:
-
-- ``-h``, ``--host`` TEXT      [default: 0.0.0.0]
-- ``-p``, ``--port`` INTEGER   [default: 5000]
-- ``-d``, ``--data_dir`` PATH  [default: data]
-- ``-D``, ``--debug``
-- ``--help``                   Show similar message and exit.
-
-
 The ``run-webserver`` Command
 -----------------------------
 
