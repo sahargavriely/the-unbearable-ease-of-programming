@@ -11,14 +11,15 @@ The `brain_computer_interface.server` packages provides the following function:
 
 - `run_server`
 
-    This function starts the server which receives thoughts from users.
-    You may provide an address (host and port) which the server listens to (defaults are set to ``'0.0.0.0'`` and ``5000``, respectfully) a directory in which the server will save the thoughts to (default is set to ``data/``). 
+    This function starts the server which receives minds from clients.
+    You should provide a ``publish_method`` which the server will forward the data to.
+    You may provide an address (host and port) which the server listens to (defaults are set to ``'0.0.0.0'`` and ``5000``, respectfully) a directory in which the server will save the thoughts to (default is set to ``shared/``). 
 
     ```pycon
     >>> from brain_computer_interface import run_server
     >>> from pathlib import Path
-    >>> run_server(host='0.0.0.0', port=5000, shared_dir=Path('data/'))
-
+    >>> run_server(print, host='0.0.0.0', port=5000, shared_dir=Path('shared/'))
+    {'user': {...}, 'snapshot': {...}}
     ```
 
 ## Command Line Interface
@@ -50,11 +51,12 @@ Commands:
     $ python -m brain_computer_interface run-server [OPTIONS]
     ```
     Options:
-    - ``-h``, ``--host`` TEXT      [default: 0.0.0.0]
-    - ``-p``, ``--port`` INTEGER   [default: 5000]
-    - ``-s``, ``--shared-dir`` PATH  [default: data]
+    - ``-ps``, ``--publish-scheme`` TEXT [default: file:///shared/publish/data.json]
+    - ``-h``, ``--host`` TEXT            [default: 0.0.0.0]
+    - ``-p``, ``--port`` INTEGER         [default: 5000]
+    - ``-s``, ``--shared-dir`` PATH      [default: shared/]
     - ``-D``, ``--debug``
-    - ``--help``                   Show similar message and exit.
+    - ``--help``                         Show similar message and exit.
 
 - `error`
 
@@ -72,7 +74,7 @@ or `--traceback` flag to show the full traceback when an exception is raised
 (by default, only the error message is printed, and the program exits with a
 non-zero code).
 
-To showcase these options, consider `error` command, which raises anexception:
+To showcase these options, consider `error` command, which raises an exception:
 
 ```sh
 $ python -m brain_computer_interface.server error

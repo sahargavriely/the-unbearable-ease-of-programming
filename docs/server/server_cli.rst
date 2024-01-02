@@ -26,7 +26,7 @@ The top-level options include:
 The ``run-server`` Command
 --------------------------
 
-Runs the server which listens to thoughts.
+Runs the server which listens to minds.
 
 .. code:: bash
 
@@ -34,11 +34,12 @@ Runs the server which listens to thoughts.
 
 Options:
 
-- ``-h``, ``--host`` TEXT      [default: 0.0.0.0]
-- ``-p``, ``--port`` INTEGER   [default: 5000]
-- ``-s``, ``--shared-dir`` PATH  [default: data]
+- ``-ps``, ``--publish-scheme`` TEXT [default: file:///shared/publish/data.json]
+- ``-h``, ``--host`` TEXT            [default: 0.0.0.0]
+- ``-p``, ``--port`` INTEGER         [default: 5000]
+- ``-s``, ``--shared-dir`` PATH      [default: shared/]
 - ``-D``, ``--debug``
-- ``--help``                   Show similar message and exit.
+- ``--help``                         Show similar message and exit.
 
 
 The ``error`` Command
