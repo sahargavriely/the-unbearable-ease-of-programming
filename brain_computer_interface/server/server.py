@@ -1,6 +1,5 @@
 import contextlib
 import datetime as dt
-import functools
 from pathlib import Path
 import socket
 import struct
@@ -9,7 +8,7 @@ import typing
 
 from furl import furl
 
-from .publish_schemes import schemes
+from ..message_queue import queues
 from ..message import (
     Config,
     CONFIG_OPTIONS,
@@ -38,12 +37,12 @@ def run_server_by_scheme(publish_scheme: str = PUBLISH_SCHEME,
                          host: str = LISTEN_HOST, port: int = SERVER_PORT,
                          shared_dir: Path = SHARED_DIR):
     url = furl(publish_scheme)
-    publish_method = schemes.get(url.scheme)
-    if not publish_method:
+    queue = queues.get(url.scheme)
+    if not queue:
         msg = f'Publish scheme {url.scheme!r} is not supported'
         logger.error(msg.lower())
         raise ValueError(msg)
-    publish_method = functools.partial(publish_method, url)
+    publish_method = queue(url).publish
     run_server(publish_method, host, port, shared_dir)
 
 

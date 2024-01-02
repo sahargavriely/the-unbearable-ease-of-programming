@@ -7,6 +7,7 @@ import time
 import furl
 
 from brain_computer_interface.message import Snapshot
+from brain_computer_interface.message_queue import queues
 from utils import (
     _get_path,
     mock_upload_mind,
@@ -23,7 +24,7 @@ def test_run_server_by_scheme(conf, user, snapshot):
         pathlib.Path(str(furl.furl(conf.PUBLISH_SCHEME).path))
     assert not published_data_file.exists()
     try:
-        time.sleep(0.4)
+        time.sleep(0.5)
         args = conf, conf.USER_20, conf.TIMESTAMP_20, conf.THOUGHT_20
         mock_upload_thought(*args)
         args = conf, conf.USER_22, conf.TIMESTAMP_22, conf.THOUGHT_22
@@ -42,8 +43,7 @@ def test_run_server_by_scheme(conf, user, snapshot):
 
     assert published_data_file.exists()
     assert published_data_file.is_file()
-    with published_data_file.open('r') as file:
-        data = json.load(file)
+    data = queues['file'](furl.furl(str(published_data_file))).subscribe()
     assert user.jsonify() == data['user']
     snapshot_json = data['snapshot']
     assert repr(snapshot) == repr(Snapshot.from_json(snapshot_json))
