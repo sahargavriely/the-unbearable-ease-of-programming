@@ -36,7 +36,7 @@ Options:
 
 - ``-h``, ``--host`` TEXT      [default: 0.0.0.0]
 - ``-p``, ``--port`` INTEGER   [default: 5000]
-- ``-d``, ``--data_dir`` PATH  [default: data]
+- ``-s``, ``--shared-dir`` PATH  [default: data]
 - ``-D``, ``--debug``
 - ``--help``                   Show similar message and exit.
 

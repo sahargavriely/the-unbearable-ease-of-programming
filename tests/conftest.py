@@ -65,13 +65,13 @@ def other_conf():
 
 @pytest.fixture(scope='session')
 def patch_conf(tmp_path_factory):
-    tmp_path = tmp_path_factory.mktemp('data')
+    tmp_path = tmp_path_factory.mktemp('shared')
     return Dictionary({
-        'DATA_DIR': Path(tmp_path),
         'LISTEN_HOST': '0.0.0.0',
         'PUBLISH_SCHEME': f'file://{Path(tmp_path).absolute()}/publish/',
         'REQUEST_HOST': '127.0.0.1',
         'SERVER_PORT': 5356,
+        'SHARED_DIR': Path(tmp_path),
         'WEBSERVER_PORT': 8356,
     })
 
@@ -92,8 +92,8 @@ def patch(monkeypatch, patch_conf):
 
 @pytest.fixture(autouse=True)
 def clean_db(conf):
-    if conf.DATA_DIR.exists():
-        shutil.rmtree(str(conf.DATA_DIR))
+    if conf.SHARED_DIR.exists():
+        shutil.rmtree(str(conf.SHARED_DIR))
 
 
 ##########################################################################

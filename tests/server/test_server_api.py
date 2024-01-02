@@ -40,19 +40,19 @@ def test_run_server_by_scheme_error():
 
 
 def test_thought(conf, server):
-    thought_path = _get_path(conf.DATA_DIR, conf.USER_20, conf.TIMESTAMP_20)
+    thought_path = _get_path(conf.SHARED_DIR, conf.USER_20, conf.TIMESTAMP_20)
     assert not thought_path.exists()
     mock_upload_thought(conf, conf.USER_20, conf.TIMESTAMP_20, conf.THOUGHT_20)
-    user_dir = conf.DATA_DIR / str(conf.USER_20)
+    user_dir = conf.SHARED_DIR / str(conf.USER_20)
     assert user_dir.exists()
     assert user_dir.is_dir()
     assert thought_path.exists()
     assert thought_path.read_text() == conf.THOUGHT_20
 
-    thought_path = _get_path(conf.DATA_DIR, conf.USER_22, conf.TIMESTAMP_22)
+    thought_path = _get_path(conf.SHARED_DIR, conf.USER_22, conf.TIMESTAMP_22)
     assert not thought_path.exists()
     mock_upload_thought(conf, conf.USER_22, conf.TIMESTAMP_22, conf.THOUGHT_22)
-    user_dir = conf.DATA_DIR / str(conf.USER_22)
+    user_dir = conf.SHARED_DIR / str(conf.USER_22)
     assert user_dir.exists()
     assert user_dir.is_dir()
     assert thought_path.exists()
@@ -65,7 +65,7 @@ def test_race_condition(conf, server):
         timestamp += 1
         mock_upload_thought(conf, conf.USER_20, timestamp, conf.THOUGHT_20)
         mock_upload_thought(conf, conf.USER_20, timestamp, conf.THOUGHT_22)
-        thought_path = _get_path(conf.DATA_DIR, conf.USER_20, timestamp)
+        thought_path = _get_path(conf.SHARED_DIR, conf.USER_20, timestamp)
         thoughts = set(thought_path.read_text().splitlines())
         assert thoughts == {conf.THOUGHT_20, conf.THOUGHT_22}
 
@@ -79,5 +79,5 @@ def test_partial_data(conf, server):
         for c in message:
             connection.sendall(bytes([c]))
             time.sleep(0.01)
-    thought_path = _get_path(conf.DATA_DIR, conf.USER_20, conf.TIMESTAMP_20)
+    thought_path = _get_path(conf.SHARED_DIR, conf.USER_20, conf.TIMESTAMP_20)
     assert thought_path.read_text() == conf.THOUGHT_20

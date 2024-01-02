@@ -17,7 +17,7 @@ from utils import (
 def test_run_server_by_scheme(conf, user, snapshot):
     cmd = ['python', '-m', 'brain_computer_interface.server', 'run-server',
            '-ps', str(conf.PUBLISH_SCHEME), '-h', conf.LISTEN_HOST,
-           '-p', str(conf.SERVER_PORT), '-d', str(conf.DATA_DIR)]
+           '-p', str(conf.SERVER_PORT), '-s', str(conf.SHARED_DIR)]
     process = subprocess.Popen(cmd, stdout=subprocess.PIPE)
     published_data_file = \
         pathlib.Path(str(furl.furl(conf.PUBLISH_SCHEME).path))
@@ -33,8 +33,10 @@ def test_run_server_by_scheme(conf, user, snapshot):
     finally:
         # we are doing the sig thingy instead of terminate to increase coverage
         process.send_signal(signal.SIGINT)
-    thought_path_1 = _get_path(conf.DATA_DIR, conf.USER_20, conf.TIMESTAMP_20)
-    thought_path_2 = _get_path(conf.DATA_DIR, conf.USER_22, conf.TIMESTAMP_22)
+    thought_path_1 = _get_path(conf.SHARED_DIR, conf.USER_20,
+                               conf.TIMESTAMP_20)
+    thought_path_2 = _get_path(conf.SHARED_DIR, conf.USER_22,
+                               conf.TIMESTAMP_22)
     assert thought_path_1.read_text() == conf.THOUGHT_20
     assert thought_path_2.read_text() == conf.THOUGHT_22
 

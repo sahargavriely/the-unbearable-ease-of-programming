@@ -5,11 +5,11 @@ from .cli_basic_configurations import (
     module_main_exe,
 )
 from .config import (
-    DATA_DIR,
     LISTEN_HOST,
     PUBLISH_SCHEME,
     REQUEST_HOST,
     SERVER_PORT,
+    SHARED_DIR,
     WEBSERVER_PORT,
 )
 from .connection import Connection
@@ -20,7 +20,6 @@ from .thought import Thought
 
 __all__ = [
     'Connection',
-    'DATA_DIR',
     'keys',
     'LISTEN_HOST',
     'Listener',
@@ -31,6 +30,7 @@ __all__ = [
     'REQUEST_HOST',
     'SERVER_PORT',
     'setup_logging',
+    'SHARED_DIR',
     'WEBSERVER_PORT',
     'Thought',
 ]

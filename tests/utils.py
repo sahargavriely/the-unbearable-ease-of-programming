@@ -47,11 +47,11 @@ class Dictionary(dict):
 
 def _run_server(publish_method, conf):
     run_server(publish_method, conf.LISTEN_HOST,
-               conf.SERVER_PORT, conf.DATA_DIR)
+               conf.SERVER_PORT, conf.SHARED_DIR)
 
 
 def _run_webserver(conf):
-    run_webserver(conf.LISTEN_HOST, conf.WEBSERVER_PORT, conf.DATA_DIR)
+    run_webserver(conf.LISTEN_HOST, conf.WEBSERVER_PORT, conf.SHARED_DIR)
 
 
 @contextlib.contextmanager

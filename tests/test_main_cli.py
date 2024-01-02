@@ -9,7 +9,7 @@ import requests
 def test_run_webserver(conf):
     cmd = ['python', '-m', 'brain_computer_interface', 'run-webserver',
            '-h', conf.LISTEN_HOST, '-p', str(conf.WEBSERVER_PORT),
-           '-d', str(conf.DATA_DIR)]
+           '-d', str(conf.SHARED_DIR)]
     process = subprocess.Popen(cmd, stdout=subprocess.PIPE)
     try:
         time.sleep(1)

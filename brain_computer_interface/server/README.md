@@ -17,7 +17,7 @@ The `brain_computer_interface.server` packages provides the following function:
     ```pycon
     >>> from brain_computer_interface import run_server
     >>> from pathlib import Path
-    >>> run_server(host='0.0.0.0', port=5000, data_dir=Path('data/'))
+    >>> run_server(host='0.0.0.0', port=5000, shared_dir=Path('data/'))
 
     ```
 
@@ -52,7 +52,7 @@ Commands:
     Options:
     - ``-h``, ``--host`` TEXT      [default: 0.0.0.0]
     - ``-p``, ``--port`` INTEGER   [default: 5000]
-    - ``-d``, ``--data_dir`` PATH  [default: data]
+    - ``-s``, ``--shared-dir`` PATH  [default: data]
     - ``-D``, ``--debug``
     - ``--help``                   Show similar message and exit.
 
