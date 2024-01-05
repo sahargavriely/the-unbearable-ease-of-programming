@@ -1,13 +1,12 @@
-import json
 import pathlib
 import signal
 import subprocess
 import time
 
-import furl
+from furl import furl
 
 from brain_computer_interface.message import Snapshot
-from brain_computer_interface.message_queue import queues
+from brain_computer_interface.distributer import distributors
 from utils import (
     _get_path,
     mock_upload_mind,
@@ -21,7 +20,7 @@ def test_run_server_by_scheme(conf, user, snapshot):
            '-p', str(conf.SERVER_PORT), '-s', str(conf.SHARED_DIR)]
     process = subprocess.Popen(cmd, stdout=subprocess.PIPE)
     published_data_file = \
-        pathlib.Path(str(furl.furl(conf.PUBLISH_SCHEME).path))
+        pathlib.Path(str(furl(conf.PUBLISH_SCHEME).path))
     assert not published_data_file.exists()
     try:
         time.sleep(0.5)
@@ -43,7 +42,7 @@ def test_run_server_by_scheme(conf, user, snapshot):
 
     assert published_data_file.exists()
     assert published_data_file.is_file()
-    data = queues['file'](furl.furl(str(published_data_file))).subscribe()
+    data = distributors['file'](furl(str(published_data_file))).subscribe()
     assert user.jsonify() == data['user']
     snapshot_json = data['snapshot']
     assert repr(snapshot) == repr(Snapshot.from_json(snapshot_json))

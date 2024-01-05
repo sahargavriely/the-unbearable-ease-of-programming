@@ -8,7 +8,7 @@ import typing
 
 from furl import furl
 
-from ..message_queue import queues
+from ..distributer import distributors
 from ..message import (
     Config,
     CONFIG_OPTIONS,
@@ -37,12 +37,12 @@ def run_server_by_scheme(publish_scheme: str = PUBLISH_SCHEME,
                          host: str = LISTEN_HOST, port: int = SERVER_PORT,
                          shared_dir: Path = SHARED_DIR):
     url = furl(publish_scheme)
-    queue = queues.get(url.scheme)
-    if not queue:
+    distributer = distributors.get(url.scheme)
+    if not distributer:
         msg = f'Publish scheme {url.scheme!r} is not supported'
         logger.error(msg.lower())
         raise ValueError(msg)
-    publish_method = queue(url).publish
+    publish_method = distributer(url).publish
     run_server(publish_method, host, port, shared_dir)
 
 

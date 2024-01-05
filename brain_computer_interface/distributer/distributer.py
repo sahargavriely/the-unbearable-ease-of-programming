@@ -6,7 +6,7 @@ from ..utils import setup_logging
 
 
 logger = setup_logging(__name__)
-queues = dict()
+distributors = dict()
 
 
 def load_drivers():
@@ -24,7 +24,7 @@ def load_drivers():
         for _, obj in inspect.getmembers(driver, inspect.isclass):
             if hasattr(obj, 'scheme'):
                 logger.info('loading driver %s', obj.__name__)
-                queues[getattr(obj, 'scheme')] = obj
+                distributors[getattr(obj, 'scheme')] = obj
 
 
 load_drivers()
