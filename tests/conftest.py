@@ -3,9 +3,12 @@ import gzip
 import json
 from pathlib import Path
 import multiprocessing
+import subprocess
 import shutil
 from struct import pack
 import time
+
+import furl
 
 import pytest
 
@@ -52,6 +55,7 @@ from utils import (
 @pytest.fixture(scope='session')
 def other_conf():
     return Dictionary({
+        'RABBITMQ_SCHEME': 'rabbitmq://localhost:4561/',
         'USER_20': 20,
         'THOUGHT_20': 'I am 20 too',
         'TIMESTAMP_20':
@@ -87,7 +91,8 @@ def conf(patch_conf, other_conf):
 @pytest.fixture(autouse=True)
 def patch(monkeypatch, patch_conf):
     for key, value in patch_conf.items():
-        monkeypatch.setattr(config_module, key, value)
+        if hasattr(config_module, key):
+            monkeypatch.setattr(config_module, key, value)
 
 
 @pytest.fixture(autouse=True)
@@ -97,7 +102,21 @@ def clean_db(conf):
 
 
 ##########################################################################
-# Protocol
+# Distributer
+
+
+@pytest.fixture(scope='session')
+def rabbitmq(conf):
+    url = furl.furl(conf.RABBITMQ_SCHEME)
+    subprocess.call(['docker', 'run', '--detach', '--publish',
+                     f'{url.port}:5672', '--hostname', 'my-test-rabbit',
+                     '--name', 'test-rabbit', 'rabbitmq'], timeout=5)
+    yield
+    subprocess.call(['docker', 'stop', 'test-rabbit'], timeout=30)
+    subprocess.call(['docker', 'remove', 'test-rabbit'], timeout=5)
+
+##########################################################################
+# Message
 
 
 @pytest.fixture(scope='module')

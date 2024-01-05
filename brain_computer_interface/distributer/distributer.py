@@ -40,5 +40,20 @@ class Distributer:
     def publish_raw_snapshot(self, raw_snapshot):
         return self.driver.publish_raw_snapshot(raw_snapshot)
 
-    def subscribe(self):
-        return self.driver.subscribe()
+    def subscribe(self, callback):
+        return self.driver.subscribe(callback)
+
+    def connect(self):
+        if hasattr(self.driver, 'connect'):
+            return self.driver.connect()
+
+    def close(self):
+        if hasattr(self.driver, 'close'):
+            return self.driver.close()
+
+    def __enter__(self):
+        self.connect()
+        return self
+
+    def __exit__(self, exception, error, traceback):
+        self.close()

@@ -42,7 +42,13 @@ def test_run_server_by_scheme(conf, user, snapshot):
 
     assert published_data_file.exists()
     assert published_data_file.is_file()
-    data = Distributer(conf.PUBLISH_SCHEME).subscribe()
+    data = {}
+
+    def callback(_data):
+        nonlocal data
+        data = _data
+
+    Distributer(conf.PUBLISH_SCHEME).subscribe(callback)
     assert user.jsonify() == data['user']
     snapshot_json = data['snapshot']
     assert repr(snapshot) == repr(Snapshot.from_json(snapshot_json))

@@ -4,6 +4,7 @@ import pathlib
 import furl
 
 
+# For testing purposes
 class FileScheme:
     scheme = 'file'
 
@@ -15,6 +16,6 @@ class FileScheme:
         with self.path.open('w') as f:
             json.dump(data, f)
 
-    def subscribe(self):
+    def subscribe(self, callback):
         with self.path.open('r') as f:
-            return json.load(f)
+            callback(json.load(f))

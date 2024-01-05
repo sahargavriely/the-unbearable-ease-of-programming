@@ -34,8 +34,8 @@ logger = setup_logging(__name__)
 def run_server_by_scheme(publish_scheme: str = PUBLISH_SCHEME,
                          host: str = LISTEN_HOST, port: int = SERVER_PORT,
                          shared_dir: Path = SHARED_DIR):
-    distributer = Distributer(publish_scheme)
-    run_server(distributer.publish_raw_snapshot, host, port, shared_dir)
+    with Distributer(publish_scheme) as distributer:
+        run_server(distributer.publish_raw_snapshot, host, port, shared_dir)
 
 
 def run_server(publish_method: typing.Callable,
