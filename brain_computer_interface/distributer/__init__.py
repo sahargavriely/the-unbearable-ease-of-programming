@@ -1,4 +1,4 @@
-from .distributer import distributors
+from .distributer import Distributer
 
 
-__all__ = ['distributors']
+__all__ = ['Distributer']

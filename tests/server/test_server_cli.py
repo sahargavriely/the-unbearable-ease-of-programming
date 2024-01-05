@@ -6,7 +6,7 @@ import time
 from furl import furl
 
 from brain_computer_interface.message import Snapshot
-from brain_computer_interface.distributer import distributors
+from brain_computer_interface.distributer import Distributer
 from utils import (
     _get_path,
     mock_upload_mind,
@@ -42,7 +42,7 @@ def test_run_server_by_scheme(conf, user, snapshot):
 
     assert published_data_file.exists()
     assert published_data_file.is_file()
-    data = distributors['file'](furl(str(published_data_file))).subscribe()
+    data = Distributer(conf.PUBLISH_SCHEME).subscribe()
     assert user.jsonify() == data['user']
     snapshot_json = data['snapshot']
     assert repr(snapshot) == repr(Snapshot.from_json(snapshot_json))
