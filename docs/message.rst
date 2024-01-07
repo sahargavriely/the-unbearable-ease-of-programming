@@ -5,8 +5,8 @@ The message encapsulating the concept of mind as a data and defines how the on g
 
 We start by describing the general features of every class that is part of our message; and continuing by describing the classes.
 
-Every class has the following methods:
---------------------------------------
+Methods:
+--------
 
 .. _target to jsonify:
 
@@ -22,8 +22,8 @@ Every class has the following methods:
 
     Return the serialized form of the instance.
 
-Every class has the following class methods:
---------------------------------------------
+Classmethods:
+-------------
 
 .. _target to from_json:
 
@@ -37,8 +37,8 @@ Every class has the following class methods:
 
     Receives a bytes like :ref:`serialize <target to serialize>` returns and return an instance of the class.
 
-Message's Classes:
-------------------
+Classes:
+--------
 
 All can be imported from ``brain-computer-interface.message``
 
