@@ -58,6 +58,7 @@ class Distributer:
         return self.publish(parsed_topic_data, f'parsed.{topic}')
 
     def publish(self, data, topic):
+        logger.info('publishing to %s', topic)
         return self.driver.publish(data, topic)
 
     def subscribe_parsed_topic(self, callback, topic, subscriber_group=''):
@@ -67,6 +68,8 @@ class Distributer:
         return self.subscribe(callback, f'raw.{topic}', subscriber_group)
 
     def subscribe(self, callback, topic, subscriber_group=''):
+        logger.info('subscribing to %s part of group %s',
+                    topic, subscriber_group)
         return self.driver.subscribe(callback, topic, subscriber_group)
 
     def __enter__(self):

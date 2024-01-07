@@ -1,5 +1,6 @@
 import multiprocessing
 import time
+import threading
 
 import pytest
 
@@ -38,21 +39,35 @@ def test_rabbitmq_distributer_driver_bad_values():
         Distributer(url).connect()
 
 
-def test_rabbitmq_distributer_driver(rabbitmq, conf, snapshot, user, tmp_path):
+def test_rabbitmq_distributer_raw(rabbitmq, conf, snapshot, user, tmp_path):
     snapshot = snapshot.jsonify(path=tmp_path)
     data = {keys.user: user.jsonify(), keys.snapshot: snapshot}
     with Distributer(conf.RABBITMQ_SCHEME) as distributer:
         parent, child = multiprocessing.Pipe()
-        process = multiprocessing.Process(target=distributer.subscribe_raw_topic,
-                                          args=(child.send, keys.pose, 'test-group',))
-        process.start()
+        thread = threading.Thread(target=distributer.subscribe_raw_topic,
+                                  args=(child.send, keys.pose, 'test-group'),
+                                  daemon=True)
+        thread.start()
         time.sleep(.1)
-        try:
-            with Distributer(conf.RABBITMQ_SCHEME) as another:
-                another.publish_raw_snapshot(data)
-            if not parent.poll(15):
-                raise TimeoutError()
-            assert snapshot[keys.pose] == parent.recv()['data']
-        finally:
-            process.terminate()
-            process.join()
+        with Distributer(conf.RABBITMQ_SCHEME) as another:
+            another.publish_raw_snapshot(data)
+        if not parent.poll(20):
+            raise TimeoutError()
+        assert snapshot[keys.pose] == parent.recv()['data']
+
+
+def test_rabbitmq_distributer_parsed(rabbitmq, conf):
+    with Distributer(conf.RABBITMQ_SCHEME) as distributer:
+        parent, child = multiprocessing.Pipe()
+        key = 'parsed-key'
+        thread = threading.Thread(target=distributer.subscribe_parsed_topic,
+                                  args=(child.send, key, 'test-group'),
+                                  daemon=True)
+        thread.start()
+        time.sleep(.1)
+        data = '<parsed data here>'
+        with Distributer(conf.RABBITMQ_SCHEME) as another:
+            another.publish_parsed_topic(data, key)
+        if not parent.poll(15):
+            raise TimeoutError()
+        assert data == parent.recv()

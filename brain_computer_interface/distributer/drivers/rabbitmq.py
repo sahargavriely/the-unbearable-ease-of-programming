@@ -21,14 +21,11 @@ class RabbitMQScheme:
     exchange = 'one'
 
     def __init__(self, url: furl.furl):
-        self.host = url.host
-        self.port = url.port
+        self.host: str = url.host  # type: ignore
+        self.port: int = url.port  # type: ignore
 
     def connect(self):
         try:
-            if not self.host or not isinstance(self.host, str) \
-               or not self.port or not isinstance(self.port, int):
-                raise AMQPConnectionError()
             self.conn = BlockingConnection(
                 ConnectionParameters(host=self.host, port=self.port,
                                      connection_attempts=8, retry_delay=2))
@@ -38,7 +35,8 @@ class RabbitMQScheme:
             raise ValueError(err_msg) from error
 
     def close(self):
-        self.conn.close()
+        with contextlib.suppress(Exception):
+            self.conn.close()
 
     def publish(self, data, routing_key):
         with _topic_exchange_channel(self.conn, self.exchange) as channel:

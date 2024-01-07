@@ -194,9 +194,7 @@ class Snapshot(ProtobufWrapper):
             f'and {self.feelings}>'
 
     def set_default(self, key):
-        if key == keys.datetime:
-            self.datetime = 0
-        elif key == keys.pose:
+        if key == keys.pose:
             self.pose.translation = Translation(0, 0, 0)
             self.pose.rotation = Rotation(0, 0, 0, 0)
         elif key == keys.color_image:

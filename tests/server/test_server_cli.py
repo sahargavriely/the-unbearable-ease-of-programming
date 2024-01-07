@@ -7,7 +7,11 @@ from furl import furl
 import pytest
 
 from brain_computer_interface.distributer import Distributer
-from brain_computer_interface.message import CONFIG_OPTIONS, ColorImage, DepthImage
+from brain_computer_interface.message import (
+    ColorImage,
+    CONFIG_OPTIONS,
+    DepthImage,
+)
 from brain_computer_interface.utils import keys
 from utils import (
     _get_path,
