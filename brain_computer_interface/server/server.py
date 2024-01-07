@@ -18,6 +18,7 @@ from ..message import (
 )
 from ..utils import (
     Connection,
+    keys,
     Listener,
     LISTEN_HOST,
     PUBLISH_SCHEME,
@@ -87,8 +88,8 @@ def _recive_mind(lock: threading.Lock, connection: Connection,
     with lock:
         json_snapshot = snapshot.jsonify(imgs_dir)
     publish_method({
-        'user': user.jsonify(),
-        'snapshot': json_snapshot
+        keys.user: user.jsonify(),
+        keys.snapshot: json_snapshot
     })
 
 

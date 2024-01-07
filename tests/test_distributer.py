@@ -4,6 +4,7 @@ import time
 import pytest
 
 from brain_computer_interface.distributer import Distributer
+from brain_computer_interface.utils import keys
 
 
 def test_distributer_driver_scheme_error():
@@ -16,16 +17,16 @@ def test_distributer_driver_scheme_error():
 
 def test_file_distributer_driver(tmp_path):
     data = 'fe!n'
-    url = f'file://{str(tmp_path.absolute())}/data.json'
+    url = f'file://{str(tmp_path.absolute())}/'
     file_driver = Distributer(url)
-    file_driver.publish_raw_snapshot(data)
+    file_driver.publish(data, 'test-file')
     ret_data = {}
 
     def callback(_data):
         nonlocal ret_data
         ret_data = _data
 
-    file_driver.subscribe(callback)
+    file_driver.subscribe(callback, 'test-file')
     assert data == ret_data
 
 
@@ -37,18 +38,21 @@ def test_rabbitmq_distributer_driver_bad_values():
         Distributer(url).connect()
 
 
-def test_rabbitmq_distributer_driver(rabbitmq, conf):
-    data = {'gomen': 'amanai'}
+def test_rabbitmq_distributer_driver(rabbitmq, conf, snapshot, user, tmp_path):
+    snapshot = snapshot.jsonify(path=tmp_path)
+    data = {keys.user: user.jsonify(), keys.snapshot: snapshot}
     with Distributer(conf.RABBITMQ_SCHEME) as distributer:
-        distributer.publish_raw_snapshot(data)
         parent, child = multiprocessing.Pipe()
-        process = multiprocessing.Process(target=distributer.subscribe,
-                                          args=(child.send,))
+        process = multiprocessing.Process(target=distributer.subscribe_raw_topic,
+                                          args=(child.send, keys.pose, 'test-group',))
         process.start()
+        time.sleep(.1)
         try:
-            if not parent.poll(5):
+            with Distributer(conf.RABBITMQ_SCHEME) as another:
+                another.publish_raw_snapshot(data)
+            if not parent.poll(15):
                 raise TimeoutError()
-            assert data == parent.recv()
+            assert snapshot[keys.pose] == parent.recv()['data']
         finally:
             process.terminate()
             process.join()

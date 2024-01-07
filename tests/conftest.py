@@ -72,7 +72,7 @@ def patch_conf(tmp_path_factory):
     tmp_path = tmp_path_factory.mktemp('shared')
     return Dictionary({
         'LISTEN_HOST': '0.0.0.0',
-        'PUBLISH_SCHEME': f'file://{Path(tmp_path).absolute()}/publish/',
+        'PUBLISH_SCHEME': f'file://{Path(tmp_path).absolute()}/published/',
         'REQUEST_HOST': '127.0.0.1',
         'SERVER_PORT': 5356,
         'SHARED_DIR': Path(tmp_path),
