@@ -1,15 +1,12 @@
 import contextlib
 import datetime as dt
-import functools
 from pathlib import Path
 import socket
 import struct
 import threading
 import typing
 
-from furl import furl
-
-from .publish_schemes import schemes
+from ..distributer import Distributer
 from ..message import (
     Config,
     CONFIG_OPTIONS,
@@ -21,6 +18,7 @@ from ..message import (
 )
 from ..utils import (
     Connection,
+    keys,
     Listener,
     LISTEN_HOST,
     PUBLISH_SCHEME,
@@ -37,14 +35,8 @@ logger = setup_logging(__name__)
 def run_server_by_scheme(publish_scheme: str = PUBLISH_SCHEME,
                          host: str = LISTEN_HOST, port: int = SERVER_PORT,
                          shared_dir: Path = SHARED_DIR):
-    url = furl(publish_scheme)
-    publish_method = schemes.get(url.scheme)
-    if not publish_method:
-        msg = f'Publish scheme {url.scheme!r} is not supported'
-        logger.error(msg.lower())
-        raise ValueError(msg)
-    publish_method = functools.partial(publish_method, url)
-    run_server(publish_method, host, port, shared_dir)
+    with Distributer(publish_scheme) as distributer:
+        run_server(distributer.publish_raw_snapshot, host, port, shared_dir)
 
 
 def run_server(publish_method: typing.Callable,
@@ -96,8 +88,8 @@ def _recive_mind(lock: threading.Lock, connection: Connection,
     with lock:
         json_snapshot = snapshot.jsonify(imgs_dir)
     publish_method({
-        'user': user.jsonify(),
-        'snapshot': json_snapshot
+        keys.user: user.jsonify(),
+        keys.snapshot: json_snapshot
     })
 
 

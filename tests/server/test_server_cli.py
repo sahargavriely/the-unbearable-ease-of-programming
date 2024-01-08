@@ -1,12 +1,18 @@
-import json
 import pathlib
 import signal
 import subprocess
 import time
 
-import furl
+from furl import furl
+import pytest
 
-from brain_computer_interface.message import Snapshot
+from brain_computer_interface.distributer import Distributer
+from brain_computer_interface.message import (
+    ColorImage,
+    CONFIG_OPTIONS,
+    DepthImage,
+)
+from brain_computer_interface.utils import keys
 from utils import (
     _get_path,
     mock_upload_mind,
@@ -20,10 +26,10 @@ def test_run_server_by_scheme(conf, user, snapshot):
            '-p', str(conf.SERVER_PORT), '-s', str(conf.SHARED_DIR)]
     process = subprocess.Popen(cmd, stdout=subprocess.PIPE)
     published_data_file = \
-        pathlib.Path(str(furl.furl(conf.PUBLISH_SCHEME).path))
+        pathlib.Path(str(furl(conf.PUBLISH_SCHEME).path))
     assert not published_data_file.exists()
     try:
-        time.sleep(0.4)
+        time.sleep(0.5)
         args = conf, conf.USER_20, conf.TIMESTAMP_20, conf.THOUGHT_20
         mock_upload_thought(*args)
         args = conf, conf.USER_22, conf.TIMESTAMP_22, conf.THOUGHT_22
@@ -41,13 +47,28 @@ def test_run_server_by_scheme(conf, user, snapshot):
     assert thought_path_2.read_text() == conf.THOUGHT_22
 
     assert published_data_file.exists()
-    assert published_data_file.is_file()
-    with published_data_file.open('r') as file:
-        data = json.load(file)
-    assert user.jsonify() == data['user']
-    snapshot_json = data['snapshot']
-    assert repr(snapshot) == repr(Snapshot.from_json(snapshot_json))
-    assert snapshot.color_image.data == Snapshot.from_json(
-        snapshot_json).color_image.data
-    assert snapshot.depth_image.data == Snapshot.from_json(
-        snapshot_json).depth_image.data
+    assert published_data_file.is_dir()
+    data = {}
+
+    def callback(_data):
+        nonlocal data
+        data = _data
+
+    for op in CONFIG_OPTIONS:
+        Distributer(conf.PUBLISH_SCHEME).subscribe_raw_topic(callback, op)
+        assert user.jsonify()['id'] == data['metadata']['user_id']
+        snapshot_json = snapshot.jsonify()
+        assert snapshot_json['datetime'] == data['metadata']['datetime']
+        if keys.color_image in op:
+            assert snapshot_json[op] == ColorImage.from_json(
+                data['data']).jsonify()
+        elif keys.depth_image in op:
+            assert snapshot_json[op] == DepthImage.from_json(
+                data['data']).jsonify()
+        else:
+            if isinstance(snapshot_json[op], dict):
+                for key in snapshot_json[op]:
+                    assert snapshot_json[op][key] == pytest.approx(
+                        data['data'][key])
+            else:
+                assert snapshot_json[op] == pytest.approx(data['data'])

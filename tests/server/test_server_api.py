@@ -2,10 +2,7 @@ import json
 import socket
 import time
 
-import pytest
-
 from brain_computer_interface.message import Snapshot
-from brain_computer_interface.server import run_server_by_scheme
 from utils import (
     mock_upload_mind,
     mock_upload_thought,
@@ -29,14 +26,6 @@ def test_run_server(conf, server, server_publish_file, user, snapshot):
         snapshot_json).color_image.data
     assert snapshot.depth_image.data == Snapshot.from_json(
         snapshot_json).depth_image.data
-
-
-def test_run_server_by_scheme_error():
-    bad_scheme = 'sike'
-    url = f'{bad_scheme}:///nowhere'
-    error_msg = f'Publish scheme {bad_scheme!r} is not supported'
-    with pytest.raises(ValueError, match=error_msg):
-        run_server_by_scheme(url)
 
 
 def test_thought(conf, server):

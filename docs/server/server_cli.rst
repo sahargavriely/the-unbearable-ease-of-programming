@@ -23,14 +23,16 @@ The top-level options include:
     non-zero code).
 
 
+.. _target to run-server:
+
 The ``run-server`` Command
 --------------------------
 
-Runs the server which listens to minds.
+Runs the server which listens to minds and forwarding them to the driver corresponding to the ``--publish-scheme`` argument.
 
 .. code:: bash
 
-    $ python -m brain_computer_interface run-server [OPTIONS]
+    $ python -m brain_computer_interface.server run-server [OPTIONS]
 
 Options:
 
@@ -38,7 +40,6 @@ Options:
 - ``-h``, ``--host`` TEXT            [default: 0.0.0.0]
 - ``-p``, ``--port`` INTEGER         [default: 5000]
 - ``-s``, ``--shared-dir`` PATH      [default: shared/]
-- ``-D``, ``--debug``
 - ``--help``                         Show similar message and exit.
 
 

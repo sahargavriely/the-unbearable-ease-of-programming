@@ -10,7 +10,8 @@ Welcome to brain-computer-interface's documentation!
    :maxdepth: 2
    :caption: Contents:
 
-   api
+   message
+   distributer
    client/client
    cli
    mind_file

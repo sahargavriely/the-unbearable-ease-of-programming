@@ -29,7 +29,7 @@ def collect_driver(extension):
 
 def load_drivers():
     '''
-    Loading drivers under drivers directory, relative  to here.
+    Loading drivers under drivers directory, relative to here.
     '''
     drivers = pathlib.Path(__file__).parent / 'drivers'
     for file in drivers.iterdir():

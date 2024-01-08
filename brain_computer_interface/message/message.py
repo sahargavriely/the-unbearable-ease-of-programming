@@ -12,9 +12,8 @@ TYPE_FORMAT = '<I'
 TYPE_FORMAT_SIZE = struct.calcsize(TYPE_FORMAT)
 
 CONFIG_OPTIONS = [
-    keys.datetime,
-    keys.translation,
-    keys.rotation,
+    # keys.datetime,
+    keys.pose,
     keys.color_image,
     keys.depth_image,
     keys.feelings,
@@ -195,11 +194,8 @@ class Snapshot(ProtobufWrapper):
             f'and {self.feelings}>'
 
     def set_default(self, key):
-        if key == keys.datetime:
-            self.datetime = 0
-        elif key == keys.translation:
+        if key == keys.pose:
             self.pose.translation = Translation(0, 0, 0)
-        elif key == keys.rotation:
             self.pose.rotation = Rotation(0, 0, 0, 0)
         elif key == keys.color_image:
             self.color_image = ColorImage(0, 0, b'')
