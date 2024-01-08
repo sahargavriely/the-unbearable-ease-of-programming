@@ -1,5 +1,5 @@
-brain_computer_interface Message Reference
-==========================================
+Message Reference
+=================
 
 The message encapsulating the concept of mind as a data and defines how the on going messages in the system look like.
 

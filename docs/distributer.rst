@@ -1,58 +1,71 @@
-# brain-computer-interface.distributer
+Distributer Reference
+=====================
 
-Sub-package of brain-computer-interface.
-The following package responsible for distributing data in between the inner system parts.
+The distributer package responsible for distributing data in between the inner system parts.
 
-For further information take a look at [full documentation](https://the-unbearable-ease-of-programming.readthedocs.io/en/latest/distributer.html).
+And exposes the Distributer class.
 
-## Usage
+Distributer:
+------------
 
-The `brain_computer_interface.distributer` packages provides the Distributer class:
+.. _target to distributer:
 
-- `Distributer(url: str)`
+.. class:: Distributer(url: str)
 
     This class defines distribute functionality.
-    It receives url which is being used to load the corresponding distribute driver from [`drivers/`](/brain_computer_interface/distributer/drivers/) directory.
-    Each driver should support minimum of the following two bound methods which are also `Distributer`'s bound methods and are directly calling to driver's one.
+    It receives url which is being used to load the corresponding distribute driver from `drivers/ <https://github.com/sahargavriely/the-unbearable-ease-of-programming/blob/main/brain_computer_interface/distributer/drivers/>`_ directory.
 
-    - `publish(self, data, topic)`
+.. _target to publish:
+
+    .. method:: publish(self, data, topic)
 
         Publish `data` to `topic`.
         `data` must be in JSON format (we want to support many drivers).
 
-    - `subscribe(self, callback, topic, subscriber_group='')`
+.. _target to subscribe:
+
+    .. method:: subscribe(self, callback, topic, subscriber_group='')
 
         Subscribe to `topic` and upon receiving data calling the `callback` with the received data (in JSON format) as an argument.
         `subscriber_group` argument meant to enable distribute work between different subscribers which are part of the same group, empty group means every subscriber will get the same work.
 
-    Continuing with `Distributer` bound methods:
-
-    - `connect(self)`
+    .. method:: connect(self)
 
         Returns and calls directly to the driver's `connect` is exists.
         Used also as the `enter` part of `Distributer`'s `with` statement
 
-    - `close(self)`
+    .. method:: close(self)
 
         Returns and calls directly to the driver's `close` is exists.
         Used also as the `exit` part of `Distributer`'s `with` statement
 
-    - `publish_raw_snapshot(self, data)`
+    .. method:: publish_raw_snapshot(self, data)
 
         Publish `data` to `raw.X` where X is every possible topic in a snapshot.
         `data` must be in JSON format (we want to support many drivers).
 
-    - `publish_parsed_topic(self, parsed_topic_data, topic)`
+    .. method:: publish_parsed_topic(self, parsed_topic_data, topic)
 
         Publish `data` to `f'parsed.{topic}'`.
         `parsed_topic_data` must be in JSON format (we want to support many drivers).
 
-    - `subscribe_parsed_topic(self, callback, topic, subscriber_group='')`
+    .. method:: subscribe_parsed_topic(self, callback, topic, subscriber_group='')
 
         Subscribe to `f'parsed.{topic}'` and upon receiving data calling the `callback` with the received data (in JSON format) as an argument.
         `subscriber_group` argument meant to enable distribute work between different subscribers which are part of the same group, empty group means every subscriber will get the same work.
 
-    - `subscribe_raw_topic(self, callback, topic, subscriber_group='')`
+    .. method:: subscribe_raw_topic(self, callback, topic, subscriber_group='')
 
         Subscribe to `f'raw.{topic}'` and upon receiving data calling the `callback` with the received data (in JSON format) as an argument.
         `subscriber_group` argument meant to enable distribute work between different subscribers which are part of the same group, empty group means every subscriber will get the same work.
+
+*Developers Note*
+-----------------
+
+To added a new driver all you have to do is:
+
+1. Implement :ref:`publish <target to publish>` and :ref:`subscribe <target to subscribe>` methods.
+
+2. Add a `scheme` class attribute that will be used to locate your newly driver, by :ref:`run-server <target to run-server>` command.
+
+3. Finally add your driver under `drivers/ <https://github.com/sahargavriely/the-unbearable-ease-of-programming/blob/main/brain_computer_interface/distributer/drivers/>`_.
