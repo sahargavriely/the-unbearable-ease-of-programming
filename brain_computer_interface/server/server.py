@@ -21,7 +21,7 @@ from ..utils import (
     keys,
     Listener,
     LISTEN_HOST,
-    PUBLISH_SCHEME,
+    DISTRIBUTE_SCHEME,
     SERVER_PORT,
     setup_logging,
     SHARED_DIR,
@@ -32,10 +32,10 @@ from ..utils import (
 logger = setup_logging(__name__)
 
 
-def run_server_by_scheme(publish_scheme: str = PUBLISH_SCHEME,
+def run_server_by_scheme(distribute_scheme: str = DISTRIBUTE_SCHEME,
                          host: str = LISTEN_HOST, port: int = SERVER_PORT,
                          shared_dir: Path = SHARED_DIR):
-    with Distributer(publish_scheme) as distributer:
+    with Distributer(distribute_scheme) as distributer:
         run_server(distributer.publish_raw_snapshot, host, port, shared_dir)
 
 

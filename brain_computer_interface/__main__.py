@@ -24,4 +24,4 @@ def run_webserver(host, port, data_dir, debug):
 
 
 if __name__ == '__main__':
-    module_main_exe()
+    module_main_exe(__package__)

@@ -22,11 +22,11 @@ from utils import (
 
 def test_run_server_by_scheme(conf, user, snapshot):
     cmd = ['python', '-m', 'brain_computer_interface.server', 'run-server',
-           '-ps', str(conf.PUBLISH_SCHEME), '-h', conf.LISTEN_HOST,
+           '-d', str(conf.DISTRIBUTE_SCHEME), '-h', conf.LISTEN_HOST,
            '-p', str(conf.SERVER_PORT), '-s', str(conf.SHARED_DIR)]
     process = subprocess.Popen(cmd, stdout=subprocess.PIPE)
     published_data_file = \
-        pathlib.Path(str(furl(conf.PUBLISH_SCHEME).path))
+        pathlib.Path(str(furl(conf.DISTRIBUTE_SCHEME).path))
     assert not published_data_file.exists()
     try:
         time.sleep(0.5)
@@ -55,7 +55,7 @@ def test_run_server_by_scheme(conf, user, snapshot):
         data = _data
 
     for op in CONFIG_OPTIONS:
-        Distributer(conf.PUBLISH_SCHEME).subscribe_raw_topic(callback, op)
+        Distributer(conf.DISTRIBUTE_SCHEME).subscribe_raw_topic(callback, op)
         assert user.jsonify()['id'] == data['metadata']['user_id']
         snapshot_json = snapshot.jsonify()
         assert snapshot_json['datetime'] == data['metadata']['datetime']

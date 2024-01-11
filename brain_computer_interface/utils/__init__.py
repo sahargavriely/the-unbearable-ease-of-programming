@@ -5,8 +5,8 @@ from .cli_basic_configurations import (
     module_main_exe,
 )
 from .config import (
+    DISTRIBUTE_SCHEME,
     LISTEN_HOST,
-    PUBLISH_SCHEME,
     REQUEST_HOST,
     SERVER_PORT,
     SHARED_DIR,
@@ -20,13 +20,13 @@ from .thought import Thought
 
 __all__ = [
     'Connection',
+    'DISTRIBUTE_SCHEME',
     'keys',
     'LISTEN_HOST',
     'Listener',
     'log',
     'main',
     'module_main_exe',
-    'PUBLISH_SCHEME',
     'REQUEST_HOST',
     'SERVER_PORT',
     'setup_logging',

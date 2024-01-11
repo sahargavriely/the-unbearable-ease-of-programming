@@ -41,4 +41,4 @@ def upload_thought_command(host, port, user_id, thought):
 
 
 if __name__ == '__main__':
-    module_main_exe('client')
+    module_main_exe(__package__)
