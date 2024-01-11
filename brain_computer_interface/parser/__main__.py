@@ -17,7 +17,8 @@ from ..utils import (
 @click.argument('data_path', type=pathlib.Path)
 @click.option('-s', '--shared-dir', type=pathlib.Path, default=SHARED_DIR)
 def parse_command(name, data_path, shared_dir):
-    log(parse(name, json.loads(data_path), shared_dir))
+    with data_path.open('r') as file:
+        log(parse(name, json.load(file), shared_dir))
 
 
 @main.command('run-parser')

@@ -37,7 +37,8 @@ def test_run_server_by_scheme(conf, user, snapshot):
         mock_upload_mind(conf, user, snapshot)
         time.sleep(0.1)
     finally:
-        # we are doing the sig thingy instead of terminate to increase coverage
+        # we are doing the sig thingy instead of terminate() or kill()
+        # to increase coverage
         process.send_signal(signal.SIGINT)
     thought_path_1 = _get_path(conf.SHARED_DIR, conf.USER_20,
                                conf.TIMESTAMP_20)

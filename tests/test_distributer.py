@@ -51,7 +51,7 @@ def test_rabbitmq_distributer_raw(rabbitmq, conf, snapshot, user, tmp_path):
         time.sleep(.1)
         with Distributer(conf.RABBITMQ_SCHEME) as another:
             another.publish_raw_snapshot(data)
-        if not parent.poll(20):
+        if not parent.poll(5):
             raise TimeoutError()
         assert snapshot[keys.pose] == parent.recv()['data']
 
@@ -68,6 +68,6 @@ def test_rabbitmq_distributer_parsed(rabbitmq, conf):
         data = '<parsed data here>'
         with Distributer(conf.RABBITMQ_SCHEME) as another:
             another.publish_parsed_topic(data, key)
-        if not parent.poll(15):
+        if not parent.poll(5):
             raise TimeoutError()
         assert data == parent.recv()

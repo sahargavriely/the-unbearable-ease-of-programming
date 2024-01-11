@@ -4,7 +4,14 @@ import functools
 
 from . import parsers
 from ..distributer import Distributer
-from ..utils import SHARED_DIR, DISTRIBUTE_SCHEME
+from ..utils import (
+    DISTRIBUTE_SCHEME,
+    setup_logging,
+    SHARED_DIR,
+)
+
+
+logger = setup_logging(__name__)
 
 
 CLASS_PREDICT = 'Parser'
@@ -22,11 +29,14 @@ def run_parser(name, shared_dir=SHARED_DIR,
         pub_topic = getattr(parser, 'publish')
 
     def callback(data):
+        logger.debug(f'parser {name!r} got {data}')
         with Distributer(distribute_scheme) as distributer:
             distributer.publish(parse(name, data, shared_dir), pub_topic)
 
     with Distributer(distribute_scheme) as distributer:
         group = name if group else ''
+        logger.info(
+            f'init parser {name!r} {sub_topic=!r} {pub_topic=!r} {group=!r}')
         distributer.subscribe(callback, sub_topic, group)
 
 

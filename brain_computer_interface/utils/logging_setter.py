@@ -6,6 +6,9 @@ from logging.handlers import SysLogHandler, RotatingFileHandler
 def setup_logging(name: str, log_lvl=logging.WARNING,
                   stream_to_syslog=True, stream_to_screen=True):
 
+    logging.getLogger('werkzeug').setLevel(logging.CRITICAL)
+    logging.getLogger('pika').setLevel(logging.CRITICAL)
+
     logs_dir = pathlib.Path(__file__).parent.parent.parent / 'logs'
     logs_dir.mkdir(parents=True, exist_ok=True)
     name = name.split('.')[-1]
