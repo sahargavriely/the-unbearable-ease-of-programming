@@ -41,12 +41,9 @@ def error_():
     raise RuntimeError('something went terribly wrong :[')
 
 
-def module_main_exe(*submodules_names):
-    names = ['brain_computer_interface']
-    for submodule_name in submodules_names:
-        names.append(submodule_name)
+def module_main_exe(package):
     try:
-        main(prog_name='.'.join(names))
+        main(prog_name=package)
     except Exception as error:
         log(f'ERROR: {error}')
         sys.exit(1)

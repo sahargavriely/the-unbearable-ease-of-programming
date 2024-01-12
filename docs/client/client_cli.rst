@@ -6,8 +6,20 @@ The ``brain-computer-interface.client`` package provides a command line interfac
 
 .. code:: bash
 
-    $ python -m brain_computer_interface.client [OPTIONS] COMMAND [ARGS]
-    ...
+    $ python -m brain_computer_interface.client --help
+    Usage: brain_computer_interface.client [OPTIONS] COMMAND [ARGS]...
+
+    Options:
+    --version        Show the version and exit.
+    -q, --quiet
+    -t, --traceback
+    --help           Show this message and exit.
+
+    Commands:
+    error
+    read
+    upload-mind
+    upload-thought
 
 
 The top-level options include:
@@ -32,10 +44,11 @@ Receives :ref:`mind file <target to mind file>` and prints its contents in a hum
 
 .. code:: bash
 
-    $ python -m brain_computer_interface.client read [OPTIONS] PATH
+    $ python -m brain_computer_interface.client read --help
+    Usage: brain_computer_interface.client read [OPTIONS] PATH
 
-Options:
-- ``--help``                  Show similar message and exit.
+    Options:
+    --help  Show this message and exit.
 
 
 .. _target to upload-mind:
@@ -47,13 +60,13 @@ Receives :ref:`mind file <target to mind file>`, and uploads it to the server.
 
 .. code:: bash
 
-    $ python -m brain_computer_interface.client upload-mind [OPTIONS] PATH
+    $ python -m brain_computer_interface.client upload-mind --help
+    Usage: brain_computer_interface.client upload-mind [OPTIONS] PATH
 
-Options:
-
-- ``-h``, ``--host`` TEXT     [default: 127.0.0.1]
-- ``-p``, ``--port`` INTEGER  [default: 5000]
-- ``--help``                  Show similar message and exit.
+    Options:
+    -h, --host TEXT     [default: 127.0.0.1]
+    -p, --port INTEGER  [default: 5000]
+    --help              Show this message and exit.
 
 
 The ``upload-thought`` command
@@ -63,13 +76,14 @@ Receives user id and though, and uploads it to the server.
 
 .. code:: bash
 
-    $ python -m brain_computer_interface.client upload-thought [OPTIONS] USER_ID THOUGHT
+    $ python -m brain_computer_interface.client upload-thought --help
+    Usage: brain_computer_interface.client upload-thought [OPTIONS] USER_ID
+                                                        THOUGHT
 
-Options:
-
-- ``-h``, ``--host`` TEXT     [default: 127.0.0.1]
-- ``-p``, ``--port`` INTEGER  [default: 5000]
-- ``--help``                  Show similar message and exit.
+    Options:
+    -h, --host TEXT     [default: 127.0.0.1]
+    -p, --port INTEGER  [default: 5000]
+    --help              Show this message and exit.
 
 
 The ``error`` Command
@@ -79,7 +93,12 @@ Raises an exception and prints it to the screen.
 
 .. code:: bash
 
-    $ python -m brain_computer_interface.client error [OPTIONS]
+    $ python -m brain_computer_interface.client error --help
+    Usage: brain_computer_interface.client error [OPTIONS]
+
+    Options:
+    --help  Show this message and exit.
+
 
 All commands accept the `-q` or `--quiet` flag to suppress output, and the `-t`
 or `--traceback` flag to show the full traceback when an exception is raised

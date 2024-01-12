@@ -108,8 +108,10 @@ class ColorImage(ProtobufWrapper):
         save_as = f'{path}/{keys.color_image}'
         with gzip.open(save_as, 'wb') as f:
             f.write(self.data)  # type: ignore
-        self.data = save_as
-        return super().jsonify(path)
+        self.data, tmp = save_as, self.data
+        ret = super().jsonify(path)
+        self.data = tmp
+        return ret
 
     @classmethod
     def from_json(cls, json_obj: dict):
@@ -138,8 +140,10 @@ class DepthImage(ProtobufWrapper):
         save_as = f'{path}/{keys.depth_image}'
         with gzip.open(save_as, 'wb') as f:
             f.write(struct.pack(f'{len(self.data)}f', *self.data))
-        self.data = save_as
-        return super().jsonify(path)
+        self.data, tmp = save_as, self.data
+        ret = super().jsonify(path)
+        self.data = tmp
+        return ret
 
     @classmethod
     def from_json(cls, json_obj: dict):

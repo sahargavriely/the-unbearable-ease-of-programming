@@ -13,6 +13,7 @@ Welcome to brain-computer-interface's documentation!
    message
    distributer
    client/client
+   parser/parser
    cli
    mind_file
    server/server

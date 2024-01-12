@@ -22,11 +22,11 @@ from utils import (
 
 def test_run_server_by_scheme(conf, user, snapshot):
     cmd = ['python', '-m', 'brain_computer_interface.server', 'run-server',
-           '-ps', str(conf.PUBLISH_SCHEME), '-h', conf.LISTEN_HOST,
+           '-d', str(conf.DISTRIBUTE_SCHEME), '-h', conf.LISTEN_HOST,
            '-p', str(conf.SERVER_PORT), '-s', str(conf.SHARED_DIR)]
     process = subprocess.Popen(cmd, stdout=subprocess.PIPE)
     published_data_file = \
-        pathlib.Path(str(furl(conf.PUBLISH_SCHEME).path))
+        pathlib.Path(str(furl(conf.DISTRIBUTE_SCHEME).path))
     assert not published_data_file.exists()
     try:
         time.sleep(0.5)
@@ -37,7 +37,8 @@ def test_run_server_by_scheme(conf, user, snapshot):
         mock_upload_mind(conf, user, snapshot)
         time.sleep(0.1)
     finally:
-        # we are doing the sig thingy instead of terminate to increase coverage
+        # we are doing the sig thingy instead of terminate() or kill()
+        # to increase coverage
         process.send_signal(signal.SIGINT)
     thought_path_1 = _get_path(conf.SHARED_DIR, conf.USER_20,
                                conf.TIMESTAMP_20)
@@ -55,7 +56,7 @@ def test_run_server_by_scheme(conf, user, snapshot):
         data = _data
 
     for op in CONFIG_OPTIONS:
-        Distributer(conf.PUBLISH_SCHEME).subscribe_raw_topic(callback, op)
+        Distributer(conf.DISTRIBUTE_SCHEME).subscribe_raw_topic(callback, op)
         assert user.jsonify()['id'] == data['metadata']['user_id']
         snapshot_json = snapshot.jsonify()
         assert snapshot_json['datetime'] == data['metadata']['datetime']
