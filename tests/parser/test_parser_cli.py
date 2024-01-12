@@ -8,12 +8,12 @@ from brain_computer_interface.message import CONFIG_OPTIONS
 from brain_computer_interface.distributer import Distributer
 
 
-def test_parse(published_data, snapshot, tmp_path):
+def test_parse(parsed_data, snapshot, tmp_path):
     snapshot = snapshot.jsonify(tmp_path)
     for topic in CONFIG_OPTIONS:
         topic_file = tmp_path / topic
         with topic_file.open('w') as file:
-            json.dump(published_data[topic], file)
+            json.dump(parsed_data[topic], file)
         cmd = ['python', '-m', 'brain_computer_interface.parser', 'parse',
                topic, str(topic_file), '-s', str(tmp_path)]
         process = subprocess.Popen(cmd, stdout=subprocess.PIPE)
