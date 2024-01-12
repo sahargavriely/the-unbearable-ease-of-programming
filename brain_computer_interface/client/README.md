@@ -111,7 +111,7 @@ or `--traceback` flag to show the full traceback when an exception is raised
 (by default, only the error message is printed, and the program exits with a
 non-zero code).
 
-To showcase these options, consider `error` command, which raises anexception:
+To showcase these options, consider `error` command, which raises an exception:
 
 ```sh
 $ python -m brain_computer_interface.client error

@@ -16,11 +16,9 @@ def test_parse_bad_parser_name():
 def test_parse(published_data, snapshot, tmp_path):
     snapshot = snapshot.jsonify(tmp_path)
     for topic in CONFIG_OPTIONS:
+        parsed_data = parse(topic, published_data[topic], tmp_path)['data']
         if 'data' in snapshot[topic]:
-            assert parse(topic, published_data[topic], tmp_path)['height'] \
-                == snapshot[topic]['height']
-            assert parse(topic, published_data[topic], tmp_path)['width'] \
-                == snapshot[topic]['width']
+            assert parsed_data['height'] == snapshot[topic]['height']
+            assert parsed_data['width'] == snapshot[topic]['width']
         else:
-            assert parse(topic, published_data[topic], tmp_path) \
-                == snapshot[topic]
+            assert parsed_data == snapshot[topic]

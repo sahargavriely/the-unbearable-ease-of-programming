@@ -19,7 +19,7 @@ def test_parse(published_data, snapshot, tmp_path):
         process = subprocess.Popen(cmd, stdout=subprocess.PIPE)
         process.wait(2)
         stdout, _ = process.communicate()
-        result = eval(stdout.decode().strip())
+        result = eval(stdout.decode().strip())['data']
         if 'data' in snapshot[topic]:
             assert result['height'] == snapshot[topic]['height']
             assert result['width'] == snapshot[topic]['width']
@@ -53,7 +53,7 @@ def test_run_parser(rabbitmq, user, snapshot, tmp_path, conf):
         parent, process, sub_process = comm_topic[topic]
         if not parent.poll(5):
             raise TimeoutError()
-        result = parent.recv()
+        result = parent.recv()['data']
         if 'data' in snapshot[topic]:
             assert result['height'] == snapshot[topic]['height']
             assert result['width'] == snapshot[topic]['width']

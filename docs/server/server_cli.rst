@@ -6,8 +6,18 @@ The ``brain-computer-interface.server`` package provides a command line interfac
 
 .. code:: bash
 
-    $ python -m brain_computer_interface.server [OPTIONS] COMMAND [ARGS]
-    ...
+    $ python -m brain_computer_interface.server --help
+    Usage: brain_computer_interface.server [OPTIONS] COMMAND [ARGS]...
+
+    Options:
+    --version        Show the version and exit.
+    -q, --quiet
+    -t, --traceback
+    --help           Show this message and exit.
+
+    Commands:
+    error
+    run-server
 
 
 The top-level options include:
@@ -28,19 +38,19 @@ The top-level options include:
 The ``run-server`` Command
 --------------------------
 
-Runs the server which listens to minds and forwarding them to the driver corresponding to the ``--publish-scheme`` argument.
+Runs the server on ``host:port`` which listens to minds and forwarding them to the driver corresponding to the ``--publish-scheme`` argument.
 
 .. code:: bash
 
-    $ python -m brain_computer_interface.server run-server [OPTIONS]
+    $ python -m brain_computer_interface.server run-server --help
+    Usage: brain_computer_interface.server run-server [OPTIONS]
 
-Options:
-
-- ``-ps``, ``--publish-scheme`` TEXT [default: file:///shared/publish/data.json]
-- ``-h``, ``--host`` TEXT            [default: 0.0.0.0]
-- ``-p``, ``--port`` INTEGER         [default: 5000]
-- ``-s``, ``--shared-dir`` PATH      [default: shared/]
-- ``--help``                         Show similar message and exit.
+    Options:
+    -d, --distribute-scheme TEXT  [default: rabbitmq://localhost:5672/]
+    -h, --host TEXT               [default: 0.0.0.0]
+    -p, --port INTEGER            [default: 5000]
+    -s, --shared-dir PATH         [default: shared]
+    --help                        Show this message and exit.
 
 
 The ``error`` Command
@@ -50,7 +60,12 @@ Raises an exception and prints it to the screen.
 
 .. code:: bash
 
-    $ python -m brain_computer_interface.server error [OPTIONS]
+    $ python -m brain_computer_interface.server error --help
+    Usage: brain_computer_interface.server error [OPTIONS]
+
+    Options:
+    --help  Show this message and exit.
+
 
 All commands accept the `-q` or `--quiet` flag to suppress output, and the `-t`
 or `--traceback` flag to show the full traceback when an exception is raised

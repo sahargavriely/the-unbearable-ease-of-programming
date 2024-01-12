@@ -21,4 +21,3 @@ upload_thought
 
     This function sends a given thought (*string*) of a given user id (*int*) to the server.
     You may also provide an address (host and port) which the function send the information to (defaults are set to ``'127.0.0.1'`` and ``5000``, respectfully).
-

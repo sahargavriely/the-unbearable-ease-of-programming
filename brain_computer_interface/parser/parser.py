@@ -43,7 +43,8 @@ def run_parser(name, shared_dir=SHARED_DIR,
 def parse(name, data, shared_dir=SHARED_DIR):
     parser = functools.partial(_get_parser(name), data['data'])
     img_dir = _get_img_dir(data['metadata'], shared_dir)
-    return _inject(parser, img_dir=img_dir)
+    data['data'] = _inject(parser, img_dir=img_dir)
+    return data
 
 
 def _get_parser(name):
