@@ -6,7 +6,7 @@ import pytest
 from struct import pack
 
 
-from brain_computer_interface.client.reader.drivers.default_driver import (
+from brain_computer_interface.client.reader.drivers.default import (
     id_format,
     name_len_format,
     birthday_format,
@@ -18,7 +18,7 @@ from brain_computer_interface.client.reader.drivers.default_driver import (
     pixel_format,
     feelings_format,
 )
-from brain_computer_interface.client.reader.drivers.protobuf_driver import \
+from brain_computer_interface.client.reader.drivers.protobuf import \
     length_format
 from brain_computer_interface.message import Snapshot, User
 from utils import _run_mock_server
@@ -71,10 +71,6 @@ def default_mind_file(mind_dir: Path, user: User, snapshot: Snapshot):
     return file
 
 
-##########################################################################
-# Server
-
-
 @pytest.fixture(scope='module')
 def protobuf_mind_file(mind_dir: Path, user: User, snapshot: Snapshot):
     file = mind_dir / 'sample.mind.gz'
@@ -85,6 +81,10 @@ def protobuf_mind_file(mind_dir: Path, user: User, snapshot: Snapshot):
         f.write(pack(length_format, len(snapshot.serialize())))
         f.write(snapshot.serialize())
     return file
+
+
+##########################################################################
+# Server
 
 
 @pytest.fixture

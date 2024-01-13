@@ -1,7 +1,6 @@
 from io import BufferedReader
 import struct
 
-from ..reader import collect_driver
 from ....message import (
     ColorImage,
     DepthImage,
@@ -26,8 +25,9 @@ pixel_format = '<f'
 feelings_format = '<ffff'
 
 
-@collect_driver
 class Default:
+    extension = 'mind'
+
     def __init__(self, path: str):
         self.path = path
 

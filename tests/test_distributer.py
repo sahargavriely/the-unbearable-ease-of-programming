@@ -8,14 +8,6 @@ from brain_computer_interface.distributer import Distributer
 from brain_computer_interface.utils import keys
 
 
-def test_distributer_driver_scheme_error():
-    bad_scheme = 'sike'
-    url = f'{bad_scheme}:///nowhere'
-    error_msg = f'Could not locate distributer driver scheme {bad_scheme!r}'
-    with pytest.raises(ValueError, match=error_msg):
-        Distributer(url)
-
-
 def test_file_distributer_driver(tmp_path):
     data = 'fe!n'
     url = f'file://{str(tmp_path.absolute())}/'

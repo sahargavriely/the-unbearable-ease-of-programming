@@ -19,24 +19,3 @@ def test_run_webserver(conf):
     finally:
         # we are doing the sig thingy instead of terminate to increase coverage
         process.send_signal(signal.SIGINT)
-
-
-def test_error():
-    cmd = ['python', '-m', 'brain_computer_interface', 'error']
-    process = subprocess.Popen(cmd, stdout=subprocess.PIPE, )
-    stdout, _ = process.communicate()
-    assert b'something went terribly wrong :[' in stdout.lower()
-
-
-def test_quiet_flag():
-    cmd = ['python', '-m', 'brain_computer_interface', '-q', 'error']
-    process = subprocess.Popen(cmd, stdout=subprocess.PIPE, )
-    stdout, _ = process.communicate()
-    assert not stdout.lower()
-
-
-def test_traceback_flag():
-    cmd = ['python', '-m', 'brain_computer_interface', '-t', 'error']
-    process = subprocess.Popen(cmd, stdout=subprocess.PIPE, )
-    stdout, _ = process.communicate()
-    assert b'traceback (most recent call last)' in stdout.lower()

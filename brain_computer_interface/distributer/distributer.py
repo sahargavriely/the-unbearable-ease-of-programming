@@ -1,43 +1,38 @@
 import contextlib
-import importlib
-import inspect
-import pathlib
 
 import furl
 
 from ..message import CONFIG_OPTIONS
-from ..utils import keys, setup_logging
+from ..utils import get_driver, keys, setup_logging
 
 
 logger = setup_logging(__name__)
 
 
-def get_driver(scheme):
-    '''
-    Loading drivers under drivers directory, relative to here.
-    '''
-    drivers = pathlib.Path(__file__).parent / 'drivers'
-    for file in drivers.iterdir():
-        if file.suffix != '.py' or file.name.startswith('_'):
-            logger.info('did not load %s', file.name)
-            continue
-        logger.info('loading module %s for distributer driver', file.name)
-        driver_import = f'.{drivers.name}.{file.stem}'
-        driver = importlib.import_module(driver_import, __package__)
-        for _, obj in inspect.getmembers(driver, inspect.isclass):
-            if hasattr(obj, 'scheme') and getattr(obj, 'scheme') == scheme:
-                logger.info(
-                    'located and loading distributer driver %s', obj.__name__)
-                return obj
-    err_msg = f'Could not locate distributer driver scheme {scheme!r}'
-    logger.error(err_msg)
-    raise ValueError(err_msg)
-
-
 class Distributer:
     def __init__(self, url: str):
+        logger.info('initiating distributer for url %s', url)
         url_ = furl.furl(url)
-        self.driver = get_driver(url_.scheme)(url_)
+        print(__file__, __package__)
+        print(__file__, __package__)
+        print(__file__, __package__)
+        print(type(__package__))
+        print(type(__package__))
+        print(type(__package__))
+        print(type(__package__))
+        print(type(__package__))
+        print(type(__package__))
+        print(__file__, __package__)
+        print(__file__, __package__)
+        print(__file__, __package__)
+        print(__file__, __package__)
+        print(__file__, __package__)
+        print(__file__, __package__)
+        print(__file__, __package__)
+        print(__file__, __package__)
+        print(__file__, __package__)
+        self.driver = get_driver(
+            __file__, __package__, 'scheme', url_.scheme)(url_)
 
     def connect(self):
         if hasattr(self.driver, 'connect'):

@@ -13,6 +13,7 @@ from .config import (
     WEBSERVER_PORT,
 )
 from .connection import Connection
+from .diver_loader import get_driver
 from .listener import Listener
 from .logging_setter import setup_logging
 from .thought import Thought
@@ -21,6 +22,7 @@ from .thought import Thought
 __all__ = [
     'Connection',
     'DISTRIBUTE_SCHEME',
+    'get_driver',
     'keys',
     'LISTEN_HOST',
     'Listener',
