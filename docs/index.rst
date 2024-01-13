@@ -15,7 +15,6 @@ Welcome to brain-computer-interface's documentation!
    client/client
    parser/parser
    cli
-   mind_file
    server/server
 
 Indices and tables

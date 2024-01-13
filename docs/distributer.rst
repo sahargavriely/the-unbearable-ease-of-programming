@@ -24,9 +24,9 @@ Distributer:
 
 .. _target to subscribe:
 
-    .. method:: subscribe(self, callback, topic, subscriber_group='')
+    .. method:: subscribe(self, callback, *topics, subscriber_group='')
 
-        Subscribe to `topic` and upon receiving data calling the `callback` with the received data (in JSON format) as an argument.
+        Subscribe to `topics` and upon receiving data calling the `callback` with the received data (in JSON format) as an argument.
         `subscriber_group` argument meant to enable distribute work between different subscribers which are part of the same group, empty group means every subscriber will get the same work.
 
     .. method:: connect(self)

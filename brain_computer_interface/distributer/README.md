@@ -20,9 +20,9 @@ The `brain_computer_interface.distributer` packages provides the Distributer cla
         Publish `data` to `topic`.
         `data` must be in JSON format (we want to support many drivers).
 
-    - `subscribe(self, callback, topic, subscriber_group='')`
+    - `subscribe(self, callback, topics, subscriber_group='')`
 
-        Subscribe to `topic` and upon receiving data calling the `callback` with the received data (in JSON format) as an argument.
+        Subscribe to `topics` and upon receiving data calling the `callback` with the received data (in JSON format) as an argument.
         `subscriber_group` argument meant to enable distribute work between different subscribers which are part of the same group, empty group means every subscriber will get the same work.
 
     Continuing with `Distributer` bound methods:

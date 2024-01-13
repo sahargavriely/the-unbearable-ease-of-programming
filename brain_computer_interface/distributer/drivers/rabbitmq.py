@@ -47,7 +47,7 @@ class RabbitMQScheme:
                                   properties=BasicProperties(
                                       delivery_mode=DeliveryMode.Persistent))
 
-    def subscribe(self, callback, binding_key, subscriber_group=''):
+    def subscribe(self, callback, *binding_keys, subscriber_group=''):
         with _topic_exchange_channel(self.conn, self.exchange) as channel:
             # Declaring durable protects from mq restarts
             # Declaring exclusive deletes it once the connection closes
@@ -56,8 +56,9 @@ class RabbitMQScheme:
                                            durable=True,
                                            exclusive=not subscriber_group)
             queue_name = result.method.queue
-            channel.queue_bind(exchange=self.exchange, routing_key=binding_key,
-                               queue=queue_name)
+            for binding_key in binding_keys:
+                channel.queue_bind(exchange=self.exchange,
+                                   routing_key=binding_key, queue=queue_name)
             # Makes sure not to give more than one msg to a worker at a time.
             # In other words, don't dispatch a new msg to a worker,
             # from the queue, until it has acknowledged the previous one.

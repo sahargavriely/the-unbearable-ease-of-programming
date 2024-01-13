@@ -16,6 +16,6 @@ class FileScheme:
         with (self.path / topic).open('w') as f:
             json.dump(data, f)
 
-    def subscribe(self, callback, topic, *_):
+    def subscribe(self, callback, topic, *_, **__):
         with (self.path / topic).open('r') as f:
             callback(json.load(f))

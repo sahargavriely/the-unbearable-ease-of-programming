@@ -5,13 +5,11 @@ import pathlib
 from .logging_setter import setup_logging
 
 
-logger = setup_logging(__name__)
-
-
 def get_driver(file, package, predict_key, predict):
     '''
     Loading drivers under drivers directory, relative to package.
     '''
+    logger = setup_logging(pathlib.Path(file).name)
     drivers = pathlib.Path(file).parent / 'drivers'
     for file in drivers.iterdir():
         if file.suffix != '.py' or file.name.startswith('_'):

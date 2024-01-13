@@ -13,24 +13,6 @@ class Distributer:
     def __init__(self, url: str):
         logger.info('initiating distributer for url %s', url)
         url_ = furl.furl(url)
-        print(__file__, __package__)
-        print(__file__, __package__)
-        print(__file__, __package__)
-        print(type(__package__))
-        print(type(__package__))
-        print(type(__package__))
-        print(type(__package__))
-        print(type(__package__))
-        print(type(__package__))
-        print(__file__, __package__)
-        print(__file__, __package__)
-        print(__file__, __package__)
-        print(__file__, __package__)
-        print(__file__, __package__)
-        print(__file__, __package__)
-        print(__file__, __package__)
-        print(__file__, __package__)
-        print(__file__, __package__)
         self.driver = get_driver(
             __file__, __package__, 'scheme', url_.scheme)(url_)
 
@@ -59,16 +41,19 @@ class Distributer:
         return self.driver.publish(data, topic)
 
     def subscribe_parsed_topic(self, callback, topic, subscriber_group=''):
-        self.subscribe(callback, f'parsed.{topic}', subscriber_group)
+        self.subscribe(callback, f'parsed.{topic}',
+                       subscriber_group=subscriber_group)
 
     def subscribe_raw_topic(self, callback, topic, subscriber_group=''):
-        self.subscribe(callback, f'raw.{topic}', subscriber_group)
+        self.subscribe(callback, f'raw.{topic}',
+                       subscriber_group=subscriber_group)
 
-    def subscribe(self, callback, topic, subscriber_group=''):
+    def subscribe(self, callback, *topics, subscriber_group=''):
         logger.info('subscribing to %s part of group %s',
-                    topic, subscriber_group)
+                    topics, subscriber_group)
         with contextlib.suppress(Exception):
-            self.driver.subscribe(callback, topic, subscriber_group)
+            self.driver.subscribe(callback, *topics,
+                                  subscriber_group=subscriber_group)
 
     def __enter__(self):
         self.connect()

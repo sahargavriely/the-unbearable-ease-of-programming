@@ -39,8 +39,9 @@ To use other driver we can:
 
     .. code-block:: python
 
-        @collect_driver('distinguish_extension_for_the_driver')
         class DriverExample:
+            extension = 'extension_name'  # this attribute will be use to load the driver according to the file extension
+
             def __init__(self, path: str):
                 pass
 

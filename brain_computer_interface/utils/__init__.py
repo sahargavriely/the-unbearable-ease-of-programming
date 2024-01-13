@@ -5,6 +5,7 @@ from .cli_basic_configurations import (
     module_main_exe,
 )
 from .config import (
+    DATABASE,
     DISTRIBUTE_SCHEME,
     LISTEN_HOST,
     REQUEST_HOST,
@@ -21,6 +22,7 @@ from .thought import Thought
 
 __all__ = [
     'Connection',
+    'DATABASE',
     'DISTRIBUTE_SCHEME',
     'get_driver',
     'keys',
