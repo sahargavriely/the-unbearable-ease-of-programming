@@ -33,18 +33,17 @@ def test_rabbitmq_distributer_driver_bad_values():
         Distributer(url).connect()
 
 
-def test_rabbitmq_distributer_pub_server(rabbitmq, conf, snapshot, user, tmp_path):
+def test_rabbitmq_distributer_server(rabbitmq, conf, snapshot, user, tmp_path):
     topics = [keys.user, *CONFIG_OPTIONS]
     q = queue.Queue()
 
-    def sub(sub_func, topic):
+    def sub(func, topic):
         with Distributer(conf.RABBITMQ_SCHEME) as distributer:
-            getattr(distributer, sub_func)(q.put, topic)
+            getattr(distributer, func)(q.put, topic)
 
     for topic in topics:
-        sub_func = 'subscribe' if topic == keys.user else 'subscribe_raw_topic'
-        thread = threading.Thread(target=sub, args=(sub_func, topic,), daemon=True)
-        thread.start()
+        func = 'subscribe' if topic == keys.user else 'subscribe_raw_topic'
+        threading.Thread(target=sub, args=(func, topic,), daemon=True).start()
 
     time.sleep(7)
     with Distributer(conf.RABBITMQ_SCHEME) as distributer:

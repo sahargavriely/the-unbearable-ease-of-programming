@@ -62,20 +62,20 @@ def test_run_server_by_scheme(conf, user, snapshot):
 
     for op in CONFIG_OPTIONS:
         Distributer(conf.DISTRIBUTE_SCHEME).subscribe_raw_topic(callback, op)
-        assert user.jsonify()[keys.id] == data[keys.metadata][keys.user_id]
-        assert op == data[keys.metadata][keys.topic]
+        metadata = data[keys.metadata]
+        assert user.jsonify()[keys.id] == metadata[keys.user_id]
+        assert op == metadata[keys.topic]
         snapshot_json = snapshot.jsonify()
-        assert snapshot_json[keys.datetime] == data[keys.metadata][keys.datetime]
-        if keys.color_image in op:
-            assert snapshot_json[op] == ColorImage.from_json(
-                data[keys.data]).jsonify()
-        elif keys.depth_image in op:
-            assert snapshot_json[op] == DepthImage.from_json(
-                data[keys.data]).jsonify()
+        assert snapshot_json[keys.datetime] == metadata[keys.datetime]
+        snap_data = snapshot_json[op]
+        data = data[keys.data]
+        if keys.color_image == op:
+            assert snap_data == ColorImage.from_json(data).jsonify()
+        elif keys.depth_image == op:
+            assert snap_data == DepthImage.from_json(data).jsonify()
         else:
-            if isinstance(snapshot_json[op], dict):
-                for key in snapshot_json[op]:
-                    assert snapshot_json[op][key] == pytest.approx(
-                        data[keys.data][key])
+            if isinstance(snap_data, dict):
+                for key in snap_data:
+                    assert snap_data[key] == pytest.approx(data[key])
             else:
-                assert snapshot_json[op] == pytest.approx(data[keys.data])
+                assert snap_data == pytest.approx(data)
