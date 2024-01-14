@@ -32,12 +32,26 @@ Distributer:
     .. method:: connect(self)
 
         Returns and calls directly to the driver's `connect` is exists.
-        Used also as the `enter` part of `Distributer`'s `with` statement
+        Used also as the `enter` part of `Distributer`'s `with` statement.
 
     .. method:: close(self)
 
         Returns and calls directly to the driver's `close` is exists.
-        Used also as the `exit` part of `Distributer`'s `with` statement
+        Used also as the `exit` part of `Distributer`'s `with` statement.
+
+    .. method:: publish_server(self, data)
+
+        Publish user information by :ref:`publish_user <target to publish_user>` __or__ snapshot information by :ref:`publish_raw_snapshot <target to publish_raw_snapshot>` if possible.
+        `data` must be in JSON format (we want to support many drivers).
+
+.. _target to publish_user:
+
+    .. method:: publish_user(self, data)
+
+        Publish user information to `user` topic.
+        `data` must be in JSON format (we want to support many drivers).
+
+.. _target to publish_raw_snapshot:
 
     .. method:: publish_raw_snapshot(self, data)
 

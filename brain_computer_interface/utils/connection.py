@@ -10,7 +10,8 @@ class Connection:
     length_format = '<I'
     length_size = struct.calcsize(length_format)
 
-    def __init__(self, socket: socket.socket):
+    def __init__(self, socket: socket.socket, timeout: float = 0):
+        socket.settimeout(timeout)
         self._socket = socket
 
     def __repr__(self):
@@ -28,11 +29,11 @@ class Connection:
         self.close()
 
     @classmethod
-    def connect(cls, host: str, port: int):
+    def connect(cls, host: str, port: int, timeout: float = 0):
         socket_ = socket.socket()
         logger.info('connecting to (%s, %s)', host, port)
         socket_.connect((host, port))
-        return Connection(socket_)
+        return Connection(socket_, timeout)
 
     def send(self, data: bytes):
         logger.debug('sending data %s', data)

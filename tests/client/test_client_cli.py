@@ -4,7 +4,7 @@ from brain_computer_interface.message import (
     Snapshot,
     User,
 )
-from utils import _assert_now
+from utils import assert_now
 
 
 def test_read(default_mind_file, snapshot: Snapshot, user: User):
@@ -37,10 +37,10 @@ def test_upload_mind(conf, default_mind_file, protobuf_mind_file, user,
     stdout, _ = process.communicate()
     assert b'snapshot uploaded' in stdout.lower()
     assert user.name.lower().encode() in stdout.lower()
-    decoded_user, decoded_snapshot, popped_key = get_message()
+    decoded_user, decoded_snapshots, popped_key = get_message()
     snapshot.set_default(popped_key)
     assert decoded_user == user.serialize()
-    assert repr(Snapshot.from_bytes(decoded_snapshot)) == repr(snapshot)
+    assert repr(Snapshot.from_bytes(decoded_snapshots[0])) == repr(snapshot)
 
     cmd = ['python', '-m', 'brain_computer_interface.client', 'upload-mind',
            '-h', conf.REQUEST_HOST, '-p', str(conf.SERVER_PORT),
@@ -50,10 +50,10 @@ def test_upload_mind(conf, default_mind_file, protobuf_mind_file, user,
     stdout, _ = process.communicate()
     assert b'snapshot uploaded' in stdout.lower()
     assert user.name.lower().encode() in stdout.lower()
-    decoded_user, decoded_snapshot, popped_key = get_message()
+    decoded_user, decoded_snapshots, popped_key = get_message()
     snapshot.set_default(popped_key)
     assert decoded_user == user.serialize()
-    assert repr(Snapshot.from_bytes(decoded_snapshot)) == repr(snapshot)
+    assert repr(Snapshot.from_bytes(decoded_snapshots[0])) == repr(snapshot)
 
 
 def test_upload_thought(conf, get_message):
@@ -66,7 +66,7 @@ def test_upload_thought(conf, get_message):
     assert b'done' in stdout.lower()
     user_id, timestamp, thought = get_message()
     assert user_id == conf.USER_20
-    _assert_now(timestamp)
+    assert_now(timestamp)
     assert thought == conf.THOUGHT_20
 
 

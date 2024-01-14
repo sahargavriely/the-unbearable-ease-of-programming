@@ -30,12 +30,22 @@ The `brain_computer_interface.distributer` packages provides the Distributer cla
     - `connect(self)`
 
         Returns and calls directly to the driver's `connect` is exists.
-        Used also as the `enter` part of `Distributer`'s `with` statement
+        Used also as the `enter` part of `Distributer`'s `with` statement.
 
     - `close(self)`
 
         Returns and calls directly to the driver's `close` is exists.
-        Used also as the `exit` part of `Distributer`'s `with` statement
+        Used also as the `exit` part of `Distributer`'s `with` statement.
+
+    - `publish_server(self, data)`
+
+        Publish user information by `publish_user` __or__ snapshot information by `publish_raw_snapshot` if possible.
+        `data` must be in JSON format (we want to support many drivers).
+
+    - `publish_user(self, data)`
+
+        Publish user information to `user` topic.
+        `data` must be in JSON format (we want to support many drivers).
 
     - `publish_raw_snapshot(self, data)`
 

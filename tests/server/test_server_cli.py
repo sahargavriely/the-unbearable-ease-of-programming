@@ -14,7 +14,7 @@ from brain_computer_interface.message import (
 )
 from brain_computer_interface.utils import keys
 from utils import (
-    _get_path,
+    get_path,
     mock_upload_mind,
     mock_upload_thought,
 )
@@ -40,10 +40,10 @@ def test_run_server_by_scheme(conf, user, snapshot):
         # we are doing the sig thingy instead of terminate() or kill()
         # to increase coverage
         process.send_signal(signal.SIGINT)
-    thought_path_1 = _get_path(conf.SHARED_DIR, conf.USER_20,
-                               conf.TIMESTAMP_20)
-    thought_path_2 = _get_path(conf.SHARED_DIR, conf.USER_22,
-                               conf.TIMESTAMP_22)
+    thought_path_1 = get_path(conf.SHARED_DIR, conf.USER_20,
+                              conf.TIMESTAMP_20)
+    thought_path_2 = get_path(conf.SHARED_DIR, conf.USER_22,
+                              conf.TIMESTAMP_22)
     assert thought_path_1.read_text() == conf.THOUGHT_20
     assert thought_path_2.read_text() == conf.THOUGHT_22
 
@@ -55,21 +55,27 @@ def test_run_server_by_scheme(conf, user, snapshot):
         nonlocal data
         data = _data
 
+    Distributer(conf.DISTRIBUTE_SCHEME).subscribe(callback, keys.user)
+    assert user.jsonify()[keys.id] == data[keys.metadata][keys.user_id]
+    assert keys.user == data[keys.metadata][keys.topic]
+    assert user.jsonify() == data[keys.data]
+
     for op in CONFIG_OPTIONS:
         Distributer(conf.DISTRIBUTE_SCHEME).subscribe_raw_topic(callback, op)
-        assert user.jsonify()['id'] == data['metadata']['user_id']
+        assert user.jsonify()[keys.id] == data[keys.metadata][keys.user_id]
+        assert op == data[keys.metadata][keys.topic]
         snapshot_json = snapshot.jsonify()
-        assert snapshot_json['datetime'] == data['metadata']['datetime']
+        assert snapshot_json[keys.datetime] == data[keys.metadata][keys.datetime]
         if keys.color_image in op:
             assert snapshot_json[op] == ColorImage.from_json(
-                data['data']).jsonify()
+                data[keys.data]).jsonify()
         elif keys.depth_image in op:
             assert snapshot_json[op] == DepthImage.from_json(
-                data['data']).jsonify()
+                data[keys.data]).jsonify()
         else:
             if isinstance(snapshot_json[op], dict):
                 for key in snapshot_json[op]:
                     assert snapshot_json[op][key] == pytest.approx(
-                        data['data'][key])
+                        data[keys.data][key])
             else:
-                assert snapshot_json[op] == pytest.approx(data['data'])
+                assert snapshot_json[op] == pytest.approx(data[keys.data])

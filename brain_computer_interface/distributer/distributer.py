@@ -24,11 +24,21 @@ class Distributer:
         if hasattr(self.driver, 'close'):
             return self.driver.close()
 
+    def publish_server(self, data):
+        if keys.snapshot in data:
+            self.publish_raw_snapshot(data)
+        else:
+            self.publish_user(data[keys.user])
+
+    def publish_user(self, data):
+        metadata = dict(user_id=data[keys.id], topic=keys.user)
+        self.publish(dict(metadata=metadata, data=data), keys.user)
+
     def publish_raw_snapshot(self, data):
         metadata = dict(user_id=data[keys.user][keys.id],
                         datetime=data[keys.snapshot][keys.datetime])
         for topic in CONFIG_OPTIONS:
-            metadata['topic'] = topic
+            metadata[keys.topic] = topic
             raw_topic_data = dict(metadata=metadata,
                                   data=data[keys.snapshot][topic])
             self.publish(raw_topic_data, f'raw.{topic}')
