@@ -10,9 +10,9 @@ class FileScheme:
 
     def __init__(self, url: furl.furl):
         self.path = pathlib.Path(str(url.path))
+        self.path.mkdir(parents=True, exist_ok=True)
 
     def publish(self, data, topic):
-        self.path.mkdir(parents=True, exist_ok=True)
         with (self.path / topic).open('w') as f:
             json.dump(data, f)
 

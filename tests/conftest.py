@@ -50,6 +50,7 @@ def other_conf():
 def patch_conf(tmp_path_factory):
     tmp_path = tmp_path_factory.mktemp('shared')
     return Dictionary({
+        'DATABASE': f'file://{Path(tmp_path).absolute()}/database/',
         'DISTRIBUTE_SCHEME': f'file://{Path(tmp_path).absolute()}/published/',
         'LISTEN_HOST': '0.0.0.0',
         'REQUEST_HOST': '127.0.0.1',
