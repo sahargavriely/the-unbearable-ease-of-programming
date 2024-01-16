@@ -25,6 +25,10 @@ class Saver:
                     topic, user_id, datetime)
         self.driver.save_snapshot_topic(topic, user_id, datetime, data)
 
+    def get_users(self):
+        logger.info('getting all users')
+        return self.driver.get_users()
+
     def get_user(self, user_id):
         logger.info('getting user id %s', user_id)
         return self.driver.get_user(user_id)
@@ -33,10 +37,15 @@ class Saver:
         logger.info('getting user id %s snapshots', user_id)
         return self.driver.get_user_snapshots(user_id)
 
-    def get_snapshot_topic(self, topic, user_id, datetime):
+    def get_user_snapshot(self, user_id, datetime):
+        logger.info('getting user id %s snapshot at datetime %s',
+                    user_id, datetime)
+        return self.driver.get_user_snapshot(user_id, datetime)
+
+    def get_user_snapshot_topic(self, topic, user_id, datetime):
         logger.info('getting %s of user id %s snapshot at datetime %s',
                     topic, user_id, datetime)
-        return self.driver.get_snapshot_topic(topic, user_id, datetime)
+        return self.driver.get_user_snapshot_topic(topic, user_id, datetime)
 
     @classmethod
     def run(cls, database, distribute_scheme):

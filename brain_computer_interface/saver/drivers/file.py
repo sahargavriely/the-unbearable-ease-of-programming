@@ -28,6 +28,9 @@ class FileScheme:
         with (snap_dir / topic).open('w') as f:
             json.dump(data, f)
 
+    def get_users(self):
+        return list(int(user.name) for user in self.path.iterdir())
+
     def get_user(self, user_id):
         with (self.path / str(user_id) / keys.user).open('r') as f:
             return json.load(f)
@@ -41,8 +44,20 @@ class FileScheme:
                 snapshots.append(datetime)
         return snapshots
 
-    def get_snapshot_topic(self, topic, user_id, datetime):
+    def get_user_snapshot(self, user_id, datetime):
+        snapshot = dict()
+        datetime = dt.datetime.fromtimestamp(datetime / 1000)
+        snap_dir = self.path / str(user_id) / f'{datetime:%F_%H-%M-%S-%f}'
+        for topic in snap_dir.iterdir():
+            if topic.is_file():
+                with topic.open('r') as f:
+                    snapshot[topic.name] = json.load(f)
+        return snapshot
+
+    def get_user_snapshot_topic(self, topic, user_id, datetime):
         datetime = dt.datetime.fromtimestamp(datetime / 1000)
         snap_dir = self.path / str(user_id) / f'{datetime:%F_%H-%M-%S-%f}'
         with (snap_dir / topic).open('r') as f:
-            return json.load(f)
+            topic = json.load(f)
+        with open(topic[keys.data], 'rb') as f:
+            return f.read()

@@ -32,8 +32,8 @@ def test_snapshot(saver, conf, user, parsed_data, snapshot, tmp_path):
                '-d', conf.DATABASE]
         process = subprocess.Popen(cmd, stdout=subprocess.PIPE)
         process.wait(2)
-        assert saver.get_snapshot_topic(
-            topic, user_id, datetime) == parsed_data[topic][keys.data]
+        assert saver.get_user_snapshot(user_id, datetime)[topic] \
+            == parsed_data[topic][keys.data]
 
 
 def test_run_saver(rabbitmq, saver, user, snapshot, parsed_data, conf):
@@ -57,6 +57,6 @@ def test_run_saver(rabbitmq, saver, user, snapshot, parsed_data, conf):
     process.send_signal(signal.SIGINT)
     process.wait(1)
     assert saver.get_user(user_id) == user
+    saved_snap = saver.get_user_snapshot(user_id, datetime)
     for topic in CONFIG_OPTIONS:
-        assert saver.get_snapshot_topic(
-            topic, user_id, datetime) == parsed_data[topic][keys.data]
+        assert saved_snap[topic] == parsed_data[topic][keys.data]
