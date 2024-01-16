@@ -19,7 +19,9 @@ def test_snapshots(saver, user, parsed_data, snapshot):
     saved_snap = saver.get_user_snapshot(user_id, datetime)
     for topic in CONFIG_OPTIONS:
         assert saved_snap[topic] == parsed_data[topic][keys.data]
-    for img in (keys.depth_image, keys.color_image):
-        data = saver.get_user_snapshot_topic(img, user_id, datetime)
-        with open(parsed_data[img][keys.data][keys.data], 'rb') as f:
-            assert data == f.read()
+        data = saver.get_user_snapshot_topic(topic, user_id, datetime)
+        if topic in (keys.depth_image, keys.color_image):
+            with open(parsed_data[topic][keys.data][keys.data], 'rb') as f:
+                assert data == f.read()
+        else:
+            assert data == parsed_data[topic][keys.data]

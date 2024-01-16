@@ -45,7 +45,11 @@ class Saver:
     def get_user_snapshot_topic(self, topic, user_id, datetime):
         logger.info('getting %s of user id %s snapshot at datetime %s',
                     topic, user_id, datetime)
-        return self.driver.get_user_snapshot_topic(topic, user_id, datetime)
+        data = self.driver.get_user_snapshot_topic(topic, user_id, datetime)
+        if topic in (keys.color_image, keys.depth_image):
+            with open(data[keys.data], 'rb') as f:
+                return f.read()
+        return data
 
     @classmethod
     def run(cls, database, distribute_scheme):

@@ -58,6 +58,4 @@ class FileScheme:
         datetime = dt.datetime.fromtimestamp(datetime / 1000)
         snap_dir = self.path / str(user_id) / f'{datetime:%F_%H-%M-%S-%f}'
         with (snap_dir / topic).open('r') as f:
-            topic = json.load(f)
-        with open(topic[keys.data], 'rb') as f:
-            return f.read()
+            return json.load(f)
