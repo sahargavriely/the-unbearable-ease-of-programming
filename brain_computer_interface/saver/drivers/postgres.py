@@ -2,6 +2,7 @@ import furl
 import psycopg2
 from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 from psycopg2.extras import RealDictCursor
+# from psycopg2.error import ForeignKeyViolation
 
 from brain_computer_interface.utils import keys
 
@@ -37,13 +38,16 @@ class PostgreSQL:
 
     def save_user(self, user_id, data):
         with self.conn.cursor() as curs:
+            data[keys.id] = user_id
             # user is a saved word so PG doesn't allow to use it
             return _insert(curs, 'users', **data)
 
     def save_snapshot_topic(self, topic, user_id, datetime, data):
         with self.conn.cursor() as curs:
             snapshot = {keys.datetime: datetime, topic: data}
-            return _insert(curs, keys.snapshot, prim_key=keys.datetime, user_id=user_id, **snapshot)
+            return _insert(curs, keys.snapshot,
+                           prim_key=f'{keys.datetime}, user_id',
+                           user_id=user_id, **snapshot)
 
     def get_users(self):
         with self.conn.cursor() as curs:
@@ -53,25 +57,33 @@ class PostgreSQL:
     def get_user(self, user_id):
         with self.conn.cursor(cursor_factory=RealDictCursor) as curs:
             curs.execute('SELECT * FROM users WHERE id = (%s)', [user_id])
-            return {key: val for key, val in curs.fetchall()[0].items()}
+            ret = curs.fetchone() or dict()
+            return {key: val for key, val in ret.items()}
 
     def get_user_snapshots(self, user_id):
         with self.conn.cursor() as curs:
-            curs.execute(
-                'SELECT datetime FROM snapshot WHERE user_id = (%s)', [user_id])
+            curs.execute('SELECT datetime FROM snapshot WHERE user_id = (%s)',
+                         [user_id])
             return list(row[0] for row in curs.fetchall())
 
     def get_user_snapshot(self, user_id, datetime):
-        with self.conn.cursor(cursor_factory=RealDictCursor) as curs:
-            curs.execute(
-                'SELECT * FROM snapshot WHERE user_id = (%s) AND datetime = (%s)', [user_id, datetime])
-            return curs.fetchall()
+        with self.conn.cursor() as curs:
+            curs.execute(GET_SNAPSHOT, [user_id, datetime])
+            ret, = curs.fetchone() or (dict(),)
+            _pop_id_key(ret)
+            return ret
 
     def get_user_snapshot_topic(self, topic, user_id, datetime):
-        pass
+        topic_data = self.get_user_snapshot(user_id, datetime)[topic]
+        return topic_data.get(keys.data, topic_data)
 
-    def _execute(self):
-        pass
+
+def _pop_id_key(dictionary: dict):
+    dictionary.pop(keys.id, None)
+    for val in dictionary.values():
+        if isinstance(val, dict):
+            _pop_id_key(val)
+
 
 def _create_pg_conn(url: furl.furl, db_name='postgres'):
     # postgres is the default name because it is always exists in pg servers
@@ -96,16 +108,19 @@ def _insert(curs, table_name, prim_key=keys.id, **kwargs):
         table_values.append(value)
     insert_keys = ', '.join(table_keys)
     values_format = ', '.join(values_format)
-    update_keys = ', '.join(table_keys[1:])
-    exclude_update_keys = 'EXCLUDED.' + ', EXCLUDED.'.join(table_keys[1:])
+    prim_keys_amount = 1 + prim_key.count(',')
+    update_keys = ', '.join(table_keys[prim_keys_amount:])
+    exclude_update_keys = 'EXCLUDED.' + \
+        ', EXCLUDED.'.join(table_keys[prim_keys_amount:])
     curs.execute(
         f'INSERT INTO {table_name} ({insert_keys}) VALUES ({values_format}) '
         f'ON CONFLICT ({prim_key}) '
         f'DO UPDATE SET ({update_keys}) = ROW({exclude_update_keys}) '
         f'RETURNING {prim_key}',
         table_values)
-    return curs.fetchone()[0]
-
+    if prim_keys_amount == 1:
+        return curs.fetchone()[0]
+    return curs.fetchone()
 
 
 CREATE_USER_TABLE = '''
@@ -167,11 +182,28 @@ CREATE_FEELINGS_TABLE = '''
 '''
 CREATE_SNAPSHOT_TABLE = '''
     CREATE TABLE snapshot (
-        datetime INTEGER PRIMARY KEY,
         user_id INTEGER REFERENCES users(id),
+        datetime INTEGER,
         pose INTEGER REFERENCES pose(id),
         color_image INTEGER REFERENCES color_image(id),
         depth_image INTEGER REFERENCES depth_image(id),
-        feelings INTEGER REFERENCES feelings(id)
+        feelings INTEGER REFERENCES feelings(id),
+        PRIMARY KEY (datetime, user_id)
     );
+'''
+GET_SNAPSHOT = '''
+    SELECT json_build_object(
+        'datetime', s.datetime,
+        'pose', json_build_object('transition', t.*, 'rotation', r.*),
+        'color_image', c.*,
+        'depth_image', d.*,
+        'feelings', f.*)
+    FROM snapshot AS s
+        LEFT JOIN pose AS p ON s.pose = p.id
+        LEFT JOIN transition AS t ON p.transition = t.id
+        LEFT JOIN rotation AS r ON p.rotation = r.id
+        LEFT JOIN color_image AS c ON s.color_image = c.id
+        LEFT JOIN depth_image AS d ON s.depth_image = d.id
+        LEFT JOIN feelings AS f ON s.feelings = f.id
+    WHERE s.user_id = (%s) AND s.datetime = (%s);
 '''
