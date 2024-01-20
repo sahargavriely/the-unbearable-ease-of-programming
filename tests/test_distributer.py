@@ -45,7 +45,7 @@ def test_rabbitmq_distributer_server(rabbitmq, conf, snapshot, user, tmp_path):
         func = 'subscribe' if topic == keys.user else 'subscribe_raw_topic'
         threading.Thread(target=sub, args=(func, topic,), daemon=True).start()
 
-    time.sleep(7)
+    time.sleep(1)
     with Distributer(conf.RABBITMQ_SCHEME) as distributer:
         user = user.jsonify()
         data = {keys.user: user}

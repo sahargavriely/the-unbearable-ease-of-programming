@@ -122,6 +122,7 @@ def rabbitmq(conf):
     subprocess.call(['docker', 'run', '--detach', '--publish',
                      f'{url.port}:5672', '--hostname', 'my-test-rabbit',
                      '--name', 'test-rabbit', 'rabbitmq'], timeout=5)
+    time.sleep(6)
     yield
     subprocess.call(['docker', 'stop', 'test-rabbit'], timeout=30)
     subprocess.call(['docker', 'remove', 'test-rabbit'], timeout=5)
