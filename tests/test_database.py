@@ -40,6 +40,7 @@ def test_snapshot(database, user, parsed_data, snapshot):
                        f'{datetime_:%F_%H-%M-%S-%f} does not '
                        f'have {topic!r}'):
         database.get_user_snapshot_topic(user_id, datetime, topic)
+    assert database.get_user_snapshots(user_id) == list()
     for topic in CONFIG_OPTIONS:
         database.save_snapshot_topic(
             user_id, datetime, topic, parsed_data[topic][keys.data])
