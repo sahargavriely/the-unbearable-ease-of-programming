@@ -66,7 +66,5 @@ class FileScheme:
         datetime = dt.datetime.fromtimestamp(datetime / 1000)
         topic_dir = self.path / str(user_id) \
             / f'{datetime:%F_%H-%M-%S-%f}' / topic
-        if not topic_dir.exists():
-            return dict()
         with topic_dir.open('r') as f:
             return json.load(f)
