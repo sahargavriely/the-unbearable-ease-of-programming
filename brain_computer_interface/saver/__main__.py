@@ -18,15 +18,15 @@ def save():
 
 
 @save.command()
-@click.argument('topic', type=str)
 @click.argument('user-id', type=int)
 @click.argument('datetime', type=int)
+@click.argument('topic', type=str)
 @click.argument('path', type=pathlib.Path)
 @click.option('-d', '--database', type=str, default=DATABASE)
-def snapshot(topic, user_id, datetime, path, database):
+def snapshot(user_id, datetime, topic, path, database):
     with path.open('r') as file:
         data = json.load(file)
-    log(Saver(database).save_snapshot_topic(topic, user_id, datetime, data))
+    log(Saver(database).save_snapshot_topic(user_id, datetime, topic, data))
 
 
 @save.command()

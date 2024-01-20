@@ -8,7 +8,7 @@ from brain_computer_interface.message import CONFIG_OPTIONS
 from brain_computer_interface.utils import keys
 
 
-def test_user(saver, conf, user, tmp_path):
+def test_user(database, conf, user, tmp_path):
     user_file = tmp_path / 'user'
     with user_file.open('w') as file:
         json.dump(user.jsonify(), file)
@@ -17,10 +17,10 @@ def test_user(saver, conf, user, tmp_path):
            'user', str(user_id), str(user_file), '-d', conf.DATABASE]
     process = subprocess.Popen(cmd, stdout=subprocess.PIPE)
     process.wait(2)
-    assert saver.get_user(user_id) == user.jsonify()
+    assert database.get_user(user_id) == user.jsonify()
 
 
-def test_snapshot(saver, conf, user, parsed_data, snapshot, tmp_path):
+def test_snapshot(database, conf, user, parsed_data, snapshot, tmp_path):
     user_id = user.id
     datetime = int(snapshot.datetime)
     for topic in CONFIG_OPTIONS:
@@ -32,11 +32,11 @@ def test_snapshot(saver, conf, user, parsed_data, snapshot, tmp_path):
                '-d', conf.DATABASE]
         process = subprocess.Popen(cmd, stdout=subprocess.PIPE)
         process.wait(2)
-        assert saver.get_user_snapshot(user_id, datetime)[topic] \
+        assert database.get_user_snapshot(user_id, datetime)[topic] \
             == parsed_data[topic][keys.data]
 
 
-def test_run_saver(rabbitmq, saver, user, snapshot, parsed_data, conf):
+def test_run_saver(rabbitmq, database, user, snapshot, parsed_data, conf):
     user_id = user.id
     datetime = snapshot.datetime
     user = user.jsonify()
@@ -56,7 +56,7 @@ def test_run_saver(rabbitmq, saver, user, snapshot, parsed_data, conf):
     # to increase coverage
     process.send_signal(signal.SIGINT)
     process.wait(1)
-    assert saver.get_user(user_id) == user
-    saved_snap = saver.get_user_snapshot(user_id, datetime)
+    assert database.get_user(user_id) == user
+    saved_snap = database.get_user_snapshot(user_id, datetime)
     for topic in CONFIG_OPTIONS:
         assert saved_snap[topic] == parsed_data[topic][keys.data]

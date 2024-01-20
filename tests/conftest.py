@@ -7,6 +7,7 @@ import time
 import furl
 import pytest
 
+from brain_computer_interface.database import Database
 from brain_computer_interface.message import (
     DepthImage,
     ColorImage,
@@ -99,6 +100,16 @@ def parsed_data(user, snapshot, tmp_path):
         metadata_['topic'] = topic
         data[topic] = dict(metadata=metadata_, data=snap[topic])
     return data
+
+
+##########################################################################
+# Database
+
+
+@pytest.fixture()
+def database(conf):
+    yield Database(conf.DATABASE)
+    shutil.rmtree(str(furl.furl(conf.DATABASE).path))
 
 
 ##########################################################################
