@@ -60,3 +60,6 @@ class Database:
                              f'{datetime:%F_%H-%M-%S-%f} does not '
                              f'have {topic!r}')
         return data
+
+    def drop_db(self):
+        self.driver.drop_db()

@@ -1,6 +1,7 @@
 import datetime as dt
 import json
 import pathlib
+import shutil
 
 import furl
 
@@ -70,3 +71,7 @@ class FileScheme:
             return dict()
         with topic_dir.open('r') as f:
             return json.load(f)
+
+    def drop_db(self):
+        if self.path.exists():
+            shutil.rmtree(self.path)

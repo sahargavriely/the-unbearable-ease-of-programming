@@ -9,11 +9,12 @@ from brain_computer_interface.utils import keys
 
 class PostgreSQL:
     scheme = 'postgresql'
-    db_name = 'mind'
 
     def __init__(self, url: furl.furl):
+        self.url = url
+        self.db_name = str(url.path).removeprefix('/')
         try:
-            self.conn = _create_pg_conn(url, self.db_name)
+            self.conn = _create_pg_conn(url, db_name=self.db_name)
         except psycopg2.OperationalError as error:
             if f'database "{self.db_name}" does not exist' in str(error):
                 self._create_db(url)
@@ -23,9 +24,9 @@ class PostgreSQL:
     def _create_db(self, url: furl.furl):
         conn = _create_pg_conn(url)
         with conn.cursor() as curs:
-            curs.execute(f'CREATE DATABASE {self.db_name}')
+            curs.execute(f'CREATE DATABASE {url.path}')
         conn.close()
-        self.conn = _create_pg_conn(url, self.db_name)
+        self.conn = _create_pg_conn(url, db_name=self.db_name)
         with self.conn.cursor() as curs:
             curs.execute(CREATE_USER_TABLE)
             curs.execute(CREATE_TRANSITION_TABLE)
@@ -77,6 +78,12 @@ class PostgreSQL:
         topic_data = self.get_user_snapshot(user_id, datetime)[topic]
         return topic_data.get(keys.data, topic_data)
 
+    def drop_db(self):
+        self.conn.close()
+        conn = _create_pg_conn(self.url)
+        with conn.cursor() as curs:
+            curs.execute(f'DROP DATABASE {self.db_name}')
+
 
 def _pop_id_key(dictionary: dict):
     dictionary.pop(keys.id, None)
@@ -85,13 +92,13 @@ def _pop_id_key(dictionary: dict):
             _pop_id_key(val)
 
 
-def _create_pg_conn(url: furl.furl, db_name='postgres'):
+def _create_pg_conn(url: furl.furl, db_name=''):
     # postgres is the default name because it is always exists in pg servers
     # meaning with can connect to it always.
     # unlike other names which won't not exists if not specifically created.
-    conn = psycopg2.connect(database=db_name, host=url.host,
-                            user=url.username, password=url.password,
-                            port=url.port)
+    db_name = db_name or 'postgres'
+    conn = psycopg2.connect(database=db_name, host=url.host, user=url.username,
+                            password=url.password, port=url.port)
     conn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
     return conn
 

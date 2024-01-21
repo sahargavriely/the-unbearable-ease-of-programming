@@ -1,7 +1,5 @@
 import datetime as dt
-import shutil
 
-import furl
 import pytest
 
 from brain_computer_interface.message import CONFIG_OPTIONS
@@ -11,8 +9,9 @@ from brain_computer_interface.database import Database
 
 @pytest.fixture()
 def database(conf):
-    yield Database(conf.DATABASE)
-    shutil.rmtree(str(furl.furl(conf.DATABASE).path))
+    db = Database('postgresql://postgres:password@172.17.0.2:5432/mind')
+    yield db
+    db.drop_db()
 
 
 def test_user(database, user):
