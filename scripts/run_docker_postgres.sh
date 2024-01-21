@@ -2,8 +2,8 @@
 
 user=admin@admin.admin
 password=password
-postgres_container_name=db
-postgres_user=admin
+postgres_container_name=postgres-db
+postgres_user=postgres
 
 
 if docker run --detach --publish 5432:5432 --hostname my-postgres --name $postgres_container_name --env POSTGRES_USER=$postgres_user --env POSTGRES_PASSWORD=$password postgres 2> /dev/null; then
