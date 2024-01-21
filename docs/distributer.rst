@@ -80,6 +80,6 @@ To added a new driver all you have to do is:
 
 1. Implement :ref:`publish <target to publish>` and :ref:`subscribe <target to subscribe>` methods.
 
-2. Add a `scheme` class attribute that will be used to locate your newly driver, by :ref:`run-server <target to run-server>` command.
+2. Add a `scheme` class attribute which will be used to locate your newly driver.
 
-3. Finally add your driver under `drivers/ <https://github.com/sahargavriely/the-unbearable-ease-of-programming/blob/main/brain_computer_interface/distributer/drivers/>`_.
+3. Finally put your driver under `drivers/ <https://github.com/sahargavriely/the-unbearable-ease-of-programming/blob/main/brain_computer_interface/distributer/drivers/>`_.

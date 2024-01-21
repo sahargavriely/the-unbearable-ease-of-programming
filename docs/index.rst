@@ -11,6 +11,7 @@ Welcome to brain-computer-interface's documentation!
    :caption: Contents:
 
    message
+   database
    distributer
    client/client
    parser/parser

@@ -123,7 +123,7 @@ def postgres(conf):
                      f'{url.port}:5432', '--hostname', 'my-test-postgres',
                      f'--env=POSRGRES_USER={url.username}',
                      f'--env=POSTGRES_PASSWORD={url.password}',
-                     '--name', name, 'postgres'], timeout=5)
+                     '--name', name, 'postgres'], timeout=15)
     time.sleep(4)
     yield
     subprocess.call(['docker', 'stop', name], timeout=30)

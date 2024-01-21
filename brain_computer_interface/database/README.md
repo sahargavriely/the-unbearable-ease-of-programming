@@ -1,58 +1,48 @@
-# brain-computer-interface.distributer
+# brain-computer-interface.database
 
 Sub-package of brain-computer-interface.
-The following package responsible for distributing data in between the inner system parts.
+The following package responsible for data managing in the system.
 
-For further information take a look at [full documentation](https://the-unbearable-ease-of-programming.readthedocs.io/en/latest/distributer.html).
+For further information take a look at [full documentation](https://the-unbearable-ease-of-programming.readthedocs.io/en/latest/database.html).
 
 ## Usage
 
-The `brain_computer_interface.distributer` packages provides the Distributer class:
+The `brain_computer_interface.database` packages provides the Database class:
 
-- `Distributer(url: str)`
+- `Database(url: str)`
 
-    This class defines distribute functionality.
-    It receives url which is being used to load the corresponding distribute driver from [`drivers/`](/brain_computer_interface/distributer/drivers/) directory.
-    Each driver should support minimum of the following two bound methods which are also `Distributer`'s bound methods and are directly calling to driver's one.
+    This class defines load and save functionality.
+    It receives url which is being used to load the corresponding database driver from [`drivers/`](/brain_computer_interface/database/drivers/) directory.
+    Each driver should support the following bound methods which are also `Database`'s bound methods and are directly calling to driver's one.
 
-    - `publish(self, data, topic)`
+    - `save_user(self, user_id: int, data: dict)`
 
-        Publish `data` to `topic`.
-        `data` must be in JSON format (we want to support many drivers).
+        Saves user's `data` of `uesr_id`.
 
-    - `subscribe(self, callback, topic, subscriber_group='')`
+    - `save_snapshot_topic(self, user_id: int, datetime: int, topic: str, data: dict)`
 
-        Subscribe to `topic` and upon receiving data calling the `callback` with the received data (in JSON format) as an argument.
-        `subscriber_group` argument meant to enable distribute work between different subscribers which are part of the same group, empty group means every subscriber will get the same work.
+        Saves user's snapshot topic `data` of `topic`, `datetime` and `user_id`.
 
-    Continuing with `Distributer` bound methods:
+    - `get_users(self) -> list`
 
-    - `connect(self)`
+        Returns a list with all users id.
 
-        Returns and calls directly to the driver's `connect` is exists.
-        Used also as the `enter` part of `Distributer`'s `with` statement
+    - `get_user(self, user_id: int) -> dict`
 
-    - `close(self)`
+        Returns the corresponding data of `user_id`.
 
-        Returns and calls directly to the driver's `close` is exists.
-        Used also as the `exit` part of `Distributer`'s `with` statement
+    - `get_user_snapshots(self, user_id: int) -> list`
 
-    - `publish_raw_snapshot(self, data)`
+        Returns a list with all snapshots datetime of `user_id`.
 
-        Publish `data` to `raw.X` where X is every possible topic in a snapshot.
-        `data` must be in JSON format (we want to support many drivers).
+    - `get_user_snapshot(self, user_id: int, datetime: int) -> dict`
 
-    - `publish_parsed_topic(self, parsed_topic_data, topic)`
+        Returns the corresponding data of `user_id` and `datetime`.
 
-        Publish `data` to `f'parsed.{topic}'`.
-        `parsed_topic_data` must be in JSON format (we want to support many drivers).
+    - `get_user_snapshot_topic(self, user_id: int, datetime: int, topic: str) -> dict`
 
-    - `subscribe_parsed_topic(self, callback, topic, subscriber_group='')`
+        Returns the corresponding data of `user_id`, `datetime` and `topic`.
 
-        Subscribe to `f'parsed.{topic}'` and upon receiving data calling the `callback` with the received data (in JSON format) as an argument.
-        `subscriber_group` argument meant to enable distribute work between different subscribers which are part of the same group, empty group means every subscriber will get the same work.
+    - `drop_db(self)`
 
-    - `subscribe_raw_topic(self, callback, topic, subscriber_group='')`
-
-        Subscribe to `f'raw.{topic}'` and upon receiving data calling the `callback` with the received data (in JSON format) as an argument.
-        `subscriber_group` argument meant to enable distribute work between different subscribers which are part of the same group, empty group means every subscriber will get the same work.
+        Cleans/deletes the database.
