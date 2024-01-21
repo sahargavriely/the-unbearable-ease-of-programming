@@ -124,7 +124,7 @@ def postgres(conf):
                      f'--env=POSRGRES_USER={url.username}',
                      f'--env=POSTGRES_PASSWORD={url.password}',
                      '--name', name, 'postgres'], timeout=5)
-    time.sleep(9)
+    time.sleep(2)
     yield
     subprocess.call(['docker', 'stop', name], timeout=30)
     subprocess.call(['docker', 'remove', name], timeout=5)
