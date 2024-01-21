@@ -4,7 +4,7 @@ import pathlib
 
 from . import Saver
 from ..utils import (
-    DATABASE,
+    DATABASE_SCHEME,
     DISTRIBUTE_SCHEME,
     log,
     main,
@@ -22,7 +22,7 @@ def save():
 @click.argument('datetime', type=int)
 @click.argument('topic', type=str)
 @click.argument('path', type=pathlib.Path)
-@click.option('-d', '--database', type=str, default=DATABASE)
+@click.option('-d', '--database', type=str, default=DATABASE_SCHEME)
 def snapshot(user_id, datetime, topic, path, database):
     with path.open('r') as file:
         data = json.load(file)
@@ -32,7 +32,7 @@ def snapshot(user_id, datetime, topic, path, database):
 @save.command()
 @click.argument('user-id', type=int)
 @click.argument('path', type=pathlib.Path)
-@click.option('-d', '--database', type=str, default=DATABASE)
+@click.option('-d', '--database', type=str, default=DATABASE_SCHEME)
 def user(user_id, path, database):
     with path.open('r') as file:
         data = json.load(file)
@@ -40,7 +40,7 @@ def user(user_id, path, database):
 
 
 @main.command('run-saver')
-@click.option('-d', '--database', type=str, default=DATABASE)
+@click.option('-d', '--database', type=str, default=DATABASE_SCHEME)
 @click.option('-ds', '--distribute-scheme', type=str,
               default=DISTRIBUTE_SCHEME)
 def run_saver(database, distribute_scheme):

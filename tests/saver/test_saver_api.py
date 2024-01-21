@@ -7,7 +7,7 @@ from brain_computer_interface.utils import keys
 
 @pytest.fixture()
 def saver(conf):
-    yield Saver(conf.DATABASE)
+    yield Saver(conf.DATABASE_SCHEME)
 
 
 def test_user(saver, database, user):

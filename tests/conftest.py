@@ -36,7 +36,7 @@ from utils import (
 def other_conf():
     return Dictionary({
         'POSTGRES_SCHEME':
-            'postgresql://postgres:password@127.0.0.1:5432/mind',
+            'postgresql://postgres:password@127.0.0.1:5432/testmind',
         'RABBITMQ_SCHEME': 'rabbitmq://localhost:4561/',
         'USER_20': 20,
         'THOUGHT_20': 'I am 20 too',
@@ -53,7 +53,7 @@ def other_conf():
 def patch_conf(tmp_path_factory):
     tmp_path = tmp_path_factory.mktemp('shared')
     return Dictionary({
-        'DATABASE': f'file://{Path(tmp_path).absolute()}/database/',
+        'DATABASE_SCHEME': f'file://{Path(tmp_path).absolute()}/database/',
         'DISTRIBUTE_SCHEME': f'file://{Path(tmp_path).absolute()}/published/',
         'LISTEN_HOST': '0.0.0.0',
         'REQUEST_HOST': '127.0.0.1',
@@ -110,7 +110,7 @@ def parsed_data(user, snapshot, tmp_path):
 
 @pytest.fixture()
 def database(conf):
-    db = Database(conf.DATABASE)
+    db = Database(conf.DATABASE_SCHEME)
     yield db
     db.drop_db()
 
@@ -124,7 +124,7 @@ def postgres(conf):
                      f'--env=POSRGRES_USER={url.username}',
                      f'--env=POSTGRES_PASSWORD={url.password}',
                      '--name', name, 'postgres'], timeout=5)
-    time.sleep(2)
+    time.sleep(4)
     yield
     subprocess.call(['docker', 'stop', name], timeout=30)
     subprocess.call(['docker', 'remove', name], timeout=5)
