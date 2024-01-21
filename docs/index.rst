@@ -17,6 +17,7 @@ Welcome to brain-computer-interface's documentation!
    parser/parser
    cli
    server/server
+   saver/saver
 
 Indices and tables
 ==================

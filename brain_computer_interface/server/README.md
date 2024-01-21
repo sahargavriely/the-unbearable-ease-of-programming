@@ -52,7 +52,7 @@ Commands:
     $ python -m brain_computer_interface run-server [OPTIONS]
     ```
     Options:
-    - ``-ps``, ``--publish-scheme`` TEXT [default: file:///shared/publish/data.json]
+    - ``-ps``, ``--publish-scheme`` TEXT [default: rabbitmq://localhost:5672/]
     - ``-h``, ``--host`` TEXT            [default: 0.0.0.0]
     - ``-p``, ``--port`` INTEGER         [default: 5000]
     - ``-s``, ``--shared-dir`` PATH      [default: shared/]
