@@ -8,7 +8,7 @@ from brain_computer_interface.database import Database
 
 
 @pytest.fixture(params=['DATABASE', 'POSTGRES_SCHEME'])
-def database(conf, request):
+def database(conf, request, postgres):
     db = Database(conf.get(request.param))
     yield db
     db.drop_db()

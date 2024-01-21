@@ -115,6 +115,21 @@ def database(conf):
     db.drop_db()
 
 
+@pytest.fixture(scope='session')
+def postgres(conf):
+    url = furl.furl(conf.POSTGRES_SCHEME)
+    name = 'test-postgres'
+    subprocess.call(['docker', 'run', '--detach', '--publish',
+                     f'{url.port}:5432', '--hostname', 'my-test-postgres',
+                     f'--env=POSRGRES_USER={url.username}',
+                     f'--env=POSTGRES_PASSWORD={url.password}',
+                     '--name', name, 'postgres'], timeout=5)
+    time.sleep(9)
+    yield
+    subprocess.call(['docker', 'stop', name], timeout=30)
+    subprocess.call(['docker', 'remove', name], timeout=5)
+
+
 ##########################################################################
 # Distributer
 
@@ -122,13 +137,14 @@ def database(conf):
 @pytest.fixture(scope='session')
 def rabbitmq(conf):
     url = furl.furl(conf.RABBITMQ_SCHEME)
+    name = 'test-rabbit'
     subprocess.call(['docker', 'run', '--detach', '--publish',
                      f'{url.port}:5672', '--hostname', 'my-test-rabbit',
-                     '--name', 'test-rabbit', 'rabbitmq'], timeout=5)
+                     '--name', name, 'rabbitmq'], timeout=5)
     time.sleep(6)
     yield
-    subprocess.call(['docker', 'stop', 'test-rabbit'], timeout=30)
-    subprocess.call(['docker', 'remove', 'test-rabbit'], timeout=5)
+    subprocess.call(['docker', 'stop', name], timeout=30)
+    subprocess.call(['docker', 'remove', name], timeout=5)
 
 
 ##########################################################################
