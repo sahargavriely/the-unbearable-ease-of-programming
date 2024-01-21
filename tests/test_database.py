@@ -7,9 +7,9 @@ from brain_computer_interface.utils import keys
 from brain_computer_interface.database import Database
 
 
-@pytest.fixture()
-def database(conf):
-    db = Database('postgresql://postgres:password@172.17.0.2:5432/mind')
+@pytest.fixture(params=['DATABASE', 'POSTGRES_SCHEME'])
+def database(conf, request):
+    db = Database(conf.get(request.param))
     yield db
     db.drop_db()
 

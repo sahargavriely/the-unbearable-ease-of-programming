@@ -1,8 +1,8 @@
 import furl
 import psycopg2
+from psycopg2.errors import ForeignKeyViolation
 from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 from psycopg2.extras import RealDictCursor
-# from psycopg2.error import ForeignKeyViolation
 
 from brain_computer_interface.utils import keys
 
@@ -18,18 +18,16 @@ class PostgreSQL:
         except psycopg2.OperationalError as error:
             if f'database "{self.db_name}" does not exist' in str(error):
                 self._create_db(url)
-            else:
-                raise
 
     def _create_db(self, url: furl.furl):
         conn = _create_pg_conn(url)
         with conn.cursor() as curs:
-            curs.execute(f'CREATE DATABASE {url.path}')
+            curs.execute(f'CREATE DATABASE {self.db_name}')
         conn.close()
         self.conn = _create_pg_conn(url, db_name=self.db_name)
         with self.conn.cursor() as curs:
             curs.execute(CREATE_USER_TABLE)
-            curs.execute(CREATE_TRANSITION_TABLE)
+            curs.execute(CREATE_TRANSLATION_TABLE)
             curs.execute(CREATE_ROTATION_TABLE)
             curs.execute(CREATE_POSE_TABLE)
             curs.execute(CREATE_COLOR_IMAGE_TABLE)
@@ -44,8 +42,15 @@ class PostgreSQL:
             return _insert(curs, 'users', **data)
 
     def save_snapshot_topic(self, user_id, datetime, topic, data):
+        snapshot = {keys.datetime: datetime, topic: data}
+        try:
+            self._inner_save_snapshot_topic(user_id, snapshot)
+        except ForeignKeyViolation:
+            self.save_user(user_id, dict(name='snapshot with no user'))
+            self._inner_save_snapshot_topic(user_id, snapshot)
+
+    def _inner_save_snapshot_topic(self, user_id, snapshot):
         with self.conn.cursor() as curs:
-            snapshot = {keys.datetime: datetime, topic: data}
             return _insert(curs, keys.snapshot,
                            prim_key=f'{keys.datetime}, user_id',
                            user_id=user_id, **snapshot)
@@ -75,8 +80,8 @@ class PostgreSQL:
             return ret
 
     def get_user_snapshot_topic(self, user_id, datetime, topic):
-        topic_data = self.get_user_snapshot(user_id, datetime)[topic]
-        return topic_data.get(keys.data, topic_data)
+        snapshot = self.get_user_snapshot(user_id, datetime)
+        return snapshot.get(topic, dict())
 
     def drop_db(self):
         self.conn.close()
@@ -134,63 +139,63 @@ CREATE_USER_TABLE = '''
     CREATE TABLE users (
         id INTEGER PRIMARY KEY,
         name VARCHAR(255) NOT NULL,
-        birthday INTEGER NOT NULL,
-        gender INTEGER NOT NULL
+        birthday INTEGER,
+        gender INTEGER
     );
 '''
-CREATE_TRANSITION_TABLE = '''
-    CREATE TABLE transition (
+CREATE_TRANSLATION_TABLE = '''
+    CREATE TABLE translation (
         id SERIAL PRIMARY KEY,
-        x FLOAT NOT NULL,
-        y FLOAT NOT NULL,
-        z FLOAT NOT NULL
+        x FLOAT,
+        y FLOAT,
+        z FLOAT
     );
 '''
 CREATE_ROTATION_TABLE = '''
     CREATE TABLE rotation (
         id SERIAL PRIMARY KEY,
-        x FLOAT NOT NULL,
-        y FLOAT NOT NULL,
-        z FLOAT NOT NULL,
-        w FLOAT NOT NULL
+        x FLOAT,
+        y FLOAT,
+        z FLOAT,
+        w FLOAT
     );
 '''
 CREATE_POSE_TABLE = '''
     CREATE TABLE pose (
         id SERIAL PRIMARY KEY,
-        transition INTEGER REFERENCES transition(id),
+        translation INTEGER REFERENCES translation(id),
         rotation INTEGER REFERENCES rotation(id)
     );
 '''
 CREATE_COLOR_IMAGE_TABLE = '''
     CREATE TABLE color_image (
         id SERIAL PRIMARY KEY,
-        width INTEGER NOT NULL,
-        height INTEGER NOT NULL,
-        data VARCHAR(255) NOT NULL
+        width INTEGER,
+        height INTEGER,
+        data VARCHAR(255)
     );
 '''
 CREATE_DEPTH_IMAGE_TABLE = '''
     CREATE TABLE depth_image (
         id SERIAL PRIMARY KEY,
-        width INTEGER NOT NULL,
-        height INTEGER NOT NULL,
-        data VARCHAR(255) NOT NULL
+        width INTEGER,
+        height INTEGER,
+        data VARCHAR(255)
     );
 '''
 CREATE_FEELINGS_TABLE = '''
     CREATE TABLE feelings (
         id SERIAL PRIMARY KEY,
-        hunger FLOAT NOT NULL,
-        thirst FLOAT NOT NULL,
-        exhaustion FLOAT NOT NULL,
-        happiness FLOAT NOT NULL
+        hunger FLOAT,
+        thirst FLOAT,
+        exhaustion FLOAT,
+        happiness FLOAT
     );
 '''
 CREATE_SNAPSHOT_TABLE = '''
     CREATE TABLE snapshot (
         user_id INTEGER REFERENCES users(id),
-        datetime INTEGER,
+        datetime BIGINT,
         pose INTEGER REFERENCES pose(id),
         color_image INTEGER REFERENCES color_image(id),
         depth_image INTEGER REFERENCES depth_image(id),
@@ -201,13 +206,13 @@ CREATE_SNAPSHOT_TABLE = '''
 GET_SNAPSHOT = '''
     SELECT json_build_object(
         'datetime', s.datetime,
-        'pose', json_build_object('transition', t.*, 'rotation', r.*),
+        'pose', json_build_object('translation', t.*, 'rotation', r.*),
         'color_image', c.*,
         'depth_image', d.*,
         'feelings', f.*)
     FROM snapshot AS s
         LEFT JOIN pose AS p ON s.pose = p.id
-        LEFT JOIN transition AS t ON p.transition = t.id
+        LEFT JOIN translation AS t ON p.translation = t.id
         LEFT JOIN rotation AS r ON p.rotation = r.id
         LEFT JOIN color_image AS c ON s.color_image = c.id
         LEFT JOIN depth_image AS d ON s.depth_image = d.id

@@ -35,6 +35,8 @@ from utils import (
 @pytest.fixture(scope='session')
 def other_conf():
     return Dictionary({
+        'POSTGRES_SCHEME':
+            'postgresql://postgres:password@127.0.0.1:5432/mind',
         'RABBITMQ_SCHEME': 'rabbitmq://localhost:4561/',
         'USER_20': 20,
         'THOUGHT_20': 'I am 20 too',
@@ -108,8 +110,9 @@ def parsed_data(user, snapshot, tmp_path):
 
 @pytest.fixture()
 def database(conf):
-    yield Database(conf.DATABASE)
-    shutil.rmtree(str(furl.furl(conf.DATABASE).path))
+    db = Database(conf.DATABASE)
+    yield db
+    db.drop_db()
 
 
 ##########################################################################

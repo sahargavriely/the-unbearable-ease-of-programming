@@ -4,8 +4,8 @@ import furl
 
 from ..utils import get_driver, setup_logging
 
-
-logger = setup_logging(__name__)
+import logging
+logger = setup_logging(__name__, logging.INFO)
 
 
 class Database:
