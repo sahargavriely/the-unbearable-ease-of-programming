@@ -36,7 +36,7 @@ from utils import (
 def other_conf():
     return Dictionary({
         'POSTGRES_SCHEME':
-            'postgresql://postgres:password@127.0.0.1:5432/testmind',
+            'postgresql://postgres:password@127.0.0.1:4321/testmind',
         'RABBITMQ_SCHEME': 'rabbitmq://localhost:4561/',
         'USER_20': 20,
         'THOUGHT_20': 'I am 20 too',
@@ -51,14 +51,14 @@ def other_conf():
 
 @pytest.fixture(scope='session')
 def patch_conf(tmp_path_factory):
-    tmp_path = tmp_path_factory.mktemp('shared')
+    tmp_path = Path(tmp_path_factory.mktemp('shared')).absolute()
     return Dictionary({
-        'DATABASE_SCHEME': f'file://{Path(tmp_path).absolute()}/database/',
-        'DISTRIBUTE_SCHEME': f'file://{Path(tmp_path).absolute()}/published/',
+        'DATABASE_SCHEME': f'file://{tmp_path}/database/',
+        'DISTRIBUTE_SCHEME': f'file://{tmp_path}/published/',
         'LISTEN_HOST': '0.0.0.0',
         'REQUEST_HOST': '127.0.0.1',
         'SERVER_PORT': 5356,
-        'SHARED_DIR': Path(tmp_path),
+        'SHARED_DIR': tmp_path,
         'WEBSERVER_PORT': 8356,
     })
 
