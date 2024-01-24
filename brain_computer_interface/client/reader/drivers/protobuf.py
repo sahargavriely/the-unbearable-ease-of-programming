@@ -1,7 +1,6 @@
 import gzip
 import struct
 
-from ..reader import collect_driver
 from ....message import (
     Snapshot,
     User,
@@ -13,8 +12,9 @@ drivers = dict()
 length_format = '<I'
 
 
-@collect_driver('gz')
 class Compressed:
+    extension = 'gz'
+
     def __init__(self, path: str):
         self.path = path
 

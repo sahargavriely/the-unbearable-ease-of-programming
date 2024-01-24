@@ -6,30 +6,31 @@ import time
 
 from brain_computer_interface.message import CONFIG_OPTIONS
 from brain_computer_interface.distributer import Distributer
+from brain_computer_interface.utils import keys
 
 
-def test_parse(published_data, snapshot, tmp_path):
+def test_parse(parsed_data, snapshot, tmp_path):
     snapshot = snapshot.jsonify(tmp_path)
     for topic in CONFIG_OPTIONS:
         topic_file = tmp_path / topic
         with topic_file.open('w') as file:
-            json.dump(published_data[topic], file)
+            json.dump(parsed_data[topic], file)
         cmd = ['python', '-m', 'brain_computer_interface.parser', 'parse',
                topic, str(topic_file), '-s', str(tmp_path)]
         process = subprocess.Popen(cmd, stdout=subprocess.PIPE)
         process.wait(2)
         stdout, _ = process.communicate()
-        result = eval(stdout.decode().strip())['data']
-        if 'data' in snapshot[topic]:
-            assert result['height'] == snapshot[topic]['height']
-            assert result['width'] == snapshot[topic]['width']
+        result = eval(stdout.decode().strip())[keys.data]
+        if keys.data in snapshot[topic]:
+            assert result[keys.height] == snapshot[topic][keys.height]
+            assert result[keys.width] == snapshot[topic][keys.width]
         else:
             assert result == snapshot[topic]
 
 
 def test_run_parser(rabbitmq, user, snapshot, tmp_path, conf):
     snapshot = snapshot.jsonify(tmp_path)
-    data = {'snapshot': snapshot, 'user': user.jsonify()}
+    data = {keys.snapshot: snapshot, keys.user: user.jsonify()}
     comm_topic = dict()
 
     for topic in CONFIG_OPTIONS:
@@ -53,10 +54,10 @@ def test_run_parser(rabbitmq, user, snapshot, tmp_path, conf):
         parent, process, sub_process = comm_topic[topic]
         if not parent.poll(5):
             raise TimeoutError()
-        result = parent.recv()['data']
-        if 'data' in snapshot[topic]:
-            assert result['height'] == snapshot[topic]['height']
-            assert result['width'] == snapshot[topic]['width']
+        result = parent.recv()[keys.data]
+        if keys.data in snapshot[topic]:
+            assert result[keys.height] == snapshot[topic][keys.height]
+            assert result[keys.width] == snapshot[topic][keys.width]
         else:
             assert result == snapshot[topic]
         process.terminate()

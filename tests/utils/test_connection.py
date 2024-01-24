@@ -39,9 +39,9 @@ def test_repr(connection: Connection):
 
 
 def test_close(connection: Connection):
-    assert not connection._socket._closed
+    assert not connection._socket._closed  # type: ignore
     connection.close()
-    assert connection._socket._closed
+    assert connection._socket._closed  # type: ignore
 
 
 def test_send(server):
@@ -93,3 +93,12 @@ def test_incomplete_data(server, connection: Connection):
         client.close()
         with pytest.raises(RuntimeError, match='Incomplete data'):
             connection.receive(1)
+
+
+def test_timeout(server):
+    connection = Connection.connect(_HOST, _PORT, timeout=.1)
+    with connection:
+        client, _ = server.accept()
+        with pytest.raises(socket.timeout):
+            connection.receive(1)
+        client.close()

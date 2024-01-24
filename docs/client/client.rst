@@ -7,3 +7,4 @@ Client Reference
 
    client_api
    client_cli
+   mind_file

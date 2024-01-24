@@ -107,22 +107,20 @@ def _handle_connection(connection, pipe):
 def _receive_mind(connection, pipe):
     user = _receive_user(connection)
     _send_config(connection, Config(CONFIG_OPTIONS[:-1]))
-    snapshot = _receive_snapshot(connection)
-    pipe.send([user.serialize(), snapshot.serialize(), CONFIG_OPTIONS[-1]])
+    snapshots = list()
+    while (decoded_snap := _receive_value_by_length(connection)) != b'done':
+        snapshots.append(Snapshot.from_bytes(decoded_snap).serialize())
+    pipe.send([user.serialize(), snapshots, CONFIG_OPTIONS[-1]])
 
 
 def _receive_user(connection) -> User:
-    decoded_user_length = _receive_all(connection, Connection.length_size)
-    user_length, = struct.unpack(
-        Connection.length_format, decoded_user_length)
-    return User.from_bytes(_receive_all(connection, user_length))
+    return User.from_bytes(_receive_value_by_length(connection))
 
 
-def _receive_snapshot(connection) -> Snapshot:
-    decoded_snapshot_length = _receive_all(connection, Connection.length_size)
-    snapshot_length, = struct.unpack(
-        Connection.length_format, decoded_snapshot_length)
-    return Snapshot.from_bytes(_receive_all(connection, snapshot_length))
+def _receive_value_by_length(connection) -> bytes:
+    decoded_length = _receive_all(connection, Connection.length_size)
+    length, = struct.unpack(Connection.length_format, decoded_length)
+    return _receive_all(connection, length)
 
 
 def _send_config(connection, config: Config):
@@ -151,22 +149,26 @@ def _receive_all(connection, size):
     return b''.join(chunks)
 
 
-def _assert_now(timestamp):
+def assert_now(timestamp):
     now = int(time.time())
     assert abs(now - timestamp) < 5
 
 
-def mock_upload_mind(conf, user: User, snapshot: Snapshot):
+def mock_upload_mind(conf, user: User, *snapshots: Snapshot):
     with socket.socket() as connection:
         time.sleep(0.1)  # Wait for server to start listening.
-        connection.settimeout(2)
         connection.connect((conf.REQUEST_HOST, conf.SERVER_PORT))
         connection.sendall(_serialize_user(user))
         config = _receive_config(connection)
-        for c in CONFIG_OPTIONS:
-            if c not in config:
-                snapshot.set_default(c)
-        connection.sendall(_serialize_snapshot(snapshot))
+        for snapshot in snapshots:
+            for c in CONFIG_OPTIONS:
+                if c not in config:
+                    snapshot.set_default(c)
+            connection.sendall(_serialize_snapshot(snapshot))
+        data = b'done'
+        length = struct.pack(Connection.length_format, len(data))
+        connection.sendall(length)
+        connection.sendall(data)
     time.sleep(0.2)  # Wait for server to write thought.
 
 
@@ -206,6 +208,6 @@ def _serialize_thought(user_id, timestamp, thought):
     return protocol_type + header + thought.encode()
 
 
-def _get_path(dir, user_id, timestamp):
+def get_path(dir, user_id, timestamp):
     datetime = dt.datetime.fromtimestamp(timestamp)
     return dir / f'{user_id}/{datetime:%F_%H-%M-%S}.txt'

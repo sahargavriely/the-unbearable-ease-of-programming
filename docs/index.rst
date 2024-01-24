@@ -11,12 +11,13 @@ Welcome to brain-computer-interface's documentation!
    :caption: Contents:
 
    message
+   database
    distributer
    client/client
    parser/parser
    cli
-   mind_file
    server/server
+   saver/saver
 
 Indices and tables
 ==================

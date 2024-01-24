@@ -13,6 +13,7 @@ The `brain_computer_interface.server` packages provides the following function:
 
     This function starts the server which receives minds from clients.
     You should provide a ``publish_method`` which the server will forward the data to.
+    ``publish_method`` is being call once with user data and once for every snapshot with user and snapshot data.
     You may provide an address (host and port) which the server listens to (defaults are set to ``'0.0.0.0'`` and ``5000``, respectfully) a directory in which the server will save the thoughts to (default is set to ``shared/``). 
 
     ```pycon
@@ -51,7 +52,7 @@ Commands:
     $ python -m brain_computer_interface run-server [OPTIONS]
     ```
     Options:
-    - ``-ps``, ``--publish-scheme`` TEXT [default: file:///shared/publish/data.json]
+    - ``-ps``, ``--publish-scheme`` TEXT [default: rabbitmq://localhost:5672/]
     - ``-h``, ``--host`` TEXT            [default: 0.0.0.0]
     - ``-p``, ``--port`` INTEGER         [default: 5000]
     - ``-s``, ``--shared-dir`` PATH      [default: shared/]

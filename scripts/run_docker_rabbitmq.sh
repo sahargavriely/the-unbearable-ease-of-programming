@@ -1,10 +1,8 @@
 #!/bin/bash
 
-
-# docker run --detach -p 5672:5672 -p 15672:15672 --hostname my-rabbit --name rabbit rabbitmq:management
-# username & password: guest
-
+# run without gui
 # if docker run --detach --publish 5672:5672 --hostname my-rabbit --name rabbit rabbitmq 2> /dev/null; then
+# run with gui
 if docker run --detach -p 5672:5672 -p 15672:15672 --hostname my-rabbit --name rabbit rabbitmq:management 2> /dev/null; then
     echo 'Built and started rabbitmq from scratch'
 else

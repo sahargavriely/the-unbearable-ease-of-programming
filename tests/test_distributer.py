@@ -1,19 +1,13 @@
 import multiprocessing
+import queue
 import time
 import threading
 
 import pytest
 
 from brain_computer_interface.distributer import Distributer
+from brain_computer_interface.message.message import CONFIG_OPTIONS
 from brain_computer_interface.utils import keys
-
-
-def test_distributer_driver_scheme_error():
-    bad_scheme = 'sike'
-    url = f'{bad_scheme}:///nowhere'
-    error_msg = f'Could not locate distributer driver scheme {bad_scheme!r}'
-    with pytest.raises(ValueError, match=error_msg):
-        Distributer(url)
 
 
 def test_file_distributer_driver(tmp_path):
@@ -39,21 +33,41 @@ def test_rabbitmq_distributer_driver_bad_values():
         Distributer(url).connect()
 
 
-def test_rabbitmq_distributer_raw(rabbitmq, conf, snapshot, user, tmp_path):
-    snapshot = snapshot.jsonify(path=tmp_path)
-    data = {keys.user: user.jsonify(), keys.snapshot: snapshot}
+def test_rabbitmq_distributer_server(rabbitmq, conf, snapshot, user, tmp_path):
+    topics = [keys.user, *CONFIG_OPTIONS]
+    q = queue.Queue()
+
+    def sub(func, topic):
+        with Distributer(conf.RABBITMQ_SCHEME) as distributer:
+            getattr(distributer, func)(q.put, topic)
+
+    for topic in topics:
+        func = 'subscribe' if topic == keys.user else 'subscribe_raw_topic'
+        threading.Thread(target=sub, args=(func, topic,), daemon=True).start()
+
+    time.sleep(2)
     with Distributer(conf.RABBITMQ_SCHEME) as distributer:
-        parent, child = multiprocessing.Pipe()
-        thread = threading.Thread(target=distributer.subscribe_raw_topic,
-                                  args=(child.send, keys.pose, 'test-group'),
-                                  daemon=True)
-        thread.start()
-        time.sleep(.1)
-        with Distributer(conf.RABBITMQ_SCHEME) as another:
-            another.publish_raw_snapshot(data)
-        if not parent.poll(5):
-            raise TimeoutError()
-        assert snapshot[keys.pose] == parent.recv()['data']
+        user = user.jsonify()
+        data = {keys.user: user}
+        distributer.publish_server(data)
+        snapshot = snapshot.jsonify(tmp_path)
+        data[keys.snapshot] = snapshot
+        distributer.publish_server(data)
+
+    for _ in range(len(topics)):
+        result = q.get(timeout=5)
+        topic = result[keys.metadata][keys.topic]
+        topics.remove(topic)
+        if topic == keys.user:
+            assert result[keys.data] == user
+        else:
+            result = result[keys.data]
+            if keys.data in snapshot[topic]:
+                assert result[keys.height] == snapshot[topic][keys.height]
+                assert result[keys.width] == snapshot[topic][keys.width]
+            else:
+                assert result == snapshot[topic]
+    assert not topics
 
 
 def test_rabbitmq_distributer_parsed(rabbitmq, conf):

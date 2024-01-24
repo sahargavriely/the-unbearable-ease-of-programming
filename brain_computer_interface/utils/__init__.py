@@ -5,6 +5,7 @@ from .cli_basic_configurations import (
     module_main_exe,
 )
 from .config import (
+    DATABASE_SCHEME,
     DISTRIBUTE_SCHEME,
     LISTEN_HOST,
     REQUEST_HOST,
@@ -13,6 +14,7 @@ from .config import (
     WEBSERVER_PORT,
 )
 from .connection import Connection
+from .diver_loader import get_driver
 from .listener import Listener
 from .logging_setter import setup_logging
 from .thought import Thought
@@ -20,7 +22,9 @@ from .thought import Thought
 
 __all__ = [
     'Connection',
+    'DATABASE_SCHEME',
     'DISTRIBUTE_SCHEME',
+    'get_driver',
     'keys',
     'LISTEN_HOST',
     'Listener',

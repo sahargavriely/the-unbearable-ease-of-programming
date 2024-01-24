@@ -36,7 +36,7 @@ def run_server_by_scheme(distribute_scheme: str = DISTRIBUTE_SCHEME,
                          host: str = LISTEN_HOST, port: int = SERVER_PORT,
                          shared_dir: Path = SHARED_DIR):
     with Distributer(distribute_scheme) as distributer:
-        run_server(distributer.publish_raw_snapshot, host, port, shared_dir)
+        run_server(distributer.publish_server, host, port, shared_dir)
 
 
 def run_server(publish_method: typing.Callable,
@@ -77,20 +77,25 @@ def _handle_connection(lock: threading.Lock, connection: Connection,
 def _recive_mind(lock: threading.Lock, connection: Connection,
                  publish_method: typing.Callable, shared_dir: Path):
     user = User.from_bytes(connection.receive_length_follow_by_value())
-    logger.debug('receiving mind from user %s', user.id)
+    user_id = str(user.id)
+    logger.debug('receiving mind from user %s', user_id)
+    user = user.jsonify()
+    publish_method({keys.user: user})
     config_request = Config(CONFIG_OPTIONS)  # TODO = available parsers
     connection.send_length_follow_by_value(config_request.serialize())
-    snapshot = Snapshot.from_bytes(connection.receive_length_follow_by_value())
-    datetime = dt.datetime.fromtimestamp(snapshot.datetime / 1000)
-    imgs_dir = shared_dir / str(user.id) / f'{datetime:%F_%H-%M-%S-%f}'
-    logger.debug('creating images shared directory at %s', imgs_dir)
-    imgs_dir.mkdir(parents=True, exist_ok=True)
-    with lock:
-        json_snapshot = snapshot.jsonify(imgs_dir)
-    publish_method({
-        keys.user: user.jsonify(),
-        keys.snapshot: json_snapshot
-    })
+    while (byte_snapshot := connection.receive_length_follow_by_value()) \
+            != b'done':
+        snapshot = Snapshot.from_bytes(byte_snapshot)
+        datetime = dt.datetime.fromtimestamp(snapshot.datetime / 1000)
+        imgs_dir = shared_dir / user_id / f'{datetime:%F_%H-%M-%S-%f}'
+        logger.debug('creating images shared directory at %s', imgs_dir)
+        imgs_dir.mkdir(parents=True, exist_ok=True)
+        with lock:
+            json_snapshot = snapshot.jsonify(imgs_dir)
+        publish_method({
+            keys.user: user,
+            keys.snapshot: json_snapshot
+        })
 
 
 def _recive_thought(connection: Connection, lock, data_dir: Path):
