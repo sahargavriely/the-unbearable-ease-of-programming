@@ -26,7 +26,7 @@ class Types(Enum):
 
 
 class User(ProtobufWrapper):
-    _protobuf_type = mind_pb2.User
+    _protobuf_type = mind_pb2.User  # type: ignore
 
     def __init__(self, id: int, name: str, birthday: int, gender: int):
         self.id = id
@@ -43,7 +43,7 @@ class User(ProtobufWrapper):
 
 
 class Config(ProtobufWrapper):
-    _protobuf_type = mind_pb2.Config
+    _protobuf_type = mind_pb2.Config  # type: ignore
 
     def __init__(self, config: list[str]):
         self.config = config
@@ -81,7 +81,7 @@ class Rotation(ProtobufWrapper):
 
 
 class Pose(ProtobufWrapper):
-    _protobuf_type = mind_pb2.Pose
+    _protobuf_type = mind_pb2.Pose  # type: ignore
 
     def __init__(self, translation: Translation, rotation: Rotation):
         self.translation = translation
@@ -92,7 +92,7 @@ class Pose(ProtobufWrapper):
 
 
 class ColorImage(ProtobufWrapper):
-    _protobuf_type = mind_pb2.ColorImage
+    _protobuf_type = mind_pb2.ColorImage  # type: ignore
 
     def __init__(self, width: int, height: int, data: bytes):
         self.width = width
@@ -124,7 +124,7 @@ class ColorImage(ProtobufWrapper):
 
 
 class DepthImage(ProtobufWrapper):
-    _protobuf_type = mind_pb2.DepthImage
+    _protobuf_type = mind_pb2.DepthImage  # type: ignore
 
     def __init__(self, width: int, height: int, data: list[float]):
         self.width = width
@@ -158,7 +158,7 @@ class DepthImage(ProtobufWrapper):
 
 
 class Feelings(ProtobufWrapper):
-    _protobuf_type = mind_pb2.Feelings
+    _protobuf_type = mind_pb2.Feelings  # type: ignore
 
     def __init__(self, hunger: float, thirst: float, exhaustion: float,
                  happiness: float):
@@ -174,7 +174,7 @@ class Feelings(ProtobufWrapper):
 
 
 class Snapshot(ProtobufWrapper):
-    _protobuf_type = mind_pb2.Snapshot
+    _protobuf_type = mind_pb2.Snapshot  # type: ignore
 
     def __init__(
         self,

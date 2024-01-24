@@ -54,7 +54,7 @@ def get_package_configuration() -> dict:
             'Operating System :: OS Independent',
             'Programming Language :: Python :: 3',
         ],
-        python_requires = '>=3.8',
+        python_requires = '>=3.11',
         install_requires = get_requirements(),
         entry_points = {
             'console_scripts': [

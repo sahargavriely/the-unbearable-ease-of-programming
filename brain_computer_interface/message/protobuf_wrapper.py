@@ -3,7 +3,7 @@ import importlib
 import inspect
 import numbers
 
-from google.protobuf.pyext.cpp_message import GeneratedProtocolMessageType
+from google._upb._message import MessageMeta
 
 
 classes = dict()
@@ -70,7 +70,7 @@ class ProtobufWrapper:
         args = list()
         for arg_name in inspect.getfullargspec(cls).args[1:]:
             arg = getattr(protobuf_obj, arg_name)
-            if isinstance(type(arg), GeneratedProtocolMessageType):
+            if isinstance(type(arg), MessageMeta):
                 arg = _get_protobuf_wrapped_class(arg_name).from_protobuf(arg)
             args.append(arg)
         return cls(*args)
