@@ -2,15 +2,19 @@ import datetime as dt
 
 import furl
 
-from ..utils import get_driver, setup_logging
+from ..utils import (
+    DATABASE_SCHEME,
+    get_driver,
+    setup_logging
+)
 
-import logging
-logger = setup_logging(__name__, logging.INFO)
+
+logger = setup_logging(__name__)
 
 
 class Database:
 
-    def __init__(self, url: str):
+    def __init__(self, url: str = DATABASE_SCHEME):
         logger.info('initiating database for url %s', url)
         url_ = furl.furl(url)
         self.driver = get_driver(

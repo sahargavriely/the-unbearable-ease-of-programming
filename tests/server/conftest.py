@@ -2,7 +2,9 @@ import json
 from pathlib import Path
 import pytest
 
-from utils import _run_server, _serve_thread
+from brain_computer_interface.server import run_server
+
+from tests.utils import serve_thread
 
 
 @pytest.fixture(scope='module')
@@ -23,5 +25,10 @@ def server(conf, server_publish_file: Path):
         with server_publish_file.open('w') as file:
             json.dump(data, file)
 
-    with _serve_thread(_run_server, write_data, conf) as thread:
+    with serve_thread(_run_server, write_data, conf) as thread:
         yield thread
+
+
+def _run_server(publish_method, conf):
+    run_server(publish_method, conf.LISTEN_HOST,
+               conf.SERVER_PORT, conf.SHARED_DIR)

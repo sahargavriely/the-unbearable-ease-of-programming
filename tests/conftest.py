@@ -21,10 +21,10 @@ from brain_computer_interface.message import (
     User,
 )
 from brain_computer_interface.utils import config as config_module, keys
-from utils import (
+from tests.utils import (
     Dictionary,
     _run_webserver,
-    _serve_thread,
+    serve_thread,
 )
 
 
@@ -56,6 +56,7 @@ def patch_conf(tmp_path_factory):
         'DATABASE_SCHEME': f'file://{tmp_path}/database/',
         'DISTRIBUTE_SCHEME': f'file://{tmp_path}/published/',
         'LISTEN_HOST': '0.0.0.0',
+        'REST_SERVER_PORT': 8467,
         'REQUEST_HOST': '127.0.0.1',
         'SERVER_PORT': 5356,
         'SHARED_DIR': tmp_path,
@@ -186,5 +187,5 @@ def user():
 
 @pytest.fixture(scope='module')
 def webserver(conf):
-    with _serve_thread(_run_webserver, conf) as thread:
+    with serve_thread(_run_webserver, conf) as thread:
         yield thread

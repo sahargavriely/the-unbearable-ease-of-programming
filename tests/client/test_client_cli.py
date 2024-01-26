@@ -4,7 +4,7 @@ from brain_computer_interface.message import (
     Snapshot,
     User,
 )
-from utils import assert_now
+from tests.client.utils import assert_now
 
 
 def test_read(default_mind_file, snapshot: Snapshot, user: User):

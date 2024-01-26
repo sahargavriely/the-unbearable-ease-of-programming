@@ -1,6 +1,10 @@
 from ..distributer import Distributer
 from ..database import Database
-from ..utils import keys, setup_logging
+from ..utils import (
+    DATABASE_SCHEME,
+    keys,
+    setup_logging
+)
 
 
 logger = setup_logging(__name__)
@@ -9,7 +13,7 @@ logger = setup_logging(__name__)
 class Saver:
     group = 'saver'
 
-    def __init__(self, url: str):
+    def __init__(self, url: str = DATABASE_SCHEME):
         logger.info('initiating saver for url %s', url)
         self.db = Database(url)
 

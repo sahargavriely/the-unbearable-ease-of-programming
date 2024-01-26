@@ -4,7 +4,7 @@ import pytest
 
 from brain_computer_interface.utils import Thought
 
-from utils import Dictionary
+from tests.utils import Dictionary
 
 
 _USER_ID = 1

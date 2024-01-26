@@ -13,7 +13,8 @@ from brain_computer_interface.message import (
     DepthImage,
 )
 from brain_computer_interface.utils import keys
-from utils import (
+
+from tests.server.utils import (
     get_path,
     mock_upload_mind,
     mock_upload_thought,

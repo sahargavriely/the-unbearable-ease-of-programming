@@ -3,14 +3,19 @@ import contextlib
 import furl
 
 from ..message import CONFIG_OPTIONS
-from ..utils import get_driver, keys, setup_logging
+from ..utils import (
+    DISTRIBUTE_SCHEME,
+    get_driver,
+    keys,
+    setup_logging
+)
 
 
 logger = setup_logging(__name__)
 
 
 class Distributer:
-    def __init__(self, url: str):
+    def __init__(self, url: str = DISTRIBUTE_SCHEME):
         logger.info('initiating distributer for url %s', url)
         url_ = furl.furl(url)
         self.driver = get_driver(
