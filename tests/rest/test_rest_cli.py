@@ -34,7 +34,7 @@
 #     comm_topic = dict()
 
 #     for topic in CONFIG_OPTIONS:
-#         cmd = ['python', '-m', 'brain_computer_interface.parser', 'run-parser',
+#         cmd = ['python', '-m', 'brain_computer_interface.rest', 'run-parser',
 #                topic, '-s', str(tmp_path), '-d', conf.RABBITMQ_SCHEME]
 #         sub_process = subprocess.Popen(cmd, stdout=subprocess.PIPE)
 #         parent, child = multiprocessing.Pipe()
@@ -43,7 +43,6 @@
 #             with Distributer(conf.RABBITMQ_SCHEME) as distributer:
 #                 distributer.subscribe_parsed_topic(child.send, topic, '')
 
-#         process = multiprocessing.Process(target=parsed_topic_sub, daemon=True)
 #         comm_topic[topic] = parent, process, sub_process
 #         process.start()
 
