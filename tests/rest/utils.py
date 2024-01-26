@@ -1,80 +1,44 @@
-import datetime as dt
-import socket
-import struct
-import time
+import mimetypes
 
-from brain_computer_interface.message import (
-    TYPE_FORMAT,
-    Types,
-)
-from brain_computer_interface.message import (
-    Config,
-    CONFIG_OPTIONS,
-    Snapshot,
-    User,
-)
-from brain_computer_interface.utils.connection import Connection
-
-from tests.utils import receive_all
+import requests
+from requests.compat import urljoin
 
 
-_HEADER_FORMAT = '<QQI'
+class Session(requests.Session):
 
+    def __init__(self, base_url='', token=None, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.base_url = base_url
+        self.token = token or ''
 
-def get_path(dir, user_id, timestamp):
-    datetime = dt.datetime.fromtimestamp(timestamp)
-    return dir / f'{user_id}/{datetime:%F_%H-%M-%S}.txt'
+    def _headers(self):
+        return {
+            'Authorization': f'Bearer {self.token}',
+            'Content-Type': mimetypes.types_map['.json'],
+        }
 
+    def delete(self, url, **json):
+        return self.request('delete', url, data=json)
 
-def mock_upload_mind(conf, user: User, *snapshots: Snapshot):
-    with socket.socket() as connection:
-        time.sleep(0.1)  # Wait for server to start listening.
-        connection.connect((conf.REQUEST_HOST, conf.SERVER_PORT))
-        connection.sendall(_serialize_user(user))
-        config = _receive_config(connection)
-        for snapshot in snapshots:
-            for c in CONFIG_OPTIONS:
-                if c not in config:
-                    snapshot.set_default(c)
-            connection.sendall(_serialize_snapshot(snapshot))
-        data = b'done'
-        length = struct.pack(Connection.length_format, len(data))
-        connection.sendall(length)
-        connection.sendall(data)
-    time.sleep(0.2)  # Wait for server to write thought.
+    def get(self, url, **params):
+        return self.request('get', url, data=params)
 
+    def patch(self, url, **json):
+        return self.request('patch', url, data=json)
 
-def mock_upload_thought(conf, user_id, timestamp, thought):
-    message = serialize_thought(user_id, timestamp, thought)
-    with socket.socket() as connection:
-        time.sleep(0.1)  # Wait for server to start listening.
-        connection.settimeout(2)
-        connection.connect((conf.REQUEST_HOST, conf.SERVER_PORT))
-        connection.sendall(message)
-    time.sleep(0.2)  # Wait for server to write thought.
+    def post(self, url, **json):
+        return self.request('post', url, data=json)
 
+    def put(self, url, **json):
+        return self.request('put', url, data=json)
 
-def _serialize_user(user):
-    protocol_type = struct.pack(TYPE_FORMAT, Types.MIND.value)
-    user_data = user.serialize()
-    user_data_len = struct.pack(Connection.length_format, len(user_data))
-    return protocol_type + user_data_len + user_data
-
-
-def _serialize_snapshot(snapshot):
-    snapshot_data = snapshot.serialize()
-    snapshot_len = struct.pack(Connection.length_format, len(snapshot_data))
-    return snapshot_len + snapshot_data
-
-
-def _receive_config(connection) -> Config:
-    decoded_config_length = receive_all(connection, Connection.length_size)
-    config_length, = struct.unpack(
-        Connection.length_format, decoded_config_length)
-    return Config.from_bytes(receive_all(connection, config_length))
-
-
-def serialize_thought(user_id, timestamp, thought):
-    protocol_type = struct.pack(TYPE_FORMAT, Types.THOUGHT.value)
-    header = struct.pack(_HEADER_FORMAT, user_id, timestamp, len(thought))
-    return protocol_type + header + thought.encode()
+    def request(self, method=None, url=None, data=None, *args, **kwargs):
+        method = method.strip().upper() if method else 'GET'
+        url = urljoin(self.base_url, url)
+        if method == 'GET':
+            kwargs['params'] = data
+        else:
+            kwargs['json'] = data
+        response = super().request(method, url, *args, headers=self._headers(),
+                                   **kwargs)
+        return response

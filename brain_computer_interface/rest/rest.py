@@ -24,8 +24,8 @@ def run_rest_server(host: str = LISTEN_HOST, port: int = REST_SERVER_PORT,
 
     def _wrap_resource(function):
         @functools.wraps(function)
-        def handler(*args):
-            result = _inject(function, *args, request=flask.request, db=db)
+        def handler(**kwargs):
+            result = _inject(function, request=flask.request, db=db, **kwargs)
             data, status_code, headers = _parse_resource_result(result)
             if isinstance(data, Path):
                 return flask.send_file(data), status_code, headers
@@ -64,13 +64,13 @@ def _parse_resource_result(result):
     return result, status_code, headers
 
 
-def _inject(function, *args, **options):
+def _inject(function, **options):
     spec = inspect.getfullargspec(function)
     kwargs = {}
     for key, value in options.items():
         if key in spec.args:
             kwargs[key] = value
-    return function(*args, **kwargs)
+    return function(**kwargs)
 
 
 @collect_resource('/users')
@@ -108,20 +108,20 @@ def user_snapshot_topic_data(id, datetime, topic, db: Database):
 
 
 def _handle_bad_request(error):
-    bad_request_error = {'error': str(error)}
+    bad_request_error = {keys.error: str(error)}
     return flask.jsonify(bad_request_error), HTTPStatus.BAD_REQUEST
 
 
 def _handle_not_found(error):
-    not_found_error = {'error': 'API request not found'}
+    not_found_error = {keys.error: 'API request does not exists'}
     return flask.jsonify(not_found_error), HTTPStatus.NOT_FOUND
 
 
 def _handle_method_not_allowed(error):
-    method_not_allowed = {'error': 'method not allowed'}
+    method_not_allowed = {keys.error: 'Method not allowed'}
     return flask.jsonify(method_not_allowed), HTTPStatus.METHOD_NOT_ALLOWED
 
 
 def _handle_server_error(error):
-    server_error_error = {'error': str(error)}
+    server_error_error = {keys.error: str(error)}
     return flask.jsonify(server_error_error), HTTPStatus.INTERNAL_SERVER_ERROR

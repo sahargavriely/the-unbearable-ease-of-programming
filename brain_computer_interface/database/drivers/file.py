@@ -52,11 +52,11 @@ class FileScheme:
         return snapshots
 
     def get_user_snapshot(self, user_id, datetime):
+        snapshot = dict(datetime=datetime)
         datetime = dt.datetime.fromtimestamp(datetime / 1000)
         snap_dir = self.path / str(user_id) / f'{datetime:%F_%H-%M-%S-%f}'
         if not snap_dir.exists():
             return dict()
-        snapshot = dict()
         for topic in snap_dir.iterdir():
             if topic.is_file():
                 with topic.open('r') as f:
