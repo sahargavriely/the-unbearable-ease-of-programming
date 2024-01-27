@@ -21,7 +21,7 @@ class ColorImageParser:
         color_image = ColorImage.from_json(color_image)
         size = color_image.width, color_image.height
         image = Image.frombytes('RGB', size, color_image.data)
-        img_path = img_dir / f'{keys.color_image}.jpg'
+        img_path = img_dir / f'{keys.color_image}.jpeg'
         image.save(img_path)
         ret = color_image.jsonify()
         ret[keys.data] = str(img_path)

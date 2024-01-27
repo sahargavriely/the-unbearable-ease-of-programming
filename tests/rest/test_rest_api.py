@@ -1,8 +1,16 @@
 import datetime as dt
 from http import HTTPStatus
+from pathlib import Path
 
 from brain_computer_interface.message import CONFIG_OPTIONS
 from brain_computer_interface.utils import keys
+
+
+def test_server_error(rest_server, client):
+    response = client.get('/error')
+    assert response.status_code == HTTPStatus.INTERNAL_SERVER_ERROR
+    assert keys.error in response.json()
+    assert response.json()[keys.error] == 'Server error'
 
 
 def test_not_found(rest_server, client):
@@ -61,12 +69,14 @@ def test_snapshot(rest_server, client, database, user, parsed_data, snapshot):
     response = client.get(
         f'/users/{user_id}/snapshots/{datetime}/{topic}/data')
     _assert_bad_request(response, f'Topic {topic!r} does not have data')
-    response = client.get(
-        f'/users/{user_id}/snapshots/{datetime}/color_image/data')
-    print(response)
-    print(response.text)
-    print(response.headers)
-    print(response)
+    for img in (keys.color_image, keys.depth_image):
+        response = client.get(
+            f'/users/{user_id}/snapshots/{datetime}/{img}/data')
+        assert response.status_code == HTTPStatus.OK
+        file = Path(parsed_data[img][keys.data][keys.data])
+        headers = response.headers
+        assert headers['Content-Type'].endswith(file.suffix.removeprefix('.'))
+        assert headers['Content-Disposition'].endswith(file.name)
 
 
 def _assert_ok(response, expected_response):
