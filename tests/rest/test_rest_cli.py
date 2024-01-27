@@ -65,3 +65,27 @@
 #         # to increase coverage
 #         sub_process.send_signal(signal.SIGINT)
 #         sub_process.wait(1)
+
+
+###############################################################################
+# UTILS
+
+
+
+import ast
+import subprocess
+
+
+def _get_command(host, port, *args):
+    cmd = ['python', '-m', 'brain_computer_interface.rest', 'get',
+           '-h', host, '-p', str(port), *[str(arg) for arg in args]]
+    process = subprocess.Popen(cmd, stdout=subprocess.PIPE)
+    process.wait(2)
+    assert database.get_user_snapshot(user_id, datetime)[topic] \
+        == parsed_data[topic][keys.data]
+    stdout, _ = process.communicate()
+    ret = stdout.decode().strip()
+    try:
+        return ast.literal_eval(ret)
+    except Exception:
+        return ret
