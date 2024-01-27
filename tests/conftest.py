@@ -20,6 +20,10 @@ from brain_computer_interface.message import (
     Translation,
     User,
 )
+from brain_computer_interface.parser.parsers import (
+    DepthImageParser,
+    ColorImageParser,
+)
 from brain_computer_interface.utils import config as config_module, keys
 from tests.utils import (
     Dictionary,
@@ -90,17 +94,37 @@ def clean_db(conf):
 
 
 @pytest.fixture
-def parsed_data(user, snapshot, tmp_path):
+def server_data(user: User, snapshot: Snapshot, tmp_path):
     datetime = dt.datetime.fromtimestamp(snapshot.datetime / 1000)
     imgs_dir = tmp_path / str(user.id) / f'{datetime:%F_%H-%M-%S-%f}'
     imgs_dir.mkdir(parents=True, exist_ok=True)
-    user = user.jsonify()
+    usr = user.jsonify()
     snap = snapshot.jsonify(imgs_dir)
-    metadata = dict(user_id=user[keys.id], datetime=snap[keys.datetime])
+    metadata = dict(user_id=usr[keys.id], datetime=snap[keys.datetime])
     data = dict()
     for topic in CONFIG_OPTIONS:
         metadata_ = metadata.copy()
-        metadata_['topic'] = topic
+        metadata_[keys.topic] = topic
+        data[topic] = dict(metadata=metadata_, data=snap[topic])
+    return data
+
+
+@pytest.fixture
+def parsed_data(user: User, snapshot: Snapshot, tmp_path):
+    datetime = dt.datetime.fromtimestamp(snapshot.datetime / 1000)
+    imgs_dir = tmp_path / str(user.id) / f'{datetime:%F_%H-%M-%S-%f}'
+    imgs_dir.mkdir(parents=True, exist_ok=True)
+    usr = user.jsonify()
+    snap = snapshot.jsonify(imgs_dir)
+    snap[keys.color_image] = \
+        ColorImageParser().parse(snap[keys.color_image], imgs_dir)
+    snap[keys.depth_image] = \
+        DepthImageParser().parse(snap[keys.depth_image], imgs_dir)
+    metadata = dict(user_id=usr[keys.id], datetime=snap[keys.datetime])
+    data = dict()
+    for topic in CONFIG_OPTIONS:
+        metadata_ = metadata.copy()
+        metadata_[keys.topic] = topic
         data[topic] = dict(metadata=metadata_, data=snap[topic])
     return data
 

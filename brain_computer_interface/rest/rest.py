@@ -101,10 +101,10 @@ def user_snapshot_topic(id, datetime, topic, db: Database):
 @collect_resource(
     '/users/<int:id>/snapshots/<int:datetime>/<string:topic>/data')
 def user_snapshot_topic_data(id, datetime, topic, db: Database):
-    topic = db.get_user_snapshot_topic(id, datetime, topic)
-    if keys.data not in topic:
+    topic_content = db.get_user_snapshot_topic(id, datetime, topic)
+    if keys.data not in topic_content:
         raise ValueError(f'Topic {topic!r} does not have data')
-    return Path(topic[keys.data])
+    return Path(topic_content[keys.data])
 
 
 def _handle_bad_request(error):

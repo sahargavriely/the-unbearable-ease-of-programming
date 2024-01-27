@@ -6,6 +6,7 @@ from . import parsers
 from ..distributer import Distributer
 from ..utils import (
     DISTRIBUTE_SCHEME,
+    keys,
     setup_logging,
     SHARED_DIR,
 )
@@ -41,9 +42,9 @@ def run_parser(name, shared_dir=SHARED_DIR,
 
 
 def parse(name, data, shared_dir=SHARED_DIR):
-    parser = functools.partial(_get_parser(name), data['data'])
-    img_dir = _get_img_dir(data['metadata'], shared_dir)
-    data['data'] = _inject(parser, img_dir=img_dir)
+    parser = functools.partial(_get_parser(name), data[keys.data])
+    img_dir = _get_img_dir(data[keys.metadata], shared_dir)
+    data[keys.data] = _inject(parser, img_dir=img_dir)
     return data
 
 
@@ -87,8 +88,8 @@ def _get_function_name(fun):
 
 
 def _get_img_dir(metadata, shared_dir):
-    datetime = dt.datetime.fromtimestamp(metadata['datetime'] / 1000)
-    user_id = str(metadata['user_id'])
+    datetime = dt.datetime.fromtimestamp(metadata[keys.datetime] / 1000)
+    user_id = str(metadata[keys.user_id])
     img_dir = shared_dir / user_id / f'{datetime:%F_%H-%M-%S-%f}'
     img_dir.mkdir(parents=True, exist_ok=True)
     return img_dir

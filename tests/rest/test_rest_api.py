@@ -58,6 +58,15 @@ def test_snapshot(rest_server, client, database, user, parsed_data, snapshot):
         _assert_ok(response, parsed_data[topic][keys.data])
     response = client.get(f'/users/{user_id}/snapshots/{datetime}')
     _assert_ok(response, saved_snap)
+    response = client.get(
+        f'/users/{user_id}/snapshots/{datetime}/{topic}/data')
+    _assert_bad_request(response, f'Topic {topic!r} does not have data')
+    response = client.get(
+        f'/users/{user_id}/snapshots/{datetime}/color_image/data')
+    print(response)
+    print(response.text)
+    print(response.headers)
+    print(response)
 
 
 def _assert_ok(response, expected_response):

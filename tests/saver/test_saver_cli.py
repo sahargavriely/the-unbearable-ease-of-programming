@@ -1,4 +1,5 @@
 import json
+import pathlib
 import signal
 import subprocess
 import time
@@ -41,7 +42,7 @@ def test_run_saver(rabbitmq, database, user, snapshot, parsed_data, conf):
     datetime = snapshot.datetime
     user = user.jsonify()
     path = parsed_data[keys.color_image][keys.data][keys.data]
-    snapshot = snapshot.jsonify(path.removesuffix(keys.color_image))
+    snapshot = snapshot.jsonify(str(pathlib.Path(path).parent))
     cmd = ['python', '-m', 'brain_computer_interface.saver', 'run-saver',
            '-d', conf.DATABASE_SCHEME, '-ds', conf.RABBITMQ_SCHEME]
     process = subprocess.Popen(cmd, stdout=subprocess.PIPE)
