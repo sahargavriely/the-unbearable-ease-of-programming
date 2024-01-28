@@ -1,90 +1,81 @@
-# import json
-# import multiprocessing
-# import signal
-# import subprocess
-# import time
+import ast
+import re
+import signal
+import subprocess
+import time
 
-# from brain_computer_interface.message import CONFIG_OPTIONS
-# from brain_computer_interface.distributer import Distributer
-# from brain_computer_interface.utils import keys
+import pytest
+import requests
 
-
-# def test_parse(parsed_data, snapshot, tmp_path):
-#     snapshot = snapshot.jsonify(tmp_path)
-#     for topic in CONFIG_OPTIONS:
-#         topic_file = tmp_path / topic
-#         with topic_file.open('w') as file:
-#             json.dump(parsed_data[topic], file)
-#         cmd = ['python', '-m', 'brain_computer_interface.parser', 'parse',
-#                topic, str(topic_file), '-s', str(tmp_path)]
-#         process = subprocess.Popen(cmd, stdout=subprocess.PIPE)
-#         process.wait(2)
-#         stdout, _ = process.communicate()
-#         result = eval(stdout.decode().strip())[keys.data]
-#         if keys.data in snapshot[topic]:
-#             assert result[keys.height] == snapshot[topic][keys.height]
-#             assert result[keys.width] == snapshot[topic][keys.width]
-#         else:
-#             assert result == snapshot[topic]
+from brain_computer_interface.message import CONFIG_OPTIONS
+from brain_computer_interface.utils import keys
 
 
-# def test_run_parser(rabbitmq, user, snapshot, tmp_path, conf):
-#     snapshot = snapshot.jsonify(tmp_path)
-#     data = {keys.snapshot: snapshot, keys.user: user.jsonify()}
-#     comm_topic = dict()
+def test_run_rest_server(conf, user, snapshot):
+    tmp_port = 8123
+    cmd = ['python', '-m', 'brain_computer_interface.rest', 'run-rest-server',
+           '-h', conf.LISTEN_HOST, '-p', str(tmp_port),
+           '-d', conf.DATABASE_SCHEME]
+    process = subprocess.Popen(cmd)
+    try:
+        time.sleep(2)
+        response = requests.get(f'http://{conf.REQUEST_HOST}:{tmp_port}/users')
+        assert response.ok
+    finally:
+        # we are doing the sig thingy instead of terminate() or kill()
+        # to increase coverage
+        process.send_signal(signal.SIGINT)
 
-#     for topic in CONFIG_OPTIONS:
-#         cmd = ['python', '-m', 'brain_computer_interface.rest', 'run-parser',
-#                topic, '-s', str(tmp_path), '-d', conf.RABBITMQ_SCHEME]
-#         sub_process = subprocess.Popen(cmd, stdout=subprocess.PIPE)
-#         parent, child = multiprocessing.Pipe()
 
-#         def parsed_topic_sub():
-#             with Distributer(conf.RABBITMQ_SCHEME) as distributer:
-#                 distributer.subscribe_parsed_topic(child.send, topic, '')
+def test_error_format(rest_server, client, conf, user):
+    with pytest.raises(RuntimeError,
+                       match=re.escape(
+                           f'ERROR: GET request to http:/'
+                           f'/{conf.REQUEST_HOST}:{conf.REST_SERVER_PORT}/'
+                           f'/users/{user.id} failed (400): '
+                           f'User id {user.id} does not exists')):
+        _get_command(conf, 'user', user.id)
 
-#         comm_topic[topic] = parent, process, sub_process
-#         process.start()
 
-#     time.sleep(7)
-#     with Distributer(conf.RABBITMQ_SCHEME) as distributer:
-#         distributer.publish_raw_snapshot(data)
-#     for topic in CONFIG_OPTIONS:
-#         parent, process, sub_process = comm_topic[topic]
-#         if not parent.poll(5):
-#             raise TimeoutError()
-#         result = parent.recv()[keys.data]
-#         if keys.data in snapshot[topic]:
-#             assert result[keys.height] == snapshot[topic][keys.height]
-#             assert result[keys.width] == snapshot[topic][keys.width]
-#         else:
-#             assert result == snapshot[topic]
-#         process.terminate()
-#         process.join(1)
-#         # we are doing the sig thingy instead of terminate() or kill()
-#         # to increase coverage
-#         sub_process.send_signal(signal.SIGINT)
-#         sub_process.wait(1)
+def test_user(rest_server, client, conf, database, user):
+    database.save_user(user.id, user.jsonify())
+    assert _get_command(conf, 'users') == [user.id]
+    assert _get_command(conf, 'user', user.id) == user.jsonify()
+
+
+def test_snapshot(rest_server, client, conf, database, user, parsed_data,
+                  snapshot):
+    datetime = snapshot.datetime
+    for topic in CONFIG_OPTIONS:
+        database.save_snapshot_topic(
+            user.id, datetime, topic, parsed_data[topic][keys.data])
+    assert _get_command(conf, 'user-snapshots', user.id) == [datetime]
+    saved_snap = dict(datetime=datetime)
+    for topic in CONFIG_OPTIONS:
+        saved_snap[topic] = parsed_data[topic][keys.data]
+        assert saved_snap[topic] == \
+            _get_command(conf, 'user-snapshot-topic', user.id, datetime, topic)
+    assert saved_snap == \
+        _get_command(conf, 'user-snapshot', user.id, datetime)
+
+    _get_command(conf, 'user-snapshot-topic-data', user.id, datetime,
+                 keys.color_image)
 
 
 ###############################################################################
 # UTILS
 
 
-
-import ast
-import subprocess
-
-
-def _get_command(host, port, *args):
+def _get_command(conf, *args):
     cmd = ['python', '-m', 'brain_computer_interface.rest', 'get',
-           '-h', host, '-p', str(port), *[str(arg) for arg in args]]
-    process = subprocess.Popen(cmd, stdout=subprocess.PIPE)
-    process.wait(2)
-    assert database.get_user_snapshot(user_id, datetime)[topic] \
-        == parsed_data[topic][keys.data]
-    stdout, _ = process.communicate()
-    ret = stdout.decode().strip()
+           '-h', conf.REQUEST_HOST, '-p', str(conf.REST_SERVER_PORT),
+           *[str(arg) for arg in args]]
+    try:
+        pro = subprocess.run(cmd, capture_output=True, check=True, timeout=5)
+    except subprocess.CalledProcessError as error:
+        raise RuntimeError(error.stdout.decode().strip())
+
+    ret = pro.stdout.decode().strip()
     try:
         return ast.literal_eval(ret)
     except Exception:

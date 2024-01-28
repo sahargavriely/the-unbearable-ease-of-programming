@@ -25,7 +25,7 @@ def test_run_server_by_scheme(conf, user, snapshot):
     cmd = ['python', '-m', 'brain_computer_interface.server', 'run-server',
            '-d', str(conf.DISTRIBUTE_SCHEME), '-h', conf.LISTEN_HOST,
            '-p', str(conf.SERVER_PORT), '-s', str(conf.SHARED_DIR)]
-    process = subprocess.Popen(cmd, stdout=subprocess.PIPE)
+    process = subprocess.Popen(cmd)
     published_data_file = pathlib.Path(str(furl(conf.DISTRIBUTE_SCHEME).path))
     assert not published_data_file.exists()
     try:

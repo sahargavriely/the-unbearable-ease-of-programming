@@ -16,9 +16,7 @@ def test_parse(parsed_data, server_data, tmp_path):
             json.dump(server_data[topic], file)
         cmd = ['python', '-m', 'brain_computer_interface.parser', 'parse',
                topic, str(topic_file), '-s', str(tmp_path)]
-        process = subprocess.Popen(cmd, stdout=subprocess.PIPE)
-        process.wait(2)
-        stdout, _ = process.communicate()
+        stdout = subprocess.run(cmd, capture_output=True, timeout=5).stdout
         result = eval(stdout.decode().strip())[keys.data]
         expected_parsed = parsed_data[topic][keys.data]
         if keys.data in (keys.color_image, keys.depth_image):
@@ -36,7 +34,7 @@ def test_run_parser(rabbitmq, user, snapshot, parsed_data, tmp_path, conf):
     for topic in CONFIG_OPTIONS:
         cmd = ['python', '-m', 'brain_computer_interface.parser', 'run-parser',
                topic, '-s', str(tmp_path), '-d', conf.RABBITMQ_SCHEME]
-        sub_process = subprocess.Popen(cmd, stdout=subprocess.PIPE)
+        sub_process = subprocess.Popen(cmd)
         parent, child = multiprocessing.Pipe()
 
         def parsed_topic_sub():

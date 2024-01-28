@@ -17,20 +17,17 @@ def some_script(tmp_path_factory):
 
 def test_error(some_script):
     cmd = ['python', str(some_script), 'error']
-    process = subprocess.Popen(cmd, stdout=subprocess.PIPE, )
-    stdout, _ = process.communicate()
+    stdout = subprocess.run(cmd, capture_output=True, timeout=5).stdout
     assert b'something went terribly wrong :[' in stdout.lower()
 
 
 def test_quiet_flag(some_script):
     cmd = ['python', str(some_script), '-q', 'error']
-    process = subprocess.Popen(cmd, stdout=subprocess.PIPE, )
-    stdout, _ = process.communicate()
+    stdout = subprocess.run(cmd, capture_output=True, timeout=5).stdout
     assert not stdout.lower()
 
 
 def test_traceback_flag(some_script):
     cmd = ['python', str(some_script), '-t', 'error']
-    process = subprocess.Popen(cmd, stdout=subprocess.PIPE, )
-    stdout, _ = process.communicate()
+    stdout = subprocess.run(cmd, capture_output=True, timeout=5).stdout
     assert b'traceback (most recent call last)' in stdout.lower()

@@ -10,6 +10,15 @@ from tests.rest.utils import Session
 from tests.utils import serve_thread
 
 
+@pytest.fixture(autouse=True, scope='session')
+def addional_rest_requests():
+
+    def error():
+        raise Exception('Server error')
+
+    collect_resource('/error')(error)
+
+
 @pytest.fixture(scope='module')
 def rest_server(conf):
     with serve_thread(_run_rest_server, conf) as thread:
@@ -17,10 +26,6 @@ def rest_server(conf):
 
 
 def _run_rest_server(conf):
-
-    @collect_resource('/error')
-    def error():
-        raise Exception('Server error')
 
     run_rest_server(conf.LISTEN_HOST, conf.REST_SERVER_PORT,
                     conf.DATABASE_SCHEME)
