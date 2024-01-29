@@ -16,6 +16,7 @@ Welcome to brain-computer-interface's documentation!
    client/client
    parser/parser
    cli
+   rest/rest
    server/server
    saver/saver
 
