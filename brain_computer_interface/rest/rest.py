@@ -32,14 +32,6 @@ def run_rest_server(host: str = LISTEN_HOST, port: int = REST_SERVER_PORT,
             return flask.jsonify(data), status_code, headers
         return handler
 
-    # from werkzeug.routing import PathConverter
-    # class NotAPIConvertor(PathConverter):
-    #     regex = r'^(?!api\/.*$).*$'
-    # class APIConvertor(PathConverter):
-    #     regex = r'api\/.*$'
-    # app.url_map.converters['does_not_start_with_api'] = NotAPIConvertor
-    # app.url_map.converters['start_with_api'] = APIConvertor
-    # app.route('/<does_not_start_with_api:path>')(handler)
     for path, function in _resources:
         handler = _wrap_resource(function)
         app.route(path)(handler)

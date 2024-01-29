@@ -74,7 +74,6 @@ def _get_command(conf, *args):
         pro = subprocess.run(cmd, capture_output=True, check=True, timeout=5)
     except subprocess.CalledProcessError as error:
         raise RuntimeError(error.stdout.decode().strip())
-
     ret = pro.stdout.decode().strip()
     try:
         return ast.literal_eval(ret)

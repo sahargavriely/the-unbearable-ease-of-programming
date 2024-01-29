@@ -17,7 +17,7 @@ The `brain_computer_interface.server` packages provides the following function:
     You may provide an address (host and port) which the server listens to (defaults are set to ``'0.0.0.0'`` and ``5000``, respectfully) a directory in which the server will save the thoughts to (default is set to ``shared/``). 
 
     ```pycon
-    >>> from brain_computer_interface import run_server
+    >>> from brain_computer_interface.server import run_server
     >>> from pathlib import Path
     >>> run_server(print, host='0.0.0.0', port=5000, shared_dir=Path('shared/'))
     {'user': {...}, 'snapshot': {...}}
@@ -49,7 +49,7 @@ Commands:
     Runs the server which listens to thoughts.
 
     ```sh
-    $ python -m brain_computer_interface run-server [OPTIONS]
+    $ python -m brain_computer_interface.server run-server [OPTIONS]
     ```
     Options:
     - ``-ps``, ``--publish-scheme`` TEXT [default: rabbitmq://localhost:5672/]
