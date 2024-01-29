@@ -17,14 +17,20 @@ def test_not_found(rest_server, client):
     response = client.get('/not-existing-api')
     assert response.status_code == HTTPStatus.NOT_FOUND
     assert keys.error in response.json()
-    assert response.json()[keys.error] == 'API request does not exists'
+    assert response.json()[keys.error] == '404 Not Found: ' \
+                                          'The requested URL was not found ' \
+                                          'on the server. If you entered ' \
+                                          'the URL manually please check ' \
+                                          'your spelling and try again.'
 
 
 def test_method_not_allowed(rest_server, client):
     response = client.post('/users')
     assert response.status_code == HTTPStatus.METHOD_NOT_ALLOWED
     assert keys.error in response.json()
-    assert response.json()[keys.error] == 'Method not allowed'
+    assert response.json()[keys.error] == '405 Method Not Allowed: ' \
+                                          'The method is not allowed for ' \
+                                          'the requested URL.'
 
 
 def test_user(rest_server, client, database, user):
