@@ -1,5 +1,4 @@
 
-import gzip
 from pathlib import Path
 import multiprocessing
 import pytest
@@ -18,8 +17,6 @@ from brain_computer_interface.client.reader.drivers.default import (
     pixel_format,
     feelings_format,
 )
-from brain_computer_interface.client.reader.drivers.protobuf import \
-    length_format
 from brain_computer_interface.message import Snapshot, User
 
 from tests.client.utils import run_mock_server
@@ -27,11 +24,6 @@ from tests.client.utils import run_mock_server
 
 ##########################################################################
 # Reader
-
-
-@pytest.fixture(scope='module')
-def mind_dir(tmp_path_factory):
-    return tmp_path_factory.mktemp('minds')
 
 
 @pytest.fixture(scope='module')
@@ -69,18 +61,6 @@ def default_mind_file(mind_dir: Path, user: User, snapshot: Snapshot):
     with file.open('wb') as f:
         f.write(b''.join(user_bytes))
         f.write(b''.join(snapshot_bytes))
-    return file
-
-
-@pytest.fixture(scope='module')
-def protobuf_mind_file(mind_dir: Path, user: User, snapshot: Snapshot):
-    file = mind_dir / 'sample.mind.gz'
-    file.touch(0o777)
-    with gzip.open(str(file), 'wb') as f:
-        f.write(pack(length_format, len(user.serialize())))
-        f.write(user.serialize())
-        f.write(pack(length_format, len(snapshot.serialize())))
-        f.write(snapshot.serialize())
     return file
 
 

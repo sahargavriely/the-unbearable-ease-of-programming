@@ -1,7 +1,9 @@
 import datetime as dt
+import gzip
 from pathlib import Path
-import subprocess
 import shutil
+from struct import pack
+import subprocess
 import time
 
 import furl
@@ -24,6 +26,8 @@ from brain_computer_interface.parser.parsers import (
     DepthImageParser,
     ColorImageParser,
 )
+from brain_computer_interface.client.reader.drivers.protobuf import \
+    length_format
 from brain_computer_interface.utils import config as config_module, keys
 from tests.utils import (
     Dictionary,
@@ -203,6 +207,27 @@ def user():
         int(dt.datetime.strptime('June 6, 1994', '%B %d, %Y').timestamp()),
         0
     )
+
+
+##########################################################################
+# Mind file
+
+
+@pytest.fixture(scope='module')
+def mind_dir(tmp_path_factory):
+    return tmp_path_factory.mktemp('minds')
+
+
+@pytest.fixture(scope='module')
+def protobuf_mind_file(mind_dir: Path, user: User, snapshot: Snapshot):
+    file = mind_dir / 'sample.mind.gz'
+    file.touch(0o777)
+    with gzip.open(str(file), 'wb') as f:
+        f.write(pack(length_format, len(user.serialize())))
+        f.write(user.serialize())
+        f.write(pack(length_format, len(snapshot.serialize())))
+        f.write(snapshot.serialize())
+    return file
 
 
 ##########################################################################
