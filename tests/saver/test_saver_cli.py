@@ -1,4 +1,5 @@
 import json
+import pathlib
 import signal
 import subprocess
 import time
@@ -15,8 +16,7 @@ def test_user(database, conf, user, tmp_path):
     user_id = user.id
     cmd = ['python', '-m', 'brain_computer_interface.saver', 'save',
            'user', str(user_id), str(user_file), '-d', conf.DATABASE_SCHEME]
-    process = subprocess.Popen(cmd, stdout=subprocess.PIPE)
-    process.wait(2)
+    subprocess.run(cmd, timeout=5)
     assert database.get_user(user_id) == user.jsonify()
 
 
@@ -30,8 +30,7 @@ def test_snapshot(database, conf, user, parsed_data, snapshot, tmp_path):
         cmd = ['python', '-m', 'brain_computer_interface.saver', 'save',
                'snapshot', str(user_id), str(datetime), topic, str(topic_file),
                '-d', conf.DATABASE_SCHEME]
-        process = subprocess.Popen(cmd, stdout=subprocess.PIPE)
-        process.wait(2)
+        subprocess.run(cmd, timeout=5)
         assert database.get_user_snapshot(user_id, datetime)[topic] \
             == parsed_data[topic][keys.data]
 
@@ -41,10 +40,10 @@ def test_run_saver(rabbitmq, database, user, snapshot, parsed_data, conf):
     datetime = snapshot.datetime
     user = user.jsonify()
     path = parsed_data[keys.color_image][keys.data][keys.data]
-    snapshot = snapshot.jsonify(path.removesuffix(keys.color_image))
+    snapshot = snapshot.jsonify(str(pathlib.Path(path).parent))
     cmd = ['python', '-m', 'brain_computer_interface.saver', 'run-saver',
            '-d', conf.DATABASE_SCHEME, '-ds', conf.RABBITMQ_SCHEME]
-    process = subprocess.Popen(cmd, stdout=subprocess.PIPE)
+    process = subprocess.Popen(cmd)
     time.sleep(1)
     with Distributer(conf.RABBITMQ_SCHEME) as distributer:
         distributer.publish_user(user)

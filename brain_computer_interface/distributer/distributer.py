@@ -3,7 +3,11 @@ import contextlib
 import furl
 
 from ..message import CONFIG_OPTIONS
-from ..utils import get_driver, keys, setup_logging
+from ..utils import (
+    get_driver,
+    keys,
+    setup_logging
+)
 
 
 logger = setup_logging(__name__)

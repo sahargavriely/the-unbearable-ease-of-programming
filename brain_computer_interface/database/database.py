@@ -2,10 +2,13 @@ import datetime as dt
 
 import furl
 
-from ..utils import get_driver, setup_logging
+from ..utils import (
+    get_driver,
+    setup_logging
+)
 
-import logging
-logger = setup_logging(__name__, logging.INFO)
+
+logger = setup_logging(__name__)
 
 
 class Database:

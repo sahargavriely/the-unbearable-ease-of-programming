@@ -4,6 +4,7 @@ import pytest
 
 from brain_computer_interface.message import CONFIG_OPTIONS
 from brain_computer_interface.parser import parse
+from brain_computer_interface.utils import keys
 
 
 def test_parse_bad_parser_name():
@@ -13,12 +14,12 @@ def test_parse_bad_parser_name():
         parse(bad_name, {}, Path())
 
 
-def test_parse(parsed_data, snapshot, tmp_path):
-    snapshot = snapshot.jsonify(tmp_path)
+def test_parse(server_data, parsed_data, tmp_path):
     for topic in CONFIG_OPTIONS:
-        parsed_data_topic = parse(topic, parsed_data[topic], tmp_path)['data']
-        if 'data' in snapshot[topic]:
-            assert parsed_data_topic['height'] == snapshot[topic]['height']
-            assert parsed_data_topic['width'] == snapshot[topic]['width']
+        parsed_topic = parse(topic, server_data[topic], tmp_path)[keys.data]
+        expected_parsed = parsed_data[topic][keys.data]
+        if keys.data in (keys.color_image, keys.depth_image):
+            assert parsed_topic[keys.height] == expected_parsed[keys.height]
+            assert parsed_topic[keys.width] == expected_parsed[keys.width]
         else:
-            assert parsed_data_topic == snapshot[topic]
+            assert parsed_topic == expected_parsed

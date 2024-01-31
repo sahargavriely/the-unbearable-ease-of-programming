@@ -3,11 +3,12 @@ import socket
 import time
 
 from brain_computer_interface.message import Snapshot
-from utils import (
+
+from tests.server.utils import (
+    get_path,
     mock_upload_mind,
     mock_upload_thought,
-    get_path,
-    _serialize_thought,
+    serialize_thought,
 )
 
 
@@ -61,7 +62,7 @@ def test_race_condition(conf, server):
 
 def test_partial_data(conf, server):
     message = \
-        _serialize_thought(conf.USER_20, conf.TIMESTAMP_20, conf.THOUGHT_20)
+        serialize_thought(conf.USER_20, conf.TIMESTAMP_20, conf.THOUGHT_20)
     with socket.socket() as connection:
         time.sleep(0.1)  # Wait for server to start listening.
         connection.connect((conf.REQUEST_HOST, conf.SERVER_PORT))

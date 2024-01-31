@@ -9,26 +9,24 @@ from brain_computer_interface.distributer import Distributer
 from brain_computer_interface.utils import keys
 
 
-def test_parse(parsed_data, snapshot, tmp_path):
-    snapshot = snapshot.jsonify(tmp_path)
+def test_parse(parsed_data, server_data, tmp_path):
     for topic in CONFIG_OPTIONS:
         topic_file = tmp_path / topic
         with topic_file.open('w') as file:
-            json.dump(parsed_data[topic], file)
+            json.dump(server_data[topic], file)
         cmd = ['python', '-m', 'brain_computer_interface.parser', 'parse',
                topic, str(topic_file), '-s', str(tmp_path)]
-        process = subprocess.Popen(cmd, stdout=subprocess.PIPE)
-        process.wait(2)
-        stdout, _ = process.communicate()
+        stdout = subprocess.run(cmd, capture_output=True, timeout=5).stdout
         result = eval(stdout.decode().strip())[keys.data]
-        if keys.data in snapshot[topic]:
-            assert result[keys.height] == snapshot[topic][keys.height]
-            assert result[keys.width] == snapshot[topic][keys.width]
+        expected_parsed = parsed_data[topic][keys.data]
+        if keys.data in (keys.color_image, keys.depth_image):
+            assert result[keys.height] == expected_parsed[keys.height]
+            assert result[keys.width] == expected_parsed[keys.width]
         else:
-            assert result == snapshot[topic]
+            assert result == expected_parsed
 
 
-def test_run_parser(rabbitmq, user, snapshot, tmp_path, conf):
+def test_run_parser(rabbitmq, user, snapshot, parsed_data, tmp_path, conf):
     snapshot = snapshot.jsonify(tmp_path)
     data = {keys.snapshot: snapshot, keys.user: user.jsonify()}
     comm_topic = dict()
@@ -36,7 +34,7 @@ def test_run_parser(rabbitmq, user, snapshot, tmp_path, conf):
     for topic in CONFIG_OPTIONS:
         cmd = ['python', '-m', 'brain_computer_interface.parser', 'run-parser',
                topic, '-s', str(tmp_path), '-d', conf.RABBITMQ_SCHEME]
-        sub_process = subprocess.Popen(cmd, stdout=subprocess.PIPE)
+        sub_process = subprocess.Popen(cmd)
         parent, child = multiprocessing.Pipe()
 
         def parsed_topic_sub():
@@ -55,11 +53,12 @@ def test_run_parser(rabbitmq, user, snapshot, tmp_path, conf):
         if not parent.poll(5):
             raise TimeoutError()
         result = parent.recv()[keys.data]
+        expected_parsed = parsed_data[topic][keys.data]
         if keys.data in snapshot[topic]:
-            assert result[keys.height] == snapshot[topic][keys.height]
-            assert result[keys.width] == snapshot[topic][keys.width]
+            assert result[keys.height] == expected_parsed[keys.height]
+            assert result[keys.width] == expected_parsed[keys.width]
         else:
-            assert result == snapshot[topic]
+            assert result == expected_parsed
         process.terminate()
         process.join(1)
         # we are doing the sig thingy instead of terminate() or kill()

@@ -70,8 +70,6 @@ def _handle_connection(lock: threading.Lock, connection: Connection,
             _recive_mind(lock, connection, publish_method, shared_dir)
         elif protocol_type == Types.THOUGHT.value:
             _recive_thought(connection, lock, shared_dir)
-        else:
-            pass
 
 
 def _recive_mind(lock: threading.Lock, connection: Connection,

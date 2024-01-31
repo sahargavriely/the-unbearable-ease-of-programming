@@ -21,7 +21,8 @@ from brain_computer_interface.client.reader.drivers.default import (
 from brain_computer_interface.client.reader.drivers.protobuf import \
     length_format
 from brain_computer_interface.message import Snapshot, User
-from utils import _run_mock_server
+
+from tests.client.utils import run_mock_server
 
 
 ##########################################################################
@@ -90,7 +91,7 @@ def protobuf_mind_file(mind_dir: Path, user: User, snapshot: Snapshot):
 @pytest.fixture
 def mock_server(conf):
     parent, child = multiprocessing.Pipe()
-    process = multiprocessing.Process(target=_run_mock_server,
+    process = multiprocessing.Process(target=run_mock_server,
                                       args=(conf, child))
     process.start()
     parent.recv()

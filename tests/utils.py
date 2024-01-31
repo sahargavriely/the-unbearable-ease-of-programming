@@ -1,30 +1,9 @@
 import contextlib
 import ctypes
-import datetime as dt
-import socket
-import struct
 import threading
 import time
 
 from brain_computer_interface import run_webserver
-from brain_computer_interface.server import run_server
-from brain_computer_interface.message import (
-    TYPE_FORMAT,
-    TYPE_FORMAT_SIZE,
-    Types,
-)
-from brain_computer_interface.message import (
-    Config,
-    CONFIG_OPTIONS,
-    Snapshot,
-    User,
-)
-from brain_computer_interface.utils.connection import Connection
-
-
-_SERVER_BACKLOG = 1000
-_HEADER_FORMAT = '<QQI'
-_HEADER_SIZE = struct.calcsize(_HEADER_FORMAT)
 
 
 class Dictionary(dict):
@@ -45,17 +24,12 @@ class Dictionary(dict):
             raise AttributeError(key)
 
 
-def _run_server(publish_method, conf):
-    run_server(publish_method, conf.LISTEN_HOST,
-               conf.SERVER_PORT, conf.SHARED_DIR)
-
-
 def _run_webserver(conf):
     run_webserver(conf.LISTEN_HOST, conf.WEBSERVER_PORT, conf.SHARED_DIR)
 
 
 @contextlib.contextmanager
-def _serve_thread(serve, *args):
+def serve_thread(serve, *args):
     thread = threading.Thread(target=serve, args=args)
     thread.start()
     time.sleep(1)
@@ -80,65 +54,7 @@ def _kill_serve_thread(thread: threading.Thread):
         raise SystemError("PyThreadState_SetAsyncExc failed")
 
 
-def _run_mock_server(conf, pipe):
-    server = socket.socket()
-    server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-    server.bind((conf.LISTEN_HOST, conf.SERVER_PORT))
-    server.listen(_SERVER_BACKLOG)
-    pipe.send('ready')
-    with server:
-        while True:
-            connection, address = server.accept()
-            _handle_connection(connection, pipe)
-
-
-def _handle_connection(connection, pipe):
-    with connection:
-        protocol_type = _receive_all(connection, TYPE_FORMAT_SIZE)
-        protocol_type, = struct.unpack(TYPE_FORMAT, protocol_type)
-        if protocol_type == Types.MIND.value:
-            _receive_mind(connection, pipe)
-        elif protocol_type == Types.THOUGHT.value:
-            _receive_thought(connection, pipe)
-        else:
-            pass
-
-
-def _receive_mind(connection, pipe):
-    user = _receive_user(connection)
-    _send_config(connection, Config(CONFIG_OPTIONS[:-1]))
-    snapshots = list()
-    while (decoded_snap := _receive_value_by_length(connection)) != b'done':
-        snapshots.append(Snapshot.from_bytes(decoded_snap).serialize())
-    pipe.send([user.serialize(), snapshots, CONFIG_OPTIONS[-1]])
-
-
-def _receive_user(connection) -> User:
-    return User.from_bytes(_receive_value_by_length(connection))
-
-
-def _receive_value_by_length(connection) -> bytes:
-    decoded_length = _receive_all(connection, Connection.length_size)
-    length, = struct.unpack(Connection.length_format, decoded_length)
-    return _receive_all(connection, length)
-
-
-def _send_config(connection, config: Config):
-    config_data = config.serialize()
-    config_len = struct.pack(Connection.length_format, len(config_data))
-    connection.sendall(config_len)
-    connection.sendall(config_data)
-
-
-def _receive_thought(connection, pipe):
-    header_data = _receive_all(connection, _HEADER_SIZE)
-    user_id, timestamp, size = struct.unpack(_HEADER_FORMAT, header_data)
-    data = _receive_all(connection, size)
-    thought = data.decode()
-    pipe.send([user_id, timestamp, thought])
-
-
-def _receive_all(connection, size):
+def receive_all(connection, size):
     chunks = []
     while size > 0:
         chunk = connection.recv(size)
@@ -147,67 +63,3 @@ def _receive_all(connection, size):
         chunks.append(chunk)
         size -= len(chunk)
     return b''.join(chunks)
-
-
-def assert_now(timestamp):
-    now = int(time.time())
-    assert abs(now - timestamp) < 5
-
-
-def mock_upload_mind(conf, user: User, *snapshots: Snapshot):
-    with socket.socket() as connection:
-        time.sleep(0.1)  # Wait for server to start listening.
-        connection.connect((conf.REQUEST_HOST, conf.SERVER_PORT))
-        connection.sendall(_serialize_user(user))
-        config = _receive_config(connection)
-        for snapshot in snapshots:
-            for c in CONFIG_OPTIONS:
-                if c not in config:
-                    snapshot.set_default(c)
-            connection.sendall(_serialize_snapshot(snapshot))
-        data = b'done'
-        length = struct.pack(Connection.length_format, len(data))
-        connection.sendall(length)
-        connection.sendall(data)
-    time.sleep(0.2)  # Wait for server to write thought.
-
-
-def mock_upload_thought(conf, user_id, timestamp, thought):
-    message = _serialize_thought(user_id, timestamp, thought)
-    with socket.socket() as connection:
-        time.sleep(0.1)  # Wait for server to start listening.
-        connection.settimeout(2)
-        connection.connect((conf.REQUEST_HOST, conf.SERVER_PORT))
-        connection.sendall(message)
-    time.sleep(0.2)  # Wait for server to write thought.
-
-
-def _serialize_user(user):
-    protocol_type = struct.pack(TYPE_FORMAT, Types.MIND.value)
-    user_data = user.serialize()
-    user_data_len = struct.pack(Connection.length_format, len(user_data))
-    return protocol_type + user_data_len + user_data
-
-
-def _serialize_snapshot(snapshot):
-    snapshot_data = snapshot.serialize()
-    snapshot_len = struct.pack(Connection.length_format, len(snapshot_data))
-    return snapshot_len + snapshot_data
-
-
-def _receive_config(connection) -> Config:
-    decoded_config_length = _receive_all(connection, Connection.length_size)
-    config_length, = struct.unpack(
-        Connection.length_format, decoded_config_length)
-    return Config.from_bytes(_receive_all(connection, config_length))
-
-
-def _serialize_thought(user_id, timestamp, thought):
-    protocol_type = struct.pack(TYPE_FORMAT, Types.THOUGHT.value)
-    header = struct.pack(_HEADER_FORMAT, user_id, timestamp, len(thought))
-    return protocol_type + header + thought.encode()
-
-
-def get_path(dir, user_id, timestamp):
-    datetime = dt.datetime.fromtimestamp(timestamp)
-    return dir / f'{user_id}/{datetime:%F_%H-%M-%S}.txt'

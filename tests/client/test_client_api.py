@@ -10,7 +10,7 @@ from brain_computer_interface.message import (
     User,
 )
 
-from utils import assert_now
+from tests.client.utils import assert_now
 
 
 def test_read_mind_file(default_mind_file: Path, user: User,

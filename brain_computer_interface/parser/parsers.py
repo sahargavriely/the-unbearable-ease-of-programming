@@ -21,10 +21,10 @@ class ColorImageParser:
         color_image = ColorImage.from_json(color_image)
         size = color_image.width, color_image.height
         image = Image.frombytes('RGB', size, color_image.data)
-        img_path = img_dir / 'color_image.jpg'
+        img_path = img_dir / f'{keys.color_image}.jpeg'
         image.save(img_path)
         ret = color_image.jsonify()
-        ret['data'] = str(img_path)
+        ret[keys.data] = str(img_path)
         return ret
 
 
@@ -35,10 +35,10 @@ class DepthImageParser:
         size = depth_image.width, depth_image.height
         data = np.array(depth_image.data).reshape(size)
         plt.imshow(data, cmap='hot', interpolation='gaussian')
-        img_path = img_dir / 'depth_image.png'
+        img_path = img_dir / f'{keys.depth_image}.png'
         plt.savefig(img_path)
         ret = depth_image.jsonify()
-        ret['data'] = str(img_path)
+        ret[keys.data] = str(img_path)
         return ret
 
 
