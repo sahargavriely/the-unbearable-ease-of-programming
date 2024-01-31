@@ -3,7 +3,6 @@ import datetime as dt
 import furl
 
 from ..utils import (
-    DATABASE_SCHEME,
     get_driver,
     setup_logging
 )
@@ -14,7 +13,7 @@ logger = setup_logging(__name__)
 
 class Database:
 
-    def __init__(self, url: str = DATABASE_SCHEME):
+    def __init__(self, url: str):
         logger.info('initiating database for url %s', url)
         url_ = furl.furl(url)
         self.driver = get_driver(

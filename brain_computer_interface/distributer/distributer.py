@@ -4,7 +4,6 @@ import furl
 
 from ..message import CONFIG_OPTIONS
 from ..utils import (
-    DISTRIBUTE_SCHEME,
     get_driver,
     keys,
     setup_logging
@@ -15,7 +14,7 @@ logger = setup_logging(__name__)
 
 
 class Distributer:
-    def __init__(self, url: str = DISTRIBUTE_SCHEME):
+    def __init__(self, url: str):
         logger.info('initiating distributer for url %s', url)
         url_ = furl.furl(url)
         self.driver = get_driver(
