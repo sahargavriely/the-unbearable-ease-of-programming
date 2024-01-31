@@ -4,7 +4,7 @@ import time
 
 import pytest
 
-from brain_computer_interface.utils import Listener
+from brain_computer_interface.server.listener import Listener
 
 
 _PORT = 5914

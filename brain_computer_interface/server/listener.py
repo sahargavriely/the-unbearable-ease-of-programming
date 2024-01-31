@@ -1,6 +1,6 @@
 import socket
 
-from .connection import Connection
+from ..utils.connection import Connection
 
 
 class Listener:

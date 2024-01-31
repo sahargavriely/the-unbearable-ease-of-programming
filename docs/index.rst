@@ -15,7 +15,6 @@ Welcome to brain-computer-interface's documentation!
    distributer
    client/client
    parser/parser
-   cli
    rest/rest
    server/server
    saver/saver

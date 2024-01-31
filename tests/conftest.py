@@ -29,11 +29,8 @@ from brain_computer_interface.parser.parsers import (
 from brain_computer_interface.client.reader.drivers.protobuf import \
     length_format
 from brain_computer_interface.utils import config as config_module, keys
-from tests.utils import (
-    Dictionary,
-    _run_webserver,
-    serve_thread,
-)
+
+from tests.utils import Dictionary
 
 
 ##########################################################################
@@ -46,14 +43,6 @@ def other_conf():
         'POSTGRES_SCHEME':
             'postgresql://postgres:password@127.0.0.1:4321/testmind',
         'RABBITMQ_SCHEME': 'rabbitmq://localhost:4561/',
-        'USER_20': 20,
-        'THOUGHT_20': 'I am 20 too',
-        'TIMESTAMP_20':
-            int(dt.datetime(2019, 10, 25, 15, 12, 5, 228000).timestamp()),
-        'USER_22': 22,
-        'THOUGHT_22': 'I am 22',
-        'TIMESTAMP_22':
-            int(dt.datetime(2019, 10, 25, 15, 15, 2, 304000).timestamp()),
     })
 
 
@@ -228,13 +217,3 @@ def protobuf_mind_file(mind_dir: Path, user: User, snapshot: Snapshot):
         f.write(pack(length_format, len(snapshot.serialize())))
         f.write(snapshot.serialize())
     return file
-
-
-##########################################################################
-# Server
-
-
-@pytest.fixture(scope='module')
-def webserver(conf):
-    with serve_thread(_run_webserver, conf) as thread:
-        yield thread

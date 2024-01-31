@@ -58,7 +58,7 @@ Commands:
 
     - ``user``
 
-        Runs the saver which listens to thoughts.
+        Saves user information from the PATH to USER_ID.
 
         ```sh
         $ brain_computer_interface.saver save user [OPTIONS] USER_ID PATH
@@ -69,7 +69,7 @@ Commands:
 
     - ``snapshot``
 
-        Runs the saver which listens to thoughts.
+        Saves snapshot's TOPIC information from the PATH to USER_ID and DATETIME.
 
         ```sh
         $ brain_computer_interface.saver save snapshot [OPTIONS] USER_ID DATETIME TOPIC PATH

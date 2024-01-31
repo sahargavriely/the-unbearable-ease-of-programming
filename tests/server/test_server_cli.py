@@ -14,11 +14,7 @@ from brain_computer_interface.message import (
 )
 from brain_computer_interface.utils import keys
 
-from tests.server.utils import (
-    get_path,
-    mock_upload_mind,
-    mock_upload_thought,
-)
+from tests.server.utils import mock_upload_mind
 
 
 def test_run_server_by_scheme(conf, user, snapshot):
@@ -30,22 +26,12 @@ def test_run_server_by_scheme(conf, user, snapshot):
     assert not published_data_file.exists()
     try:
         time.sleep(0.5)
-        args = conf, conf.USER_20, conf.TIMESTAMP_20, conf.THOUGHT_20
-        mock_upload_thought(*args)
-        args = conf, conf.USER_22, conf.TIMESTAMP_22, conf.THOUGHT_22
-        mock_upload_thought(*args)
         mock_upload_mind(conf, user, snapshot)
         time.sleep(0.1)
     finally:
         # we are doing the sig thingy instead of terminate() or kill()
         # to increase coverage
         process.send_signal(signal.SIGINT)
-    thought_path_1 = get_path(conf.SHARED_DIR, conf.USER_20,
-                              conf.TIMESTAMP_20)
-    thought_path_2 = get_path(conf.SHARED_DIR, conf.USER_22,
-                              conf.TIMESTAMP_22)
-    assert thought_path_1.read_text() == conf.THOUGHT_20
-    assert thought_path_2.read_text() == conf.THOUGHT_22
 
     assert published_data_file.exists()
     assert published_data_file.is_dir()

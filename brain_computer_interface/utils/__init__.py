@@ -12,13 +12,10 @@ from .config import (
     REQUEST_HOST,
     SERVER_PORT,
     SHARED_DIR,
-    WEBSERVER_PORT,
 )
 from .connection import Connection
-from .diver_loader import get_driver
-from .listener import Listener
+from .drivers_loader import get_driver
 from .logging_setter import setup_logging
-from .thought import Thought
 
 
 __all__ = [
@@ -28,7 +25,6 @@ __all__ = [
     'get_driver',
     'keys',
     'LISTEN_HOST',
-    'Listener',
     'log',
     'main',
     'module_main_exe',
@@ -37,6 +33,4 @@ __all__ = [
     'SERVER_PORT',
     'setup_logging',
     'SHARED_DIR',
-    'WEBSERVER_PORT',
-    'Thought',
 ]

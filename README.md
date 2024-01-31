@@ -2,12 +2,57 @@
 [![codecov](https://codecov.io/gh/sahargavriely/the-unbearable-ease-of-programming/graph/badge.svg?token=W0V7MR7T8S)](https://codecov.io/gh/sahargavriely/the-unbearable-ease-of-programming)
 [![readthedocs](https://readthedocs.org/projects/the-unbearable-ease-of-programming/badge/?version=latest)](https://the-unbearable-ease-of-programming.readthedocs.io/en/latest/?badge=latest)
 
+Credits and thanks go to [Dan Gittik](https://github.com/dan-gittik), this project is part of his amazing course, _Advanced-System-design_.
+
+# the-unbearable-ease-of-programming
+
+This whole project serves the purpose of learning and experimenting with advance system designs.
+It does not solve a concrete problem or well define at that, which reduce to platform - when you cannot well define your problem and solution you build a platform (first rule of advance system designs, the second is that we do not talk about fc).
+The platform design is meant to be modular, decoupled and robust; hence making it rather simple to modify, remove and add components.
+The platform composes of micro processes and each process has a well define role and does one task and one task only (doing this one task well, I allow myself to add).
+Let's dive to the story.
+
+## Table Of Contents
+
+1. [Architecture](/brain_computer_interface/README.md#architecture)
+2. [Installation](/brain_computer_interface/README.md#installation)
+3. [Packages](/brain_computer_interface/README.md#3-Packages)
+4. [Frameworks](/brain_computer_interface/README.md#4-frameworks)
+4.1. [MessageQueue](/brain_computer_interface/README.md#41-messagequeue)
+4.2. [DataBase](/brain_computer_interface/README.md#42-database)
+4.3. [Log](/brain_computer_interface/README.md#43-log)
+5. [Flexability and SOLIDness](/brain_computer_interface/README.md#5-flexability-and-solidness)
+5.1. [Client](/brain_computer_interface/README.md#51-client)
+5.1.1. [File Readers and Writers](/brain_computer_interface/README.md#511-file-readers-and-writers)
+5.1.2. [Mind File Formats](/brain_computer_interface/README.md#512-mind-file-formats)
+5.1.3. [Client-Server Protocol](/brain_computer_interface/README.md#513-client-server-protocol)
+5.2. [Parsers](/brain_computer_interface/README.md#52-parsers)
+5.3. [MessageQueue](/brain_computer_interface/README.md#53-messagequeue)
+5.3.1. [MessageQueue Context Configuration](/brain_computer_interface/README.md#531-messagequeue-context-configuration)
+5.3.2. [MessageQueue Driver](/brain_computer_interface/README.md#532-messagequeue-driver)
+5.3.3. [MessageQueue Messages](/brain_computer_interface/README.md#533-messagequeue-messages)
+5.4. [DataBase](/brain_computer_interface/README.md#54-database)
+5.4.1. [DataBase Driver](/brain_computer_interface/README.md#541-database-driver)
+5.5. [API](/brain_computer_interface/README.md#55-api)
+5.5.1. [API Format](/brain_computer_interface/README.md#551-api-format)
+5.5.2. [API URLs](/brain_computer_interface/README.md#552-api-urls)
+5.6. [GUI](/brain_computer_interface/README.md#56-gui)
+5.6.1. [Bar Charts](/brain_computer_interface/README.md#561-bar-charts)
+5.6.2. [Multiline Graphs](/brain_computer_interface/README.md#562-multiline-graphs)
+6. [Tests](/brain_computer_interface/README.md#6-tests)
+6.1. [Test tools](/brain_computer_interface/README.md#61-test-tools)
+6.1.1. [Test Mind File Creator](/brain_computer_interface/README.md#611-test-mind-file-creator)
+6.1.2. [Parser Messages Sniffer](/brain_computer_interface/README.md#612-parser-messages-sniffer)
+7. [Additional Information](/brain_computer_interface/README.md#7-additional-information)
+7.1. [Scripts](/brain_computer_interface/README.md#71-scripts)
+7.2. [Docker](/brain_computer_interface/README.md#72-docker)
+7.2.1. [Docker startup](/brain_computer_interface/README.md#721-docker-startup)
+7.2.2. [How to add new micro-service](/brain_computer_interface/README.md#722-how-to-add-new-micro-service)
+
 # brain-computer-interface
 
-A brain-computer-interface (BCI), a direct communication pathway between the brain's electrical activity and an external device, most commonly a computer or robotic limb.
-The following package allows to run two servers, a server which receives __thoughts__ and a webserver to make those accessible.
-The package also supplies a client to upload a __thoughts__.
-
+A brain-computer-interface (BCI), a direct communication pathway between the brain's electrical activity and an external device, most commonly a computer or robotic limb; that's what this project is trying to. I know, crazy, but Elon will surly relate.
+We assume, or hope, that one day we will have a hardware that connect to our brain. This project is the software layer on top of that supposed hardware.
 
 For further information take a look at [full documentation](https://the-unbearable-ease-of-programming.readthedocs.io/en/latest/).
 
@@ -39,110 +84,10 @@ For further information take a look at [full documentation](https://the-unbearab
     ```
 
 
-## Usage
+## Packages
 
 The package expose several sub-packages which can be run separately on a different machines.
 The sub-packages are:
 
 * [`client`](/brain_computer_interface/client/README.md) - uploads mind and thoughts to the server.
 * [`server`](/brain_computer_interface/server/README.md) - receives mind and thoughts from clients.
-
-The `brain_computer_interface` packages provides the following functions:
-
-- `run_webserver`
-
-    This function starts the webserver which makes the users' thoughts accessible.
-    You may provide an address (host and port) which the webserver listens to (defaults are set to ``'0.0.0.0'`` and ``8000``, respectfully) a directory in which the server will save the thoughts to (default is set to ``data/``). 
-
-    ```pycon
-    >>> from brain_computer_interface import run_webserver
-    >>> from pathlib import Path
-    >>> run_webserver(host='0.0.0.0', port=8000, data_dir=Path('data/'))
-    * Serving Flask app "brain_computer_interface.webserver.webserver" (lazy loading)
-    * Environment: production
-      WARNING: This is a development server. Do not use it in a production deployment.
-      Use a production WSGI server instead.
-    * Debug mode: on
-    * Running on http://127.0.0.1:8000/ (Press CTRL+C to quit)
-
-    ```
-
-
-## Command Line Interface
-
-The `brain_computer_interface` package also provides a command-line interface.
-```sh
-    $ python -m brain_computer_interface [OPTIONS] COMMAND [ARGS]
-```
-
-The top-level options include:
-
-- ``-q``, ``--quiet``
-
-    This option suppresses the output.
-
-- ``-t``, ``--traceback``
-
-    This option shows the full traceback when an exception is raised (by
-    default, only the error message is printed, and the program exits with a
-    non-zero code).
-
-To see the version, do the following:
-
-```sh
-$ python -m brain_computer_interface --version
-brain_computer_interface, version 0.1.0
-```
-
-- `run-webserver`
-
-    Runs the webserver which makes the users' thoughts accessible.
-
-    ```sh
-    $ python -m brain_computer_interface run-webserver [OPTIONS]
-    ```
-    Options:
-    - ``-h``, ``--host`` TEXT      [default: 0.0.0.0]
-    - ``-p``, ``--port`` INTEGER   [default: 8000]
-    - ``-d``, ``--data_dir`` PATH  [default: data]
-    - ``-D``, ``--debug``
-    - ``--help``                   Show similar message and exit.
-
-Commands:
-
-- `error`
-
-    Raises an exception and prints it to the screen.
-
-    ```sh
-    $ python -m brain_computer_interface error [OPTIONS]
-    ```
-
-    Options:
-    - ``--help``                  Show similar message and exit.
-
-All commands accept the `-q` or `--quiet` flag to suppress output, and the `-t`
-or `--traceback` flag to show the full traceback when an exception is raised
-(by default, only the error message is printed, and the program exits with a
-non-zero code).
-
-To showcase these options, consider `error` command, which raises an exception:
-
-```sh
-$ python -m brain_computer_interface error
-ERROR: something went terribly wrong :[
-$ python -m brain_computer_interface -q error  # suppress output
-$ python -m brain_computer_interface -t error  # show full traceback
-ERROR: something went terribly wrong :[
-Traceback (most recent call last):
-    ...
-RuntimeError: something went terrible wrong :[
-```
-
-Do note that each command's options should be passed to *that* command, for example the `-q` and `-t` options should be passed to `brain_computer_interface`, not `run_server`, `run-webserver` or `upload-thought`.
-
-```sh
-$ python -m brain_computer_interface run-server -q  # this doesn't work
-ERROR: no such option: -q
-$ python -m brain_computer_interface -q run-server  # this does work
-```

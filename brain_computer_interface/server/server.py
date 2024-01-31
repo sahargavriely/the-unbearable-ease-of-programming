@@ -2,30 +2,25 @@ import contextlib
 import datetime as dt
 from pathlib import Path
 import socket
-import struct
 import threading
 import typing
 
+from .listener import Listener
 from ..distributer import Distributer
 from ..message import (
     Config,
     CONFIG_OPTIONS,
     Snapshot,
-    Types,
-    TYPE_FORMAT,
-    TYPE_FORMAT_SIZE,
     User,
 )
 from ..utils import (
     Connection,
     keys,
-    Listener,
     LISTEN_HOST,
     DISTRIBUTE_SCHEME,
     SERVER_PORT,
     setup_logging,
     SHARED_DIR,
-    Thought,
 )
 
 
@@ -65,11 +60,7 @@ def run_server(publish_method: typing.Callable,
 def _handle_connection(lock: threading.Lock, connection: Connection,
                        publish_method: typing.Callable, shared_dir: Path):
     with connection:
-        protocol_type = _receive_type(connection)
-        if protocol_type == Types.MIND.value:
-            _recive_mind(lock, connection, publish_method, shared_dir)
-        elif protocol_type == Types.THOUGHT.value:
-            _recive_thought(connection, lock, shared_dir)
+        _recive_mind(lock, connection, publish_method, shared_dir)
 
 
 def _recive_mind(lock: threading.Lock, connection: Connection,
@@ -94,30 +85,3 @@ def _recive_mind(lock: threading.Lock, connection: Connection,
             keys.user: user,
             keys.snapshot: json_snapshot
         })
-
-
-def _recive_thought(connection: Connection, lock, data_dir: Path):
-    headers = connection.receive(Thought.header_size)
-    _, _, size = struct.unpack(Thought.header_format, headers)
-    data = connection.receive(size)
-    thought = Thought.deserialize(headers + data)
-    with lock:
-        _handle_thought(data_dir, thought)
-
-
-def _handle_thought(data_dir: Path, thought: Thought):
-    timestamp = thought.file_formatted_timestamp
-    user_dir = data_dir / str(thought.user_id)
-    user_dir.mkdir(parents=True, exist_ok=True)
-    file_path = user_dir / f'{timestamp}.txt'
-    to_write = thought.thought
-    if file_path.exists():
-        to_write = f'\n{thought.thought}'
-    with file_path.open('a') as file:
-        file.write(to_write)
-
-
-def _receive_type(connection: Connection):
-    protocol_type = connection.receive(TYPE_FORMAT_SIZE)
-    protocol_type, = struct.unpack(TYPE_FORMAT, protocol_type)
-    return protocol_type

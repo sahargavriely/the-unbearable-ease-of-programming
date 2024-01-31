@@ -85,4 +85,4 @@ def _get_command(conf, *args):
     try:
         return ast.literal_eval(ret)
     except ValueError:
-        pass
+        return dict()
