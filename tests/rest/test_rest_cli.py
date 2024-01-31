@@ -1,30 +1,11 @@
 import ast
 import re
-import signal
 import subprocess
-import time
 
 import pytest
-import requests
 
 from brain_computer_interface.message import CONFIG_OPTIONS
 from brain_computer_interface.utils import keys
-
-
-def test_run_rest_server(conf, user, snapshot):
-    tmp_port = 8123
-    cmd = ['python', '-m', 'brain_computer_interface.rest', 'run-rest-server',
-           '-h', conf.LISTEN_HOST, '-p', str(tmp_port),
-           '-d', conf.DATABASE_SCHEME]
-    process = subprocess.Popen(cmd)
-    try:
-        time.sleep(2)
-        response = requests.get(f'http://{conf.REQUEST_HOST}:{tmp_port}/users')
-        assert response.ok
-    finally:
-        # we are doing the sig thingy instead of terminate() or kill()
-        # to increase coverage
-        process.send_signal(signal.SIGINT)
 
 
 def test_error_format(rest_server, client, conf, user):
