@@ -5,40 +5,8 @@ The message encapsulating the concept of mind as a data and defines how the on g
 
 We start by describing the general features of every class that is part of our message; and continuing by describing the classes.
 
-Methods:
---------
-
-.. _target to jsonify:
-
-.. method:: jsonify(self, path=None) -> dict
-
-    Takes all the data in the class and returns it as a dictionary.
-    The path argument is for saving un-jsonify properties to the given path directory.
-    If path is `None` return a dict that doesn't necessarily qualifies as json.
-
-.. _target to serialize:
-
-.. method:: serialize(self) -> bytes
-
-    Return the serialized form of the instance.
-
-Classmethods:
--------------
-
-.. _target to from_json:
-
-.. classmethod:: from_json(cls, json_obj: dict)
-
-    Receives a dictionary like :ref:`jsonify <target to jsonify>` returns and return an instance of the class.
-
-.. _target to from_bytes:
-
-.. classmethod:: from_bytes(cls, bytes: bytes)
-
-    Receives a bytes like :ref:`serialize <target to serialize>` returns and return an instance of the class.
-
-Classes:
---------
+Classes
+-------
 
 All can be imported from ``brain-computer-interface.message``
 
@@ -113,3 +81,35 @@ All can be imported from ``brain-computer-interface.message``
     `birthday` the user birthday since epoch,
     `gender` the user gender *0* for male, *1* for female and *2* for other
     Note :ref:`jsonify <target to jsonify>`, :ref:`serialize <target to serialize>`, :ref:`from_json <target to from_json>` and :ref:`from_bytes <target to from_bytes>`
+
+Methods
+-------
+
+.. _target to jsonify:
+
+.. method:: jsonify(self, path=None) -> dict
+
+    Takes all the data in the class and returns it as a dictionary.
+    The path argument is for saving un-jsonify properties to the given path directory.
+    If path is `None` return a dict that doesn't necessarily qualifies as json.
+
+.. _target to serialize:
+
+.. method:: serialize(self) -> bytes
+
+    Return the serialized form of the instance.
+
+Classmethods
+------------
+
+.. _target to from_json:
+
+.. classmethod:: from_json(cls, json_obj: dict)
+
+    Receives a dictionary like :ref:`jsonify <target to jsonify>` returns and return an instance of the class.
+
+.. _target to from_bytes:
+
+.. classmethod:: from_bytes(cls, bytes: bytes)
+
+    Receives a bytes like :ref:`serialize <target to serialize>` returns and return an instance of the class.

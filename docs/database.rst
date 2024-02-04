@@ -5,8 +5,8 @@ The database package responsible for distributing data in between the inner syst
 
 And exposes the Database class.
 
-Database:
----------
+Database
+--------
 
 .. _target to database:
 
