@@ -84,5 +84,5 @@ def _get_command(conf, *args):
     ret = pro.stdout.decode().strip()
     try:
         return ast.literal_eval(ret)
-    except ValueError:
+    except (ValueError, SyntaxError):
         return dict()
