@@ -1,0 +1,45 @@
+x-common-volumes: &common-volumes
+  type: bind
+  source: ./shared
+  target: /shared
+
+x-common-variables: &common-variables
+  POSTGRES_HOST: "db"  # should be the same as the name of the service
+  POSTGRES_USER: "postgres"
+  POSTGRES_PASSWORD: "password"
+
+x-common-service: &common-service
+  build:
+    context: .
+    dockerfile: Dockerfile.base
+  environment:
+    <<: *common-variables
+  volumes: 
+    - <<: *common-volumes
+
+services:
+  rest-server:
+    <<: *common-service
+      # - ./logs:/logs
+    command: python -m brain_computer_interface.rest run-rest-server -d postgresql://postgres:password@db:5432/mind
+    # command: python -m brain_computer_interface.rest run-rest-server -d postgresql://$${POSTGRES_USER}:$${POSTGRES_PASSWORD}@$${POSTGRES_HOST}:5432/mind
+    ports:
+      - 8000:8000
+    depends_on:
+      db:
+        condition: service_healthy
+  db:
+    image: postgres
+    restart: always
+    user: postgres
+    environment: 
+      <<: *common-variables
+    volumes:
+      - <<: *common-volumes
+    ports:
+      - 5432:5432
+    healthcheck:
+      test: ["CMD", "pg_isready"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
