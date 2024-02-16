@@ -37,7 +37,7 @@ For further information take a look at [full documentation](https://the-unbearab
       ```sh
       $ ./scripts/install.sh
       ...
-      $ source .env/bin/activate
+      $ source venv/bin/activate
       [brain-computer-interface] $  # you're good to go!
       ```
 
