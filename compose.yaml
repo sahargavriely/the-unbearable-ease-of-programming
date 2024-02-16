@@ -3,39 +3,32 @@ x-common-volumes: &common-volumes
   source: ./shared
   target: /shared
 
-x-common-variables: &common-variables
-  POSTGRES_HOST: "db"  # should be the same as the name of the service
-  POSTGRES_USER: "postgres"
-  POSTGRES_PASSWORD: "password"
-
-x-common-service: &common-service
+x-common-internal-service: &common-internal-service
   build:
     context: .
     dockerfile: Dockerfile.base
-  environment:
-    <<: *common-variables
-  volumes: 
+  volumes:
+    - <<: *common-volumes
+
+x-common-external-service: &common-external-service
+  env_file:
+    - .env
+  volumes:
     - <<: *common-volumes
 
 services:
   rest-server:
-    <<: *common-service
-      # - ./logs:/logs
-    command: python -m brain_computer_interface.rest run-rest-server -d postgresql://postgres:password@db:5432/mind
-    # command: python -m brain_computer_interface.rest run-rest-server -d postgresql://$${POSTGRES_USER}:$${POSTGRES_PASSWORD}@$${POSTGRES_HOST}:5432/mind
+    <<: *common-internal-service
+    command: python -m brain_computer_interface.rest run-rest-server -d postgresql://${POSTGRES_USER?err}:${POSTGRES_PASSWORD?err}@${POSTGRES_HOST?err}:5432/mind
     ports:
       - 8000:8000
     depends_on:
       db:
         condition: service_healthy
   db:
+    <<: *common-external-service
     image: postgres
     restart: always
-    user: postgres
-    environment: 
-      <<: *common-variables
-    volumes:
-      - <<: *common-volumes
     ports:
       - 5432:5432
     healthcheck:
