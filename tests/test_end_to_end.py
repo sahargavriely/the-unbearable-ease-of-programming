@@ -12,7 +12,7 @@ from brain_computer_interface.utils import keys
 
 
 def test_end_to_end_finale_form(postgres, rabbitmq, protobuf_mind_file,
-                                conf, tmp_path, user, snapshot, parsed_data):
+                                conf, user, snapshot, parsed_data):
     processes = list()
     db_scheme = conf.POSTGRES_SCHEME
     distribute_scheme = conf.RABBITMQ_SCHEME
@@ -26,7 +26,7 @@ def test_end_to_end_finale_form(postgres, rabbitmq, protobuf_mind_file,
         # parsers
         for topic in CONFIG_OPTIONS:
             cmd = ['python', '-m', 'brain_computer_interface.parser',
-                   'run-parser', topic, '-s', str(tmp_path),
+                   'run-parser', topic, '-s', str(conf.SHARED_DIR),
                    '-d', distribute_scheme]
             processes.append(subprocess.Popen(cmd))
         time.sleep(5)

@@ -103,9 +103,9 @@ def server_data(user: User, snapshot: Snapshot, tmp_path):
 
 
 @pytest.fixture
-def parsed_data(user: User, snapshot: Snapshot, tmp_path):
+def parsed_data(user: User, snapshot: Snapshot, conf):
     datetime = dt.datetime.fromtimestamp(snapshot.datetime / 1000)
-    imgs_dir = tmp_path / str(user.id) / f'{datetime:%F_%H-%M-%S-%f}'
+    imgs_dir = conf.SHARED_DIR / str(user.id) / f'{datetime:%F_%H-%M-%S-%f}'
     imgs_dir.mkdir(parents=True, exist_ok=True)
     usr = user.jsonify()
     snap = snapshot.jsonify(imgs_dir)
