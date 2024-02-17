@@ -81,7 +81,7 @@ def test_run_pipeline(protobuf_mind_file, user, snapshot, parsed_data, conf):
             test_content = [line.replace(
                             'shared', f'/{"../" * 9}{str(conf.SHARED_DIR)}')
                             for line in original_content]
-        with open('.env', 'r') as file:
+        with open('.env', 'w') as file:
             file.write(''.join(test_content))
         subprocess.call(['./scripts/run_pipeline.sh'], timeout=180)
         d_conf = Dictionary({
@@ -111,7 +111,7 @@ def test_run_pipeline(protobuf_mind_file, user, snapshot, parsed_data, conf):
         _get_command(d_conf, 'user-snapshot-topic-data', user.id, dt,
                      keys.depth_image)
     finally:
-        with open('.env', 'r') as file:
+        with open('.env', 'w') as file:
             file.write(''.join(original_content))
         subprocess.call(['docker', 'compose', 'down'], timeout=120)
 
