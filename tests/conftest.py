@@ -57,15 +57,12 @@ def patch_conf(tmp_path_factory):
         'REQUEST_HOST': '127.0.0.1',
         'SERVER_PORT': 5356,
         'SHARED_DIR': tmp_path,
-        'WEBSERVER_PORT': 8356,
     })
 
 
 @pytest.fixture(scope='session')
 def conf(patch_conf, other_conf):
     other_conf.update(patch_conf)
-    other_conf.WEBSERVER_URL = \
-        f'http://{other_conf.REQUEST_HOST}:{other_conf.WEBSERVER_PORT}'
     return other_conf
 
 

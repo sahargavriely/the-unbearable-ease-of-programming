@@ -10,6 +10,8 @@ from brain_computer_interface.message import CONFIG_OPTIONS
 from brain_computer_interface.client import upload_mind
 from brain_computer_interface.utils import keys
 
+from tests.utils import Dictionary
+
 
 def test_end_to_end_finale_form(postgres, rabbitmq, protobuf_mind_file,
                                 conf, user, snapshot, parsed_data):
@@ -70,6 +72,38 @@ def test_end_to_end_finale_form(postgres, rabbitmq, protobuf_mind_file,
                 process.send_signal(signal.SIGINT)
                 process.wait(1)
         time.sleep(2)
+
+
+def test_run_pipeline(protobuf_mind_file, user, snapshot, parsed_data):
+    try:
+        subprocess.call(['./scripts/run_pipeline.sh'], timeout=180)
+        conf = Dictionary({
+            'REST_SERVER_PORT': 8000,
+            'REQUEST_HOST': '127.0.0.1',
+            'SERVER_PORT': 5000,
+        })
+        # client
+        upload_mind(str(protobuf_mind_file), conf.REQUEST_HOST,
+                    conf.SERVER_PORT)
+        time.sleep(20)
+        assert _get_command(conf, 'user', user.id) == user.jsonify()
+        dt = snapshot.datetime
+        expected_snap = dict(datetime=dt)
+        for topic in CONFIG_OPTIONS:
+            expected_snap[topic] = parsed_data[topic][keys.data]
+        saved_snap = _get_command(conf, 'user-snapshot', user.id, dt)
+        for key, value in expected_snap.items():
+            if isinstance(value, dict):
+                for k, v in value.items():
+                    assert v == pytest.approx(saved_snap[key][k])
+            else:
+                assert value == pytest.approx(saved_snap[key])
+        _get_command(conf, 'user-snapshot-topic-data', user.id, dt,
+                     keys.color_image)
+        _get_command(conf, 'user-snapshot-topic-data', user.id, dt,
+                     keys.depth_image)
+    finally:
+        subprocess.call(['docker', 'compose', 'down'], timeout=120)
 
 
 ###############################################################################
