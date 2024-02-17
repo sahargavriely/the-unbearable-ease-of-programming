@@ -17,15 +17,7 @@ x-common-external-service: &common-external-service
     - <<: *common-volumes
 
 services:
-  rest-server:
-    <<: *common-internal-service
-    command: python -m brain_computer_interface.rest run-rest-server -d postgresql://${POSTGRES_USER?err}:${POSTGRES_PASSWORD?err}@${POSTGRES_HOST?err}:5432/mind
-    ports:
-      - 8000:8000
-    depends_on:
-      db:
-        condition: service_healthy
-  db:
+  postgres:
     <<: *common-external-service
     image: postgres
     restart: always
@@ -36,3 +28,93 @@ services:
       interval: 10s
       timeout: 5s
       retries: 3
+      start_period: 30s
+  rest-server:
+    <<: *common-internal-service
+    command: python -m brain_computer_interface.rest run-rest-server -p ${REST_SERVER_PORT?err} -d ${POSTGRES_SCHEME?err}
+    ports:
+      - ${REST_SERVER_PORT?err}:${REST_SERVER_PORT?err}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:${REST_SERVER_PORT?err}/users"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+  rabbitmq:
+    <<: *common-external-service
+    image: rabbitmq:3
+    ports:
+      - 5672:5672
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+  saver:
+    <<: *common-internal-service
+    command: python -m brain_computer_interface.saver run-saver -d ${POSTGRES_SCHEME?err} -ds ${RABBITMQ_SCHEME?err}
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+  color_image-parser:
+    <<: *common-internal-service
+    command: python -m brain_computer_interface.parser run-parser color_image -d ${RABBITMQ_SCHEME?err}
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      saver:
+        condition: service_started
+  depth_image-parser:
+    <<: *common-internal-service
+    command: python -m brain_computer_interface.parser run-parser depth_image -d ${RABBITMQ_SCHEME?err}
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      saver:
+        condition: service_started
+  feelings-parser:
+    <<: *common-internal-service
+    command: python -m brain_computer_interface.parser run-parser feelings -d ${RABBITMQ_SCHEME?err}
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      saver:
+        condition: service_started
+  pose-parser:
+    <<: *common-internal-service
+    command: python -m brain_computer_interface.parser run-parser pose -d ${RABBITMQ_SCHEME?err}
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      saver:
+        condition: service_started
+  server:
+    <<: *common-internal-service
+    command: python -m brain_computer_interface.server run-server -p ${SERVER_PORT?err} -d ${RABBITMQ_SCHEME?err}
+    ports:
+      - ${SERVER_PORT?err}:${SERVER_PORT?err}
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      saver:
+        condition: service_started
+      color_image-parser:
+        condition: service_started
+      depth_image-parser:
+        condition: service_started
+      feelings-parser:
+        condition: service_started
+      pose-parser:
+        condition: service_started
+    healthcheck:
+      test: ["CMD", "nc", "-zv", "127.0.0.1", "${SERVER_PORT?err}"]
+      interval: 5s
+      timeout: 3s
+      retries: 3
+      start_period: 30s
