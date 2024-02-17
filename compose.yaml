@@ -1,7 +1,7 @@
 x-common-volumes: &common-volumes
   type: bind
-  source: ./shared
-  target: /shared
+  source: ./${SHARED_DIR_NAME?err}
+  target: /${SHARED_DIR_NAME?err}
 
 x-common-internal-service: &common-internal-service
   build:
@@ -64,7 +64,7 @@ services:
         condition: service_healthy
   color_image-parser:
     <<: *common-internal-service
-    command: python -m brain_computer_interface.parser run-parser color_image -d ${RABBITMQ_SCHEME?err}
+    command: python -m brain_computer_interface.parser run-parser color_image -d ${RABBITMQ_SCHEME?err} -s /${SHARED_DIR_NAME?err}
     depends_on:
       rabbitmq:
         condition: service_healthy
@@ -72,7 +72,7 @@ services:
         condition: service_started
   depth_image-parser:
     <<: *common-internal-service
-    command: python -m brain_computer_interface.parser run-parser depth_image -d ${RABBITMQ_SCHEME?err}
+    command: python -m brain_computer_interface.parser run-parser depth_image -d ${RABBITMQ_SCHEME?err} -s /${SHARED_DIR_NAME?err}
     depends_on:
       rabbitmq:
         condition: service_healthy
@@ -80,7 +80,7 @@ services:
         condition: service_started
   feelings-parser:
     <<: *common-internal-service
-    command: python -m brain_computer_interface.parser run-parser feelings -d ${RABBITMQ_SCHEME?err}
+    command: python -m brain_computer_interface.parser run-parser feelings -d ${RABBITMQ_SCHEME?err} -s /${SHARED_DIR_NAME?err}
     depends_on:
       rabbitmq:
         condition: service_healthy
@@ -88,7 +88,7 @@ services:
         condition: service_started
   pose-parser:
     <<: *common-internal-service
-    command: python -m brain_computer_interface.parser run-parser pose -d ${RABBITMQ_SCHEME?err}
+    command: python -m brain_computer_interface.parser run-parser pose -d ${RABBITMQ_SCHEME?err} -s /${SHARED_DIR_NAME?err}
     depends_on:
       rabbitmq:
         condition: service_healthy
@@ -96,7 +96,7 @@ services:
         condition: service_started
   server:
     <<: *common-internal-service
-    command: python -m brain_computer_interface.server run-server -p ${SERVER_PORT?err} -d ${RABBITMQ_SCHEME?err}
+    command: python -m brain_computer_interface.server run-server -p ${SERVER_PORT?err} -d ${RABBITMQ_SCHEME?err} -s /${SHARED_DIR_NAME?err}
     ports:
       - ${SERVER_PORT?err}:${SERVER_PORT?err}
     depends_on:
