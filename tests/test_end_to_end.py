@@ -103,7 +103,11 @@ def test_run_pipeline(protobuf_mind_file, user, snapshot, parsed_data, conf):
         for key, value in expected_snap.items():
             if isinstance(value, dict):
                 for k, v in value.items():
-                    assert v == pytest.approx(saved_snap[key][k])
+                    if keys.data == k:
+                        assert v == saved_snap[key][k] \
+                            .replace('shared', str(conf.SHARED_DIR))
+                    else:
+                        assert v == pytest.approx(saved_snap[key][k])
             else:
                 assert value == pytest.approx(saved_snap[key])
         _get_command(d_conf, 'user-snapshot-topic-data', user.id, dt,
