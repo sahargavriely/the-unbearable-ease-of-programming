@@ -1,6 +1,13 @@
+volumes:
+  shared-dir:
+    driver: local
+    driver_opts:
+      o: bind
+      device: ./${SHARED_DIR_NAME?err}
+
 x-common-volumes: &common-volumes
   type: bind
-  source: ./${SHARED_DIR_NAME?err}
+  source: shared-dir
   target: /${SHARED_DIR_NAME?err}
 
 x-common-internal-service: &common-internal-service
