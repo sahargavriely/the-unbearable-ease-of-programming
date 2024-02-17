@@ -1,27 +1,27 @@
 volumes:
-  shared-dir:
-    driver: local
-    driver_opts:
-      o: bind
-      device: ./${SHARED_DIR_NAME?err}
+  shared-dirr89:
 
-x-common-volumes: &common-volumes
-  type: bind
-  source: shared-dir
-  target: /shared
+# if we want my volume to be mapped also outside of the docker
+# x-common-volumes: &common-volumes
+#   type: bind
+#   source: ./source
+#   target: ${SHARED_PATH?err}
+# and this goes for every container that I want to be also mepped outside
+#   volumes:
+#     - <<: *common-volumes
 
 x-common-internal-service: &common-internal-service
   build:
     context: .
     dockerfile: Dockerfile.base
   volumes:
-    - <<: *common-volumes
+    - shared-dirr89:${SHARED_PATH?err}
+    - /etc/timezone:/etc/timezone:ro
+    - /etc/localtime:/etc/localtime:ro
 
 x-common-external-service: &common-external-service
   env_file:
     - .env
-  volumes:
-    - <<: *common-volumes
 
 services:
   postgres:
@@ -71,7 +71,7 @@ services:
         condition: service_healthy
   color_image-parser:
     <<: *common-internal-service
-    command: python -m brain_computer_interface.parser run-parser color_image -d ${RABBITMQ_SCHEME?err}  # -s /${SHARED_DIR_NAME?err}
+    command: python -m brain_computer_interface.parser run-parser color_image -d ${RABBITMQ_SCHEME?err} -s ${SHARED_PATH?err}
     depends_on:
       rabbitmq:
         condition: service_healthy
@@ -79,7 +79,7 @@ services:
         condition: service_started
   depth_image-parser:
     <<: *common-internal-service
-    command: python -m brain_computer_interface.parser run-parser depth_image -d ${RABBITMQ_SCHEME?err}  # -s /${SHARED_DIR_NAME?err}
+    command: python -m brain_computer_interface.parser run-parser depth_image -d ${RABBITMQ_SCHEME?err} -s ${SHARED_PATH?err}
     depends_on:
       rabbitmq:
         condition: service_healthy
@@ -87,7 +87,7 @@ services:
         condition: service_started
   feelings-parser:
     <<: *common-internal-service
-    command: python -m brain_computer_interface.parser run-parser feelings -d ${RABBITMQ_SCHEME?err}  # -s /${SHARED_DIR_NAME?err}
+    command: python -m brain_computer_interface.parser run-parser feelings -d ${RABBITMQ_SCHEME?err} -s ${SHARED_PATH?err}
     depends_on:
       rabbitmq:
         condition: service_healthy
@@ -95,7 +95,7 @@ services:
         condition: service_started
   pose-parser:
     <<: *common-internal-service
-    command: python -m brain_computer_interface.parser run-parser pose -d ${RABBITMQ_SCHEME?err}  # -s /${SHARED_DIR_NAME?err}
+    command: python -m brain_computer_interface.parser run-parser pose -d ${RABBITMQ_SCHEME?err} -s ${SHARED_PATH?err}
     depends_on:
       rabbitmq:
         condition: service_healthy
@@ -103,7 +103,7 @@ services:
         condition: service_started
   server:
     <<: *common-internal-service
-    command: python -m brain_computer_interface.server run-server -p ${SERVER_PORT?err} -d ${RABBITMQ_SCHEME?err}  # -s /${SHARED_DIR_NAME?err}
+    command: python -m brain_computer_interface.server run-server -p ${SERVER_PORT?err} -d ${RABBITMQ_SCHEME?err} -s ${SHARED_PATH?err}
     ports:
       - ${SERVER_PORT?err}:${SERVER_PORT?err}
     depends_on:

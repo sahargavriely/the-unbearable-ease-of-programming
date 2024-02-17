@@ -42,28 +42,8 @@ def test_end_to_end_finale_form(postgres, rabbitmq, protobuf_mind_file,
         cmd = ['python', '-m', 'brain_computer_interface.saver', 'run-saver',
                '-d', db_scheme, '-ds', distribute_scheme]
         processes.append(subprocess.Popen(cmd))
-        time.sleep(20)
-        # client
-        upload_mind(str(protobuf_mind_file), conf.REQUEST_HOST,
-                    conf.SERVER_PORT)
-        time.sleep(20)
-        # test
-        assert _get_command(conf, 'user', user.id) == user.jsonify()
-        dt = snapshot.datetime
-        expected_snap = dict(datetime=dt)
-        for topic in CONFIG_OPTIONS:
-            expected_snap[topic] = parsed_data[topic][keys.data]
-        saved_snap = _get_command(conf, 'user-snapshot', user.id, dt)
-        for key, value in expected_snap.items():
-            if isinstance(value, dict):
-                for k, v in value.items():
-                    assert v == pytest.approx(saved_snap[key][k])
-            else:
-                assert value == pytest.approx(saved_snap[key])
-        _get_command(conf, 'user-snapshot-topic-data', user.id, dt,
-                     keys.color_image)
-        _get_command(conf, 'user-snapshot-topic-data', user.id, dt,
-                     keys.depth_image)
+
+        _test_full_setup(protobuf_mind_file, conf, parsed_data, user, snapshot)
     finally:
         for process in processes:
             with contextlib.suppress(Exception):
@@ -78,42 +58,18 @@ def test_run_pipeline(protobuf_mind_file, user, snapshot, parsed_data, conf):
     try:
         with open('.env', 'r') as file:
             original_content = file.readlines()
-            test_content = [line.replace(
-                            'shared', f'/{"../" * 9}{str(conf.SHARED_DIR)}')
+            test_content = [line.replace('/shared', str(conf.SHARED_DIR))
                             for line in original_content]
         with open('.env', 'w') as file:
             file.write(''.join(test_content))
         subprocess.call(['./scripts/run_pipeline.sh'], timeout=180)
-        d_conf = Dictionary({
+        d_co = Dictionary({
             'REST_SERVER_PORT': 8000,
             'REQUEST_HOST': '127.0.0.1',
             'SERVER_PORT': 5000,
         })
-        time.sleep(20)
-        # client
-        upload_mind(str(protobuf_mind_file), d_conf.REQUEST_HOST,
-                    d_conf.SERVER_PORT)
-        time.sleep(20)
-        assert _get_command(d_conf, 'user', user.id) == user.jsonify()
-        dt = snapshot.datetime
-        expected_snap = dict(datetime=dt)
-        for topic in CONFIG_OPTIONS:
-            expected_snap[topic] = parsed_data[topic][keys.data]
-        saved_snap = _get_command(d_conf, 'user-snapshot', user.id, dt)
-        for key, value in expected_snap.items():
-            if isinstance(value, dict):
-                for k, v in value.items():
-                    if keys.data == k:
-                        assert v == saved_snap[key][k] \
-                            .replace('shared', str(conf.SHARED_DIR))
-                    else:
-                        assert v == pytest.approx(saved_snap[key][k])
-            else:
-                assert value == pytest.approx(saved_snap[key])
-        _get_command(d_conf, 'user-snapshot-topic-data', user.id, dt,
-                     keys.color_image)
-        _get_command(d_conf, 'user-snapshot-topic-data', user.id, dt,
-                     keys.depth_image)
+
+        _test_full_setup(protobuf_mind_file, d_co, parsed_data, user, snapshot)
     finally:
         with open('.env', 'w') as file:
             file.write(''.join(original_content))
@@ -122,6 +78,29 @@ def test_run_pipeline(protobuf_mind_file, user, snapshot, parsed_data, conf):
 
 ###############################################################################
 # UTILS
+
+
+def _test_full_setup(protobuf_mind_file, conf, parsed_data, user, snapshot):
+    time.sleep(20)
+    # client
+    upload_mind(str(protobuf_mind_file), conf.REQUEST_HOST, conf.SERVER_PORT)
+    time.sleep(20)
+    assert _get_command(conf, 'user', user.id) == user.jsonify()
+    dt = snapshot.datetime
+    expected_snap = dict(datetime=dt)
+    for topic in CONFIG_OPTIONS:
+        expected_snap[topic] = parsed_data[topic][keys.data]
+    saved_snap = _get_command(conf, 'user-snapshot', user.id, dt)
+    for key, value in expected_snap.items():
+        if isinstance(value, dict):
+            for k, v in value.items():
+                assert v == pytest.approx(saved_snap[key][k])
+        else:
+            assert value == pytest.approx(saved_snap[key])
+    _get_command(conf, 'user-snapshot-topic-data', user.id, dt,
+                 keys.color_image)
+    _get_command(conf, 'user-snapshot-topic-data', user.id, dt,
+                 keys.depth_image)
 
 
 def _get_command(conf, *args):
