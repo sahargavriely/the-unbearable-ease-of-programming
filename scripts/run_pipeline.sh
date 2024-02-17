@@ -1,3 +1,6 @@
+#!/bin/bash
+
+
 docker-compose up -d --build
 # To enter shell in a container `docker exec -it <container-name> sh`
 # To stop this image you must use `docker-compose down` or `docker-compose down --rmi all` ro remove the image as well.
