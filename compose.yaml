@@ -1,6 +1,9 @@
 volumes:
   shared-dirr89:
 
+networks:
+  brain-computer-interface-net:
+
 # if we want my volume to be mapped also outside of the docker
 # x-common-volumes: &common-volumes
 #   type: bind
@@ -18,10 +21,14 @@ x-common-internal-service: &common-internal-service
     - shared-dirr89:${SHARED_PATH?err}
     - /etc/timezone:/etc/timezone:ro
     - /etc/localtime:/etc/localtime:ro
+  networks:
+    - brain-computer-interface-net
 
 x-common-external-service: &common-external-service
   env_file:
     - .env
+  networks:
+    - brain-computer-interface-net
 
 services:
   postgres:

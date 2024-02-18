@@ -138,7 +138,7 @@ def postgres(conf):
                      f'{url.port}:5432', '--hostname', 'my-test-postgres',
                      f'--env=POSRGRES_USER={url.username}',
                      f'--env=POSTGRES_PASSWORD={url.password}',
-                     '--name', name, 'postgres'], timeout=15)
+                     '--name', name, 'postgres'], timeout=60)
     time.sleep(4)
     yield
     subprocess.call(['docker', 'stop', name], timeout=30)
@@ -155,7 +155,7 @@ def rabbitmq(conf):
     name = 'test-rabbit'
     subprocess.call(['docker', 'run', '--detach', '--publish',
                      f'{url.port}:5672', '--hostname', 'my-test-rabbit',
-                     '--name', name, 'rabbitmq'], timeout=5)
+                     '--name', name, 'rabbitmq'], timeout=60)
     time.sleep(6)
     yield
     subprocess.call(['docker', 'stop', name], timeout=30)

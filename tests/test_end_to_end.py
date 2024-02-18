@@ -42,7 +42,6 @@ def test_end_to_end_finale_form(postgres, rabbitmq, protobuf_mind_file,
         cmd = ['python', '-m', 'brain_computer_interface.saver', 'run-saver',
                '-d', db_scheme, '-ds', distribute_scheme]
         processes.append(subprocess.Popen(cmd))
-
         _test_full_setup(protobuf_mind_file, conf, parsed_data, user, snapshot)
     finally:
         for process in processes:
@@ -68,7 +67,6 @@ def test_run_pipeline(protobuf_mind_file, user, snapshot, parsed_data, conf):
             'REQUEST_HOST': '127.0.0.1',
             'SERVER_PORT': 5000,
         })
-
         _test_full_setup(protobuf_mind_file, d_co, parsed_data, user, snapshot)
     finally:
         with open('.env', 'w') as file:
