@@ -3,9 +3,9 @@ import gzip
 from pathlib import Path
 import shutil
 from struct import pack
-import subprocess
 import time
 
+import docker
 import furl
 import pytest
 
@@ -134,15 +134,17 @@ def database(conf):
 def postgres(conf):
     url = furl.furl(conf.POSTGRES_SCHEME)
     name = 'test-postgres'
-    subprocess.call(['docker', 'run', '--detach', '--publish',
-                     f'{url.port}:5432', '--hostname', 'my-test-postgres',
-                     f'--env=POSRGRES_USER={url.username}',
-                     f'--env=POSTGRES_PASSWORD={url.password}',
-                     '--name', name, 'postgres'], timeout=60)
-    time.sleep(4)
+    client = docker.from_env()
+    image = client.images.pull('postgres')
+    container = client.containers.run(image=image, detach=True, name=name,
+                                      ports={5432: url.port}, remove=True,
+                                      hostname='my-test-postgres',
+                                      environment={
+                                          'POSTGRES_USER': url.username,
+                                          'POSTGRES_PASSWORD': url.password})
+    time.sleep(3)
     yield
-    subprocess.call(['docker', 'stop', name], timeout=30)
-    subprocess.call(['docker', 'remove', name], timeout=5)
+    container.stop()
 
 
 ##########################################################################
@@ -153,13 +155,14 @@ def postgres(conf):
 def rabbitmq(conf):
     url = furl.furl(conf.RABBITMQ_SCHEME)
     name = 'test-rabbit'
-    subprocess.call(['docker', 'run', '--detach', '--publish',
-                     f'{url.port}:5672', '--hostname', 'my-test-rabbit',
-                     '--name', name, 'rabbitmq'], timeout=60)
-    time.sleep(6)
+    client = docker.from_env()
+    image = client.images.pull('rabbitmq')
+    container = client.containers.run(image=image, detach=True, name=name,
+                                      ports={5672: url.port}, remove=True,
+                                      hostname='my-test-rabbit')
+    time.sleep(3)
     yield
-    subprocess.call(['docker', 'stop', name], timeout=30)
-    subprocess.call(['docker', 'remove', name], timeout=5)
+    container.stop()
 
 
 ##########################################################################
