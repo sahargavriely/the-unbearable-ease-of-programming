@@ -41,6 +41,8 @@ def test_snapshot(rest_server, client, conf, database, user, parsed_data,
 
     _get_command(conf, 'user-snapshot-topic-data', user.id, datetime,
                  keys.color_image)
+    _get_command(conf, 'user-snapshot-topic-data', user.id, datetime,
+                 keys.depth_image)
 
 
 ###############################################################################

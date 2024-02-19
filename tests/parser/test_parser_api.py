@@ -14,9 +14,10 @@ def test_parse_bad_parser_name():
         parse(bad_name, {}, Path())
 
 
-def test_parse(server_data, parsed_data, tmp_path):
+def test_parse(server_data, parsed_data, conf):
     for topic in CONFIG_OPTIONS:
-        parsed_topic = parse(topic, server_data[topic], tmp_path)[keys.data]
+        parsed_topic = \
+            parse(topic, server_data[topic], conf.SHARED_DIR)[keys.data]
         expected_parsed = parsed_data[topic][keys.data]
         if keys.data in (keys.color_image, keys.depth_image):
             assert parsed_topic[keys.height] == expected_parsed[keys.height]

@@ -19,7 +19,6 @@ The ``brain-computer-interface.client`` package provides a command line interfac
     error
     read
     upload-mind
-    upload-thought
 
 
 The top-level options include:
@@ -69,23 +68,6 @@ Receives :ref:`mind file <target to mind file>`, and uploads it to the server.
     --help              Show this message and exit.
 
 
-The ``upload-thought`` command
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Receives user id and though, and uploads it to the server.
-
-.. code:: bash
-
-    $ python -m brain_computer_interface.client upload-thought --help
-    Usage: brain_computer_interface.client upload-thought [OPTIONS] USER_ID
-                                                        THOUGHT
-
-    Options:
-    -h, --host TEXT     [default: 127.0.0.1]
-    -p, --port INTEGER  [default: 5000]
-    --help              Show this message and exit.
-
-
 The ``error`` Command
 ---------------------
 
@@ -119,7 +101,7 @@ To showcase these options, consider `error` command, which raises an exception:
     RuntimeError: something went terrible wrong :[
 
 
-Do note that each command's options should be passed to *that* command, for example the ``-q`` and ``-t`` options should be passed to ``brain_computer_interface.client`` and not to ``upload-mind`` and ``upload-thought``.
+Do note that each command's options should be passed to *that* command, for example the ``-q`` and ``-t`` options should be passed to ``brain_computer_interface.client`` and not to ``upload-mind``.
 
 .. code:: bash
 

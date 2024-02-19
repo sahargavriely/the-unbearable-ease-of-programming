@@ -1,9 +1,11 @@
 import datetime as dt
+import gzip
 from pathlib import Path
-import subprocess
 import shutil
+from struct import pack
 import time
 
+import docker
 import furl
 import pytest
 
@@ -24,12 +26,11 @@ from brain_computer_interface.parser.parsers import (
     DepthImageParser,
     ColorImageParser,
 )
+from brain_computer_interface.client.reader.drivers.protobuf import \
+    length_format
 from brain_computer_interface.utils import config as config_module, keys
-from tests.utils import (
-    Dictionary,
-    _run_webserver,
-    serve_thread,
-)
+
+from tests.utils import Dictionary
 
 
 ##########################################################################
@@ -42,14 +43,6 @@ def other_conf():
         'POSTGRES_SCHEME':
             'postgresql://postgres:password@127.0.0.1:4321/testmind',
         'RABBITMQ_SCHEME': 'rabbitmq://localhost:4561/',
-        'USER_20': 20,
-        'THOUGHT_20': 'I am 20 too',
-        'TIMESTAMP_20':
-            int(dt.datetime(2019, 10, 25, 15, 12, 5, 228000).timestamp()),
-        'USER_22': 22,
-        'THOUGHT_22': 'I am 22',
-        'TIMESTAMP_22':
-            int(dt.datetime(2019, 10, 25, 15, 15, 2, 304000).timestamp()),
     })
 
 
@@ -64,15 +57,12 @@ def patch_conf(tmp_path_factory):
         'REQUEST_HOST': '127.0.0.1',
         'SERVER_PORT': 5356,
         'SHARED_DIR': tmp_path,
-        'WEBSERVER_PORT': 8356,
     })
 
 
 @pytest.fixture(scope='session')
 def conf(patch_conf, other_conf):
     other_conf.update(patch_conf)
-    other_conf.WEBSERVER_URL = \
-        f'http://{other_conf.REQUEST_HOST}:{other_conf.WEBSERVER_PORT}'
     return other_conf
 
 
@@ -110,9 +100,9 @@ def server_data(user: User, snapshot: Snapshot, tmp_path):
 
 
 @pytest.fixture
-def parsed_data(user: User, snapshot: Snapshot, tmp_path):
+def parsed_data(user: User, snapshot: Snapshot, conf):
     datetime = dt.datetime.fromtimestamp(snapshot.datetime / 1000)
-    imgs_dir = tmp_path / str(user.id) / f'{datetime:%F_%H-%M-%S-%f}'
+    imgs_dir = conf.SHARED_DIR / str(user.id) / f'{datetime:%F_%H-%M-%S-%f}'
     imgs_dir.mkdir(parents=True, exist_ok=True)
     usr = user.jsonify()
     snap = snapshot.jsonify(imgs_dir)
@@ -144,15 +134,17 @@ def database(conf):
 def postgres(conf):
     url = furl.furl(conf.POSTGRES_SCHEME)
     name = 'test-postgres'
-    subprocess.call(['docker', 'run', '--detach', '--publish',
-                     f'{url.port}:5432', '--hostname', 'my-test-postgres',
-                     f'--env=POSRGRES_USER={url.username}',
-                     f'--env=POSTGRES_PASSWORD={url.password}',
-                     '--name', name, 'postgres'], timeout=15)
-    time.sleep(4)
+    client = docker.from_env()
+    image = client.images.pull('postgres')
+    container = client.containers.run(image=image, detach=True, name=name,
+                                      ports={5432: url.port}, remove=True,
+                                      hostname='my-test-postgres',
+                                      environment={
+                                          'POSTGRES_USER': url.username,
+                                          'POSTGRES_PASSWORD': url.password})
+    time.sleep(3)
     yield
-    subprocess.call(['docker', 'stop', name], timeout=30)
-    subprocess.call(['docker', 'remove', name], timeout=5)
+    container.stop()
 
 
 ##########################################################################
@@ -163,13 +155,14 @@ def postgres(conf):
 def rabbitmq(conf):
     url = furl.furl(conf.RABBITMQ_SCHEME)
     name = 'test-rabbit'
-    subprocess.call(['docker', 'run', '--detach', '--publish',
-                     f'{url.port}:5672', '--hostname', 'my-test-rabbit',
-                     '--name', name, 'rabbitmq'], timeout=5)
-    time.sleep(6)
+    client = docker.from_env()
+    image = client.images.pull('rabbitmq')
+    container = client.containers.run(image=image, detach=True, name=name,
+                                      ports={5672: url.port}, remove=True,
+                                      hostname='my-test-rabbit')
+    time.sleep(3)
     yield
-    subprocess.call(['docker', 'stop', name], timeout=30)
-    subprocess.call(['docker', 'remove', name], timeout=5)
+    container.stop()
 
 
 ##########################################################################
@@ -206,10 +199,21 @@ def user():
 
 
 ##########################################################################
-# Server
+# Mind file
 
 
 @pytest.fixture(scope='module')
-def webserver(conf):
-    with serve_thread(_run_webserver, conf) as thread:
-        yield thread
+def mind_dir(tmp_path_factory):
+    return tmp_path_factory.mktemp('minds')
+
+
+@pytest.fixture(scope='module')
+def protobuf_mind_file(mind_dir: Path, user: User, snapshot: Snapshot):
+    file = mind_dir / 'sample.mind.gz'
+    file.touch(0o777)
+    with gzip.open(str(file), 'wb') as f:
+        f.write(pack(length_format, len(user.serialize())))
+        f.write(user.serialize())
+        f.write(pack(length_format, len(snapshot.serialize())))
+        f.write(snapshot.serialize())
+    return file

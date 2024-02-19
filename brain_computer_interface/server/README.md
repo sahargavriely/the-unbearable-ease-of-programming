@@ -1,7 +1,7 @@
 # brain-computer-interface.server
 
 Sub-package of brain-computer-interface.
-The following package implements a server who knows how to receive minds and thoughts.
+The following package implements a server who knows how to receive minds.
 
 For further information take a look at [full documentation](https://the-unbearable-ease-of-programming.readthedocs.io/en/latest/server.html).
 
@@ -14,7 +14,7 @@ The `brain_computer_interface.server` packages provides the following function:
     This function starts the server which receives minds from clients.
     You should provide a ``publish_method`` which the server will forward the data to.
     ``publish_method`` is being call once with user data and once for every snapshot with user and snapshot data.
-    You may provide an address (host and port) which the server listens to (defaults are set to ``'0.0.0.0'`` and ``5000``, respectfully) a directory in which the server will save the thoughts to (default is set to ``shared/``). 
+    You may provide an address (host and port) which the server listens to (defaults are set to ``'0.0.0.0'`` and ``5000``, respectfully) a shared directory in which the server will be saving large data (default is set to ``shared/``). 
 
     ```pycon
     >>> from brain_computer_interface.server import run_server
@@ -46,7 +46,7 @@ Commands:
 
 - ``run-server``
 
-    Runs the server which listens to thoughts.
+    Runs the server which listens to minds.
 
     ```sh
     $ python -m brain_computer_interface.server run-server [OPTIONS]

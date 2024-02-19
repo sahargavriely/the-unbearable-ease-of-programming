@@ -18,7 +18,7 @@ _resources = list()
 def run_rest_server(host: str = LISTEN_HOST, port: int = REST_SERVER_PORT,
                     database_scheme: str = DATABASE_SCHEME):
     db = Database(database_scheme)
-    app = App(host, port, db=db)
+    app = App(db=db)
 
     for path, function in _resources:
         app.resource(path)(function)

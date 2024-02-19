@@ -4,7 +4,7 @@ import pytest
 
 from brain_computer_interface.server import run_server
 
-from tests.utils import serve_thread
+from tests.server.utils import serve_thread
 
 
 @pytest.fixture(scope='module')

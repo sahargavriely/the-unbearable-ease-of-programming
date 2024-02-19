@@ -9,13 +9,13 @@ from brain_computer_interface.distributer import Distributer
 from brain_computer_interface.utils import keys
 
 
-def test_parse(parsed_data, server_data, tmp_path):
+def test_parse(parsed_data, server_data, conf):
     for topic in CONFIG_OPTIONS:
-        topic_file = tmp_path / topic
+        topic_file = conf.SHARED_DIR / topic
         with topic_file.open('w') as file:
             json.dump(server_data[topic], file)
         cmd = ['python', '-m', 'brain_computer_interface.parser', 'parse',
-               topic, str(topic_file), '-s', str(tmp_path)]
+               topic, str(topic_file), '-s', str(conf.SHARED_DIR)]
         stdout = subprocess.run(cmd, capture_output=True, timeout=5).stdout
         result = eval(stdout.decode().strip())[keys.data]
         expected_parsed = parsed_data[topic][keys.data]
@@ -26,14 +26,14 @@ def test_parse(parsed_data, server_data, tmp_path):
             assert result == expected_parsed
 
 
-def test_run_parser(rabbitmq, user, snapshot, parsed_data, tmp_path, conf):
-    snapshot = snapshot.jsonify(tmp_path)
+def test_run_parser(rabbitmq, user, snapshot, parsed_data, conf):
+    snapshot = snapshot.jsonify(conf.SHARED_DIR)
     data = {keys.snapshot: snapshot, keys.user: user.jsonify()}
     comm_topic = dict()
 
     for topic in CONFIG_OPTIONS:
         cmd = ['python', '-m', 'brain_computer_interface.parser', 'run-parser',
-               topic, '-s', str(tmp_path), '-d', conf.RABBITMQ_SCHEME]
+               topic, '-s', str(conf.SHARED_DIR), '-d', conf.RABBITMQ_SCHEME]
         sub_process = subprocess.Popen(cmd)
         parent, child = multiprocessing.Pipe()
 

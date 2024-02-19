@@ -2,7 +2,7 @@
 
 
 function main {
-    source .env/bin/activate
+    source venv/bin/activate
     cd docs/
     make html SPHINXOPTS="-W"
     export TEST_REULST=$?

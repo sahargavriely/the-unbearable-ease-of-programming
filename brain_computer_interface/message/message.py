@@ -1,5 +1,4 @@
 from datetime import datetime as dt
-from enum import Enum
 import gzip
 import struct
 
@@ -8,9 +7,6 @@ from .protobuf_wrapper import ProtobufWrapper
 from ..utils import keys
 
 
-TYPE_FORMAT = '<I'
-TYPE_FORMAT_SIZE = struct.calcsize(TYPE_FORMAT)
-
 CONFIG_OPTIONS = [
     # keys.datetime,
     keys.pose,
@@ -18,11 +14,6 @@ CONFIG_OPTIONS = [
     keys.depth_image,
     keys.feelings,
 ]
-
-
-class Types(Enum):
-    MIND = 0
-    THOUGHT = 1
 
 
 class User(ProtobufWrapper):

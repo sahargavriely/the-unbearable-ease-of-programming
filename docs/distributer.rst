@@ -5,8 +5,8 @@ The distributer package responsible for distributing data in between the inner s
 
 And exposes the Distributer class.
 
-Distributer:
-------------
+Distributer
+-----------
 
 .. _target to distributer:
 

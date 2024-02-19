@@ -16,9 +16,7 @@ logger = setup_logging(__name__)
 
 class App:
 
-    def __init__(self, host, port, **context):
-        self.host = host
-        self.port = port
+    def __init__(self, **context):
         self.context = context
         self._resources = list()
         self._error_resources = list()

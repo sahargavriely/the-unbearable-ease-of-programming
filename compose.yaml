@@ -1,0 +1,134 @@
+networks:
+  brain-computer-interface-net:
+
+volumes:
+  shared-dir:
+
+# if we want my volume to be mapped also outside of the docker
+# x-common-volumes: &common-volumes
+#   type: bind
+#   source: ./source
+#   target: ${SHARED_PATH?err}
+# and this goes for every container that I want to be also mepped outside
+#   volumes:
+#     - <<: *common-volumes
+
+x-common-internal-service: &common-internal-service
+  build:
+    context: .
+    dockerfile: Dockerfile.base
+  volumes:
+    - shared-dir:${SHARED_PATH?err}
+    - /etc/timezone:/etc/timezone:ro
+    - /etc/localtime:/etc/localtime:ro
+  networks:
+    - brain-computer-interface-net
+
+x-common-external-service: &common-external-service
+  env_file:
+    - docker.env
+  networks:
+    - brain-computer-interface-net
+
+services:
+  postgres:
+    <<: *common-external-service
+    image: postgres
+    restart: always
+    ports:
+      - 5432:5432
+    healthcheck:
+      test: ["CMD", "pg_isready"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+  rest-server:
+    <<: *common-internal-service
+    command: python -m brain_computer_interface.rest run-rest-server -p ${REST_SERVER_PORT?err} -d ${POSTGRES_SCHEME?err}
+    ports:
+      - ${REST_SERVER_PORT?err}:${REST_SERVER_PORT?err}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:${REST_SERVER_PORT?err}/users"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+  rabbitmq:
+    <<: *common-external-service
+    image: rabbitmq:3
+    ports:
+      - 5672:5672
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+  saver:
+    <<: *common-internal-service
+    command: python -m brain_computer_interface.saver run-saver -d ${POSTGRES_SCHEME?err} -ds ${RABBITMQ_SCHEME?err}
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+  color_image-parser:
+    <<: *common-internal-service
+    command: python -m brain_computer_interface.parser run-parser color_image -d ${RABBITMQ_SCHEME?err} -s ${SHARED_PATH?err}
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      saver:
+        condition: service_started
+  depth_image-parser:
+    <<: *common-internal-service
+    command: python -m brain_computer_interface.parser run-parser depth_image -d ${RABBITMQ_SCHEME?err} -s ${SHARED_PATH?err}
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      saver:
+        condition: service_started
+  feelings-parser:
+    <<: *common-internal-service
+    command: python -m brain_computer_interface.parser run-parser feelings -d ${RABBITMQ_SCHEME?err} -s ${SHARED_PATH?err}
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      saver:
+        condition: service_started
+  pose-parser:
+    <<: *common-internal-service
+    command: python -m brain_computer_interface.parser run-parser pose -d ${RABBITMQ_SCHEME?err} -s ${SHARED_PATH?err}
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      saver:
+        condition: service_started
+  server:
+    <<: *common-internal-service
+    command: python -m brain_computer_interface.server run-server -p ${SERVER_PORT?err} -d ${RABBITMQ_SCHEME?err} -s ${SHARED_PATH?err}
+    ports:
+      - ${SERVER_PORT?err}:${SERVER_PORT?err}
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      saver:
+        condition: service_started
+      color_image-parser:
+        condition: service_started
+      depth_image-parser:
+        condition: service_started
+      feelings-parser:
+        condition: service_started
+      pose-parser:
+        condition: service_started
+    healthcheck:
+      test: ["CMD", "nc", "-zv", "127.0.0.1", "${SERVER_PORT?err}"]
+      interval: 5s
+      timeout: 3s
+      retries: 3
+      start_period: 30s

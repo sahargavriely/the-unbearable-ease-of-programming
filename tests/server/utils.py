@@ -1,12 +1,10 @@
-import datetime as dt
+import contextlib
+import ctypes
 import socket
 import struct
+import threading
 import time
 
-from brain_computer_interface.message import (
-    TYPE_FORMAT,
-    Types,
-)
 from brain_computer_interface.message import (
     Config,
     CONFIG_OPTIONS,
@@ -16,14 +14,6 @@ from brain_computer_interface.message import (
 from brain_computer_interface.utils.connection import Connection
 
 from tests.utils import receive_all
-
-
-_HEADER_FORMAT = '<QQI'
-
-
-def get_path(dir, user_id, timestamp):
-    datetime = dt.datetime.fromtimestamp(timestamp)
-    return dir / f'{user_id}/{datetime:%F_%H-%M-%S}.txt'
 
 
 def mock_upload_mind(conf, user: User, *snapshots: Snapshot):
@@ -41,24 +31,13 @@ def mock_upload_mind(conf, user: User, *snapshots: Snapshot):
         length = struct.pack(Connection.length_format, len(data))
         connection.sendall(length)
         connection.sendall(data)
-    time.sleep(0.2)  # Wait for server to write thought.
-
-
-def mock_upload_thought(conf, user_id, timestamp, thought):
-    message = serialize_thought(user_id, timestamp, thought)
-    with socket.socket() as connection:
-        time.sleep(0.1)  # Wait for server to start listening.
-        connection.settimeout(2)
-        connection.connect((conf.REQUEST_HOST, conf.SERVER_PORT))
-        connection.sendall(message)
-    time.sleep(0.2)  # Wait for server to write thought.
+    time.sleep(0.2)  # Wait for server to receive mind.
 
 
 def _serialize_user(user):
-    protocol_type = struct.pack(TYPE_FORMAT, Types.MIND.value)
     user_data = user.serialize()
     user_data_len = struct.pack(Connection.length_format, len(user_data))
-    return protocol_type + user_data_len + user_data
+    return user_data_len + user_data
 
 
 def _serialize_snapshot(snapshot):
@@ -74,7 +53,27 @@ def _receive_config(connection) -> Config:
     return Config.from_bytes(receive_all(connection, config_length))
 
 
-def serialize_thought(user_id, timestamp, thought):
-    protocol_type = struct.pack(TYPE_FORMAT, Types.THOUGHT.value)
-    header = struct.pack(_HEADER_FORMAT, user_id, timestamp, len(thought))
-    return protocol_type + header + thought.encode()
+@contextlib.contextmanager
+def serve_thread(serve, *args):
+    thread = threading.Thread(target=serve, args=args)
+    thread.start()
+    time.sleep(1)
+    yield thread
+    _kill_serve_thread(thread)
+    thread.join()
+
+
+def _kill_serve_thread(thread: threading.Thread):
+    if not thread.is_alive() or thread.ident is None:
+        return
+    c_thread_id = ctypes.c_long(thread.ident)
+    c_key_board_interrupt = ctypes.py_object(KeyboardInterrupt)
+    send_exception = ctypes.pythonapi.PyThreadState_SetAsyncExc
+    res = send_exception(c_thread_id, c_key_board_interrupt)
+    if res == 0:
+        raise ValueError("invalid thread id")
+    elif res != 1:
+        # if it returns a number greater than one, you're in trouble,
+        # and you should call it again with exc=NULL to revert the effect
+        send_exception(c_thread_id, None)
+        raise SystemError("PyThreadState_SetAsyncExc failed")

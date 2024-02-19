@@ -2,147 +2,61 @@
 [![codecov](https://codecov.io/gh/sahargavriely/the-unbearable-ease-of-programming/graph/badge.svg?token=W0V7MR7T8S)](https://codecov.io/gh/sahargavriely/the-unbearable-ease-of-programming)
 [![readthedocs](https://readthedocs.org/projects/the-unbearable-ease-of-programming/badge/?version=latest)](https://the-unbearable-ease-of-programming.readthedocs.io/en/latest/?badge=latest)
 
+Credits and thanks go to [Dan Gittik](https://github.com/dan-gittik), this project is part of his amazing course, _Advanced-System-design_.
+
+# the-unbearable-ease-of-programming
+
+This whole project serves the purpose of learning and experimenting with advanced system design.
+It does not solve a concrete problem nor the problem is well define, which reduce to a platform - when you cannot well define your problem and solution, you build a platform (first rule of advanced system design, the second is that we do not talk about fc) rather than build a specific solution.
+The platform design is meant to be modular, decoupled and robust; hence making the system rather flexible, simple to modify, remove and add components.
+The platform composes of micro processes, each process has a well define role and does one task and one task only (doing this one task well, I allow myself to add).
+Let's dive to the story.
+
+
 # brain-computer-interface
 
-A brain-computer-interface (BCI), a direct communication pathway between the brain's electrical activity and an external device, most commonly a computer or robotic limb.
-The following package allows to run two servers, a server which receives __thoughts__ and a webserver to make those accessible.
-The package also supplies a client to upload a __thoughts__.
+A brain-computer-interface (BCI) is a direct communication pathway between the brain's electrical activity and an external device, most commonly a computer or robotic limb; that's what this project is trying to. I know, crazy, but Elon will surly relate.
+We assume, or hope, that one day we will have a hardware that connect to our brain. This project is the software layer on top of that supposed hardware.
 
+![flow](https://github.com/sahargavriely/the-unbearable-ease-of-programming/assets/63425950/4a89f457-8e0f-4820-8e44-55820f986a8d)
 
 For further information take a look at [full documentation](https://the-unbearable-ease-of-programming.readthedocs.io/en/latest/).
-
 
 ## Installation
 
 1. Clone the repository and enter it:
 
-    ```sh
-    $ git clone git@github.com:sahargavriely/the-unbearable-ease-of-programming.git
-    ...
-    $ cd the-unbearable-ease-of-programming/
-    ```
+      ```sh
+      $ git clone git@github.com:sahargavriely/the-unbearable-ease-of-programming.git
+      ...
+      $ cd the-unbearable-ease-of-programming/
+      ```
 
 2. Run the installation script and activate the virtual environment:
 
-    ```sh
-    $ ./scripts/install.sh
-    ...
-    $ source .env/bin/activate
-    [brain-computer-interface] $  # you're good to go!
-    ```
+      ```sh
+      $ ./scripts/install.sh
+      ...
+      $ source venv/bin/activate
+      [brain-computer-interface] $  # you're good to go!
+      ```
 
-3. To check that everything is working as expected, run the tests:
+3. To check that everything is working as expected, run the tests: (optional but recommended)
 
-    ```sh
-    $ pytest tests/
-    ...
-    ```
+      ```sh
+      $ pytest tests/
+      ...
+      ```
 
-
-## Usage
+## Packages
 
 The package expose several sub-packages which can be run separately on a different machines.
 The sub-packages are:
 
-* [`client`](/brain_computer_interface/client/README.md) - uploads mind and thoughts to the server.
-* [`server`](/brain_computer_interface/server/README.md) - receives mind and thoughts from clients.
-
-The `brain_computer_interface` packages provides the following functions:
-
-- `run_webserver`
-
-    This function starts the webserver which makes the users' thoughts accessible.
-    You may provide an address (host and port) which the webserver listens to (defaults are set to ``'0.0.0.0'`` and ``8000``, respectfully) a directory in which the server will save the thoughts to (default is set to ``data/``). 
-
-    ```pycon
-    >>> from brain_computer_interface import run_webserver
-    >>> from pathlib import Path
-    >>> run_webserver(host='0.0.0.0', port=8000, data_dir=Path('data/'))
-    * Serving Flask app "brain_computer_interface.webserver.webserver" (lazy loading)
-    * Environment: production
-      WARNING: This is a development server. Do not use it in a production deployment.
-      Use a production WSGI server instead.
-    * Debug mode: on
-    * Running on http://127.0.0.1:8000/ (Press CTRL+C to quit)
-
-    ```
-
-
-## Command Line Interface
-
-The `brain_computer_interface` package also provides a command-line interface.
-```sh
-    $ python -m brain_computer_interface [OPTIONS] COMMAND [ARGS]
-```
-
-The top-level options include:
-
-- ``-q``, ``--quiet``
-
-    This option suppresses the output.
-
-- ``-t``, ``--traceback``
-
-    This option shows the full traceback when an exception is raised (by
-    default, only the error message is printed, and the program exits with a
-    non-zero code).
-
-To see the version, do the following:
-
-```sh
-$ python -m brain_computer_interface --version
-brain_computer_interface, version 0.1.0
-```
-
-- `run-webserver`
-
-    Runs the webserver which makes the users' thoughts accessible.
-
-    ```sh
-    $ python -m brain_computer_interface run-webserver [OPTIONS]
-    ```
-    Options:
-    - ``-h``, ``--host`` TEXT      [default: 0.0.0.0]
-    - ``-p``, ``--port`` INTEGER   [default: 8000]
-    - ``-d``, ``--data_dir`` PATH  [default: data]
-    - ``-D``, ``--debug``
-    - ``--help``                   Show similar message and exit.
-
-Commands:
-
-- `error`
-
-    Raises an exception and prints it to the screen.
-
-    ```sh
-    $ python -m brain_computer_interface error [OPTIONS]
-    ```
-
-    Options:
-    - ``--help``                  Show similar message and exit.
-
-All commands accept the `-q` or `--quiet` flag to suppress output, and the `-t`
-or `--traceback` flag to show the full traceback when an exception is raised
-(by default, only the error message is printed, and the program exits with a
-non-zero code).
-
-To showcase these options, consider `error` command, which raises an exception:
-
-```sh
-$ python -m brain_computer_interface error
-ERROR: something went terribly wrong :[
-$ python -m brain_computer_interface -q error  # suppress output
-$ python -m brain_computer_interface -t error  # show full traceback
-ERROR: something went terribly wrong :[
-Traceback (most recent call last):
-    ...
-RuntimeError: something went terrible wrong :[
-```
-
-Do note that each command's options should be passed to *that* command, for example the `-q` and `-t` options should be passed to `brain_computer_interface`, not `run_server`, `run-webserver` or `upload-thought`.
-
-```sh
-$ python -m brain_computer_interface run-server -q  # this doesn't work
-ERROR: no such option: -q
-$ python -m brain_computer_interface -q run-server  # this does work
-```
+- [`client`](/brain_computer_interface/client/README.md) - uploads mind to the server.
+- [`server`](/brain_computer_interface/server/README.md) - receives minds from clients and forwarding them to the distributer.
+- [`distributer`](/brain_computer_interface/distributer/README.md) - distribute information to the different system components.
+- [`parser`](/brain_computer_interface/parser/README.md) - listen to raw minds parse them and forwarding them to the distributer.
+- [`saver`](/brain_computer_interface/saver/README.md) - listen to parsed minds and forwarding them to the database.
+- [`database`](/brain_computer_interface/database/README.md) - holds the system data.
+- [`rest`](/brain_computer_interface/rest/README.md) - provides restful api - http request and cli to get the data from the database.

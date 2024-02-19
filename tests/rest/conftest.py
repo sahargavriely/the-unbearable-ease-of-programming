@@ -2,14 +2,14 @@ import contextlib
 import time
 import pytest
 import requests
+import signal
+import subprocess
 
 from tests.rest.utils import Session
 
 
 @pytest.fixture(scope='module')
 def rest_server(conf):
-    import subprocess
-    import signal
     cmd = ['python', '-m', 'brain_computer_interface.rest', 'run-rest-server',
            '-h', conf.LISTEN_HOST, '-p', str(conf.REST_SERVER_PORT),
            '-d', conf.DATABASE_SCHEME]
