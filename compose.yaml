@@ -26,7 +26,7 @@ x-common-internal-service: &common-internal-service
 
 x-common-external-service: &common-external-service
   env_file:
-    - .env
+    - docker.env
   networks:
     - brain-computer-interface-net
 

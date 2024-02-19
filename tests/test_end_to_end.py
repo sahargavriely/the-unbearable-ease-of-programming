@@ -1,5 +1,6 @@
 import ast
 import contextlib
+import pathlib
 import signal
 import subprocess
 import time
@@ -55,12 +56,11 @@ def test_end_to_end_finale_form(postgres, rabbitmq, protobuf_mind_file,
 
 def test_run_pipeline(protobuf_mind_file, user, snapshot, parsed_data, conf):
     try:
-        with open('.env', 'r') as file:
-            original_content = file.readlines()
-            test_content = [line.replace('/shared', str(conf.SHARED_DIR))
-                            for line in original_content]
-        with open('.env', 'w') as file:
-            file.write(''.join(test_content))
+        docker_env = pathlib.Path('docker.env')
+        original_content = docker_env.read_text()
+        docker_env.write_text(
+            _assign_variables(
+                original_content, {'/shared': str(conf.SHARED_DIR)}))
         subprocess.call(['./scripts/run_pipeline.sh'], timeout=180)
         d_co = Dictionary({
             'REST_SERVER_PORT': 8000,
@@ -69,9 +69,8 @@ def test_run_pipeline(protobuf_mind_file, user, snapshot, parsed_data, conf):
         })
         _test_full_setup(protobuf_mind_file, d_co, parsed_data, user, snapshot)
     finally:
-        with open('.env', 'w') as file:
-            file.write(''.join(original_content))
-        subprocess.call(['docker', 'compose', 'down'], timeout=120)
+        docker_env.write_text(original_content)
+        subprocess.call(['./scripts/stop_pipeline.sh'], timeout=180)
 
 
 ###############################################################################
@@ -111,3 +110,20 @@ def _get_command(conf, *args):
         return ast.literal_eval(ret)
     except (ValueError, SyntaxError):
         return dict()
+
+
+def _assign_variables(string, additional_key_vals=None):
+    d = additional_key_vals
+    if d is None:
+        d = dict()
+    ret = list()
+    for line in string.splitlines():
+        if line.strip() and not line.startswith('#'):
+            raw_key, raw_value = line.split('=', 1)
+            value, *_ = raw_value.strip().strip('"').split('"', 1)
+            key = '${' + raw_key.strip() + '?err}'
+            for k, v in d.items():
+                value = value.replace(k, v)
+            d[key] = value
+            ret.append(f'{raw_key}="{value}"')
+    return '\n'.join(ret)
