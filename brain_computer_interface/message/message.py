@@ -17,7 +17,7 @@ CONFIG_OPTIONS = [
 
 
 class User(ProtobufWrapper):
-    _protobuf_type = mind_pb2.User  # type: ignore
+    _protobuf_type = mind_pb2.User
 
     def __init__(self, id: int, name: str, birthday: int, gender: int):
         self.id = id
@@ -34,7 +34,7 @@ class User(ProtobufWrapper):
 
 
 class Config(ProtobufWrapper):
-    _protobuf_type = mind_pb2.Config  # type: ignore
+    _protobuf_type = mind_pb2.Config
 
     def __init__(self, config: list[str]):
         self.config = config
@@ -47,7 +47,7 @@ class Config(ProtobufWrapper):
 
 
 class Translation(ProtobufWrapper):
-    _protobuf_type = mind_pb2.Pose.Translation  # type: ignore
+    _protobuf_type = mind_pb2.Pose.Translation
 
     def __init__(self, x, y, z):
         self.x = x
@@ -59,7 +59,7 @@ class Translation(ProtobufWrapper):
 
 
 class Rotation(ProtobufWrapper):
-    _protobuf_type = mind_pb2.Pose.Rotation  # type: ignore
+    _protobuf_type = mind_pb2.Pose.Rotation
 
     def __init__(self, x, y, z, w):
         self.x = x
@@ -72,7 +72,7 @@ class Rotation(ProtobufWrapper):
 
 
 class Pose(ProtobufWrapper):
-    _protobuf_type = mind_pb2.Pose  # type: ignore
+    _protobuf_type = mind_pb2.Pose
 
     def __init__(self, translation: Translation, rotation: Rotation):
         self.translation = translation
@@ -83,7 +83,7 @@ class Pose(ProtobufWrapper):
 
 
 class ColorImage(ProtobufWrapper):
-    _protobuf_type = mind_pb2.ColorImage  # type: ignore
+    _protobuf_type = mind_pb2.ColorImage
 
     def __init__(self, width: int, height: int, data: bytes):
         self.width = width
@@ -98,7 +98,7 @@ class ColorImage(ProtobufWrapper):
             return super().jsonify(path)
         save_as = f'{path}/{keys.color_image}'
         with gzip.open(save_as, 'wb') as f:
-            f.write(self.data)  # type: ignore
+            f.write(self.data)
         self.data, tmp = save_as, self.data
         ret = super().jsonify(path)
         self.data = tmp
@@ -115,7 +115,7 @@ class ColorImage(ProtobufWrapper):
 
 
 class DepthImage(ProtobufWrapper):
-    _protobuf_type = mind_pb2.DepthImage  # type: ignore
+    _protobuf_type = mind_pb2.DepthImage
 
     def __init__(self, width: int, height: int, data: list[float]):
         self.width = width
@@ -144,12 +144,12 @@ class DepthImage(ProtobufWrapper):
         with gzip.open(json_obj[keys.data], 'rb') as file:
             json_obj[keys.data] = list(struct.unpack(
                 f'{json_obj[keys.height] * json_obj[keys.width]}f',
-                file.read()))  # type: ignore
+                file.read()))
         return super().from_json(json_obj)
 
 
 class Feelings(ProtobufWrapper):
-    _protobuf_type = mind_pb2.Feelings  # type: ignore
+    _protobuf_type = mind_pb2.Feelings
 
     def __init__(self, hunger: float, thirst: float, exhaustion: float,
                  happiness: float):
@@ -165,7 +165,7 @@ class Feelings(ProtobufWrapper):
 
 
 class Snapshot(ProtobufWrapper):
-    _protobuf_type = mind_pb2.Snapshot  # type: ignore
+    _protobuf_type = mind_pb2.Snapshot
 
     def __init__(
         self,

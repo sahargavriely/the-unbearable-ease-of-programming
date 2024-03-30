@@ -39,9 +39,9 @@ def test_repr(connection: Connection):
 
 
 def test_close(connection: Connection):
-    assert not connection._socket._closed  # type: ignore
+    assert not connection._socket._closed
     connection.close()
-    assert connection._socket._closed  # type: ignore
+    assert connection._socket._closed
 
 
 def test_send(server):
