@@ -1,3 +1,4 @@
+import concurrent.futures as cf
 import contextlib
 import datetime as dt
 from pathlib import Path
@@ -41,20 +42,17 @@ def run_server(publish_method: typing.Callable,
                 host, port, shared_dir)
     lock = threading.Lock()
 
-    with Listener(port, host) as listener:
-        while True:
-            try:
-                with contextlib.suppress(socket.timeout):
-                    connection = listener.accept()
-                    thread = threading.Thread(
-                        target = _handle_connection,
-                        args = (lock, connection, publish_method, shared_dir),
-                        daemon = True
-                    )
-                    thread.start()
-            except KeyboardInterrupt:
-                # exit gracefully
-                break
+    with cf.ThreadPoolExecutor(5) as executor:
+        with Listener(port, host) as listener:
+            while True:
+                try:
+                    with contextlib.suppress(socket.timeout):
+                        connection = listener.accept()
+                        executor.submit(_handle_connection, lock,
+                                        connection, publish_method, shared_dir)
+                except KeyboardInterrupt:
+                    # exit gracefully
+                    break
 
 
 def _handle_connection(lock: threading.Lock, connection: Connection,
