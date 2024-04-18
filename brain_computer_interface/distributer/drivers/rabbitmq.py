@@ -21,8 +21,8 @@ class RabbitMQScheme:
     exchange = 'one'
 
     def __init__(self, url: furl.furl):
-        self.host: str = url.host  # type: ignore
-        self.port: int = url.port  # type: ignore
+        self.host: str = url.host
+        self.port: int = url.port
 
     def connect(self):
         try:

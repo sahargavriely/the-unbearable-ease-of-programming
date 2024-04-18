@@ -3,7 +3,7 @@
 Sub-package of brain-computer-interface.
 The following package encapsulating the concept of mind as a data and defines how the on going messages in the system look like.
 
-For further information take a look at [full documentation](https://the-unbearable-ease-of-programming.readthedocs.io/en/latest/mind_file.html).
+For further information take a look at [full documentation](https://the-unbearable-ease-of-programming.readthedocs.io/en/latest/message.html).
 
 ## Usage
 
