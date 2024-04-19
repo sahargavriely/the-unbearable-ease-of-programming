@@ -8,7 +8,7 @@ Credits and thanks go to [Dan Gittik](https://github.com/dan-gittik), this proje
 
 This whole project serves the purpose of learning and experimenting with advanced system design.
 The learning you can find at the [code-of-conduct](/CODE_OF_CONDUCT.md) file, in a succinct way; in many ways this is the golden gem of the project, it is about how to design rather than just having a good design; it is the abstraction while anything else is the implementation.
-The experimenting part is the [brain-computer-interface](/brain-computer-interface/) python package and anything around it. It is a good (very good) example of a good design, it does not solve a concrete problem nor the problem is well define, which reduce to a platform - when you cannot well define your problem and solution, you build a platform (first rule of advanced system design, the second is that we do not talk about fc) rather than build a specific solution.
+The experimenting part is the [brain-computer-interface](/brain_computer_interface/) python package and anything around it. It is a good (very good) example of a good design, it does not solve a concrete problem nor the problem is well define, which reduce to a platform - when you cannot well define your problem and solution, you build a platform (first rule of advanced system design, the second is that we do not talk about fc) rather than build a specific solution.
 The platform design is meant to be modular, decoupled and robust; hence making the system rather flexible, simple to modify, remove and add components.
 The platform composes of micro processes, each process has a well define role and does one task and one task only (doing this one task well, I allow myself to add).
 Note, the the project was being written in steps, at the beginning I did not know how everything is suppose to work and so I developed accordingly, later on I had more concrete knowledge but it was never complete; resulting in the platform you can see here.
@@ -68,7 +68,7 @@ The sub-packages are:
 
 - [`client`](/brain_computer_interface/client/README.md) - uploads mind to the server.
 - [`server`](/brain_computer_interface/server/README.md) - receives minds from clients and forwarding them to the distributer.
-- [`distributer`](/brain_computer_interface/distributer/README.md) - distribute information to the different system component(driver-based).
+- [`distributer`](/brain_computer_interface/distributer/README.md) - distribute information to the different system component (driver-based).
 - [`parser`](/brain_computer_interface/parser/README.md) - listen to raw minds, parse them and forwards them back to the distributer.
 - [`saver`](/brain_computer_interface/saver/README.md) - listens to parses minds and saves them to the database.
 - [`database`](/brain_computer_interface/database/README.md) - holds the system data (driver-based).
