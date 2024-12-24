@@ -7,8 +7,8 @@ root = pathlib.Path(__file__).absolute().parent
 package_path = root / 'brain_computer_interface'
 readme_path = root / 'README.md'
 requirements_path = root / 'requirements.txt'
-github_url = 'https://github.com/sahargavriely/'
-'the-unbearable-ease-of-programming'
+github_url = 'https://github.com/sahargavriely/' \
+    'the-unbearable-ease-of-programming'
 
 
 def get_version():
@@ -54,7 +54,7 @@ def get_package_configuration() -> dict:
             'Operating System :: OS Independent',
             'Programming Language :: Python :: 3',
         ],
-        python_requires = '>=3.11',
+        python_requires = '>=3.13',
         install_requires = get_requirements(),
         entry_points = {
             'console_scripts': [
