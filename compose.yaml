@@ -21,6 +21,7 @@ x-common-internal-service: &common-internal-service
     - shared-dir:${SHARED_PATH?err}
     - /etc/timezone:/etc/timezone:ro
     - /etc/localtime:/etc/localtime:ro
+    - /usr/share/zoneinfo:/usr/share/zoneinfo:ro
   networks:
     - brain-computer-interface-net
 
