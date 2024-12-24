@@ -6,14 +6,14 @@ from brain_computer_interface.message import CONFIG_OPTIONS
 from brain_computer_interface.utils import keys
 
 
-def test_server_error(rest_server, client):
+def test_server_error(client):
     response = client.get('/error')
     assert response.status_code == HTTPStatus.INTERNAL_SERVER_ERROR
     assert keys.error in response.json()
     assert response.json()[keys.error] == 'Server error'
 
 
-def test_not_found(rest_server, client):
+def test_not_found(client):
     response = client.get('/not-existing-api')
     assert response.status_code == HTTPStatus.NOT_FOUND
     assert keys.error in response.json()
@@ -24,7 +24,7 @@ def test_not_found(rest_server, client):
                                           'your spelling and try again.'
 
 
-def test_method_not_allowed(rest_server, client):
+def test_method_not_allowed(client):
     response = client.post('/users')
     assert response.status_code == HTTPStatus.METHOD_NOT_ALLOWED
     assert keys.error in response.json()
@@ -33,7 +33,7 @@ def test_method_not_allowed(rest_server, client):
                                           'the requested URL.'
 
 
-def test_user(rest_server, client, database, user):
+def test_user(client, database, user):
     response = client.get('/users')
     _assert_ok(response, list())
     user_id = user.id
@@ -46,7 +46,7 @@ def test_user(rest_server, client, database, user):
     _assert_ok(response, user.jsonify())
 
 
-def test_snapshot(rest_server, client, database, user, parsed_data, snapshot):
+def test_snapshot(client, database, user, parsed_data, snapshot):
     user_id = user.id
     datetime = snapshot.datetime
     datetime_ = dt.datetime.fromtimestamp(datetime / 1000)

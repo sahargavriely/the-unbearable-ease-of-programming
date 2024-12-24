@@ -8,7 +8,7 @@ from brain_computer_interface.message import CONFIG_OPTIONS
 from brain_computer_interface.utils import keys
 
 
-def test_error_format(rest_server, client, conf, user):
+def test_error_format(client, conf, user):
     with pytest.raises(RuntimeError,
                        match=re.escape(
                            f'ERROR: GET request to http:/'
@@ -18,13 +18,13 @@ def test_error_format(rest_server, client, conf, user):
         _get_command(conf, 'user', user.id)
 
 
-def test_user(rest_server, client, conf, database, user):
+def test_user(client, conf, database, user):
     database.save_user(user.id, user.jsonify())
     assert _get_command(conf, 'users') == [user.id]
     assert _get_command(conf, 'user', user.id) == user.jsonify()
 
 
-def test_snapshot(rest_server, client, conf, database, user, parsed_data,
+def test_snapshot(client, conf, database, user, parsed_data,
                   snapshot):
     datetime = snapshot.datetime
     for topic in CONFIG_OPTIONS:
