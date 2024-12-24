@@ -3,7 +3,7 @@
 Sub-package of brain-computer-interface.
 The following package allows one to parse snapshot.
 
-For further information take a look at [full documentation](https://the-unbearable-ease-of-programming.readthedocs.io/en/latest/parser.html).
+For further information take a look at [full documentation](https://the-unbearable-ease-of-programming.readthedocs.io/en/latest/parser/parser.html).
 
 ## Usage
 

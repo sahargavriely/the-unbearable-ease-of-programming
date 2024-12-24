@@ -3,7 +3,7 @@
 Sub-package of brain-computer-interface.
 The following package allows clients to upload minds (to learn about minds refer to [`message`](/brain_computer_interface/message/README.md)) to the server.
 
-For further information take a look at [full documentation](https://the-unbearable-ease-of-programming.readthedocs.io/en/latest/client.html).
+For further information take a look at [full documentation](https://the-unbearable-ease-of-programming.readthedocs.io/en/latest/client/client.html).
 
 ## Usage
 

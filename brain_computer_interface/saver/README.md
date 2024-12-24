@@ -3,7 +3,7 @@
 Sub-package of brain-computer-interface.
 The following package implements a saver who knows how to save data to the database component.
 
-For further information take a look at [full documentation](https://the-unbearable-ease-of-programming.readthedocs.io/en/latest/saver.html).
+For further information take a look at [full documentation](https://the-unbearable-ease-of-programming.readthedocs.io/en/latest/saver/saver.html).
 
 ## Usage
 
