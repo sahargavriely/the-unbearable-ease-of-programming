@@ -1,3 +1,4 @@
+import select
 import socket
 import struct
 import time
@@ -76,6 +77,8 @@ def test_receive(server):
     with Connection.connect(_HOST, _PORT) as connection:
         client, _ = server.accept()
         client.sendall(_DATA)
+        while not _ready_to_read(connection):
+            time.sleep(0.1)
         assert connection.receive(len(_DATA)) == _DATA
 
 
@@ -84,6 +87,8 @@ def test_receive_length_follow_by_value(server):
         client, _ = server.accept()
         client.sendall(struct.pack(Connection.length_format, len(_DATA)))
         client.sendall(_DATA)
+        while not _ready_to_read(connection):
+            time.sleep(0.1)
         assert connection.receive_length_follow_by_value() == _DATA
 
 
@@ -102,3 +107,8 @@ def test_timeout(server):
         with pytest.raises(socket.timeout):
             connection.receive(1)
         client.close()
+
+
+def _ready_to_read(con: Connection):
+    read_sockets, _, _ = select.select([con], list(), list())
+    return len(read_sockets) > 0
