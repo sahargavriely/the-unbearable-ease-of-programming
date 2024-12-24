@@ -1,5 +1,6 @@
 import json
 import multiprocessing
+import multiprocessing.connection
 import signal
 import subprocess
 import time
@@ -36,12 +37,9 @@ def test_run_parser(rabbitmq, user, snapshot, parsed_data, conf):
                topic, '-s', str(conf.SHARED_DIR), '-d', conf.RABBITMQ_SCHEME]
         sub_process = subprocess.Popen(cmd)
         parent, child = multiprocessing.Pipe()
-
-        def parsed_topic_sub():
-            with Distributer(conf.RABBITMQ_SCHEME) as distributer:
-                distributer.subscribe_parsed_topic(child.send, topic, '')
-
-        process = multiprocessing.Process(target=parsed_topic_sub, daemon=True)
+        args = [conf, child, topic]
+        process = multiprocessing.Process(target=_parsed_topic_sub, args=args,
+                                          daemon=True)
         comm_topic[topic] = parent, process, sub_process
         process.start()
 
@@ -65,3 +63,9 @@ def test_run_parser(rabbitmq, user, snapshot, parsed_data, conf):
         # to increase coverage
         sub_process.send_signal(signal.SIGINT)
         sub_process.wait(1)
+
+
+def _parsed_topic_sub(conf, child: multiprocessing.connection.Connection,
+                      topic):
+    with Distributer(conf.RABBITMQ_SCHEME) as distributer:
+        distributer.subscribe_parsed_topic(child.send, topic, '')
