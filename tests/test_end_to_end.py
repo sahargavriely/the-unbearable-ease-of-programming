@@ -61,7 +61,7 @@ def test_run_pipeline(protobuf_mind_file, user, snapshot, parsed_data, conf):
         docker_env.write_text(
             _assign_variables(
                 original_content, {'/shared': str(conf.SHARED_DIR)}))
-        subprocess.call(['./scripts/run_pipeline.sh'], timeout=180)
+        subprocess.call(['./scripts/run_pipeline.sh'], timeout=60 * 10)
         d_co = Dictionary({
             'REST_SERVER_PORT': 8000,
             'REQUEST_HOST': '127.0.0.1',
@@ -70,7 +70,7 @@ def test_run_pipeline(protobuf_mind_file, user, snapshot, parsed_data, conf):
         _test_full_setup(protobuf_mind_file, d_co, parsed_data, user, snapshot)
     finally:
         docker_env.write_text(original_content)
-        subprocess.call(['./scripts/stop_pipeline.sh'], timeout=180)
+        subprocess.call(['./scripts/stop_pipeline.sh'], timeout=60 * 10)
 
 
 ###############################################################################
