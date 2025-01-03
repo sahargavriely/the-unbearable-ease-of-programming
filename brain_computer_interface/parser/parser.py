@@ -76,9 +76,9 @@ def _function_predict(fun):
 def _get_class_name(cls):
     if hasattr(cls, 'name'):
         return getattr(cls, 'name')
-    cap_name = cls.__name__.removesuffix(CLASS_PREDICT)
+    cls_name = cls.__name__.removesuffix(CLASS_PREDICT)
     return ''.join(' ' + c.lower() if c.isupper() else c
-                   for c in cap_name).strip().replace(' ', '_')
+                   for c in cls_name).strip().replace(' ', '_')
 
 
 def _get_function_name(fun):
