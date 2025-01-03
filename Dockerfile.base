@@ -3,8 +3,29 @@
 # It's discourage to run the project's tests in this docker container, since the tests use docker command.
 
 ARG PYTHON_VERSION=3.13
-FROM python:${PYTHON_VERSION}-bookworm
+# Using full image to build requirements
+FROM python:${PYTHON_VERSION}-bookworm AS builder
 
+# Prevents Python from writing pyc files.
+ENV PYTHONDONTWRITEBYTECODE=1
+
+# Keeps Python from buffering stdout and stderr to avoid situations where
+# the application crashes without emitting any logs due to buffering.
+ENV PYTHONUNBUFFERED=1
+
+# Download dependencies as a separate step to take advantage of Docker's caching.
+# Leverage a cache mount to /root/.cache/pip to speed up subsequent builds.
+# Leverage a bind mount to requirements.txt to avoid having to copy them into
+# into this layer.
+RUN --mount=type=cache,target=/root/.cache/pip \
+    --mount=type=bind,source=requirements.txt,target=requirements.txt \
+    python -m pip install -r requirements.txt
+
+# Working on a slim image
+FROM python:${PYTHON_VERSION}-slim-bookworm
+# Form some reason the python version is being override so we write it again
+ARG PYTHON_VERSION=3.13
+    
 # For docker compose health checks
 RUN apt-get update && apt-get install -y netcat-traditional
 
@@ -20,13 +41,9 @@ ENV PYTHONUNBUFFERED=1
 # VOLUME /etc/timezone /etc/timezone ro
 # VOLUME usr/share/zoneinfo usr/share/zoneinfo ro
 
-# Download dependencies as a separate step to take advantage of Docker's caching.
-# Leverage a cache mount to /root/.cache/pip to speed up subsequent builds.
-# Leverage a bind mount to requirements.txt to avoid having to copy them into
-# into this layer.
-RUN --mount=type=cache,target=/root/.cache/pip \
-    --mount=type=bind,source=requirements.txt,target=requirements.txt \
-    python -m pip install -r requirements.txt
+COPY --from=builder /usr/local/lib/python${PYTHON_VERSION}/site-packages /usr/local/lib/python${PYTHON_VERSION}/site-packages
+# this depends on what you are installing
+# COPY --from=builder /usr/local/bin /usr/local/bin
 
 COPY brain_computer_interface/ /brain_computer_interface
 
