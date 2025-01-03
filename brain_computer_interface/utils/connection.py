@@ -35,6 +35,10 @@ class Connection:
         socket_.connect((host, port))
         return Connection(socket_, timeout)
 
+    # exposing this for the use of `select` package over this cls
+    def fileno(self):
+        return self._socket.fileno()
+
     def send(self, data: bytes):
         logger.debug('sending data %s', data)
         self._socket.sendall(data)

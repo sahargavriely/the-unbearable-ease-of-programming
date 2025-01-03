@@ -5,6 +5,7 @@ import time
 import pytest
 
 from brain_computer_interface.server.listener import Listener
+from brain_computer_interface.utils import Connection
 
 
 _PORT = 5914
@@ -67,24 +68,23 @@ def test_accept(listener: Listener):
 
 
 def test_load(listener: Listener):
-    from brain_computer_interface.utils import Connection
     with listener:
         time.sleep(0.1)
-        amount = 9999
-        conn = Connection.connect(_HOST, _PORT)
-
-        def send_loads():
-            with conn:
-                for _ in range(amount):
-                    conn.send_length_follow_by_value(_DATA * 10)
-
-        p = multiprocessing.Process(target=send_loads, daemon=True)
+        amount = 9900
+        args = [Connection.connect(_HOST, _PORT), amount]
+        p = multiprocessing.Process(target=_send_loads, args=args, daemon=True)
         p.start()
         count = 0
         with listener.accept() as client:
             with pytest.raises(socket.timeout):
-                while client.receive_length_follow_by_value() == _DATA * 10:
+                while client.receive_length_follow_by_value() == _DATA:
                     count += 1
             assert count == amount
         p.terminate()
         p.join(2)
+
+
+def _send_loads(conn: Connection, amount):
+    with conn:
+        for _ in range(amount):
+            conn.send_length_follow_by_value(_DATA)

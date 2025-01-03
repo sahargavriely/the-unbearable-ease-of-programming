@@ -3,7 +3,7 @@
 Sub-package of brain-computer-interface.
 The following package implements a restfull api which expose http requests and cli.
 
-For further information take a look at [full documentation](https://the-unbearable-ease-of-programming.readthedocs.io/en/latest/rest.html).
+For further information take a look at [full documentation](https://the-unbearable-ease-of-programming.readthedocs.io/en/latest/rest/rest.html).
 
 ## Usage
 

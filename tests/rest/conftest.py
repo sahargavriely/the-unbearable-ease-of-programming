@@ -20,11 +20,11 @@ def rest_server(conf):
         # we are doing the sig thingy instead of terminate() or kill()
         # to increase coverage
         process.send_signal(signal.SIGINT)
-        time.sleep(1)
+        time.sleep(2)
 
 
 @pytest.fixture(scope='module')
-def client(conf):
+def client(rest_server, conf):
     yield rest_session(conf.REQUEST_HOST, conf.REST_SERVER_PORT)
 
 

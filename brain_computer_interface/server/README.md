@@ -3,7 +3,7 @@
 Sub-package of brain-computer-interface.
 The following package implements a server who knows how to receive minds.
 
-For further information take a look at [full documentation](https://the-unbearable-ease-of-programming.readthedocs.io/en/latest/server.html).
+For further information take a look at [full documentation](https://the-unbearable-ease-of-programming.readthedocs.io/en/latest/server/server.html).
 
 ## Usage
 

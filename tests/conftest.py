@@ -37,6 +37,20 @@ from tests.utils import Dictionary
 # Configuration
 
 
+def pytest_collection_modifyitems(session, config, items):
+    start = list()
+    middle = list()
+    end = list()
+    for item in items:
+        if item.module.__name__ == 'test_end_to_end':
+            end.append(item)
+        elif 'utils' in str(item.path):
+            start.append(item)
+        else:
+            middle.append(item)
+    items[:] = start + middle + end
+
+
 @pytest.fixture(scope='session')
 def other_conf():
     return Dictionary({

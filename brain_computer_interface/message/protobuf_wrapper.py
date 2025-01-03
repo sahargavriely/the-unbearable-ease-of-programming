@@ -2,8 +2,9 @@ from collections.abc import Iterable
 import importlib
 import inspect
 import numbers
+import re
 
-from google._upb._message import MessageMeta
+from . import mind_pb2
 
 
 classes = dict()
@@ -70,7 +71,9 @@ class ProtobufWrapper:
         args = list()
         for arg_name in inspect.getfullargspec(cls).args[1:]:
             arg = getattr(protobuf_obj, arg_name)
-            if isinstance(type(arg), MessageMeta):
+            pattern = mind_pb2.__name__ + r'\.([\w\.]+)'
+            match = re.search(pattern, str(type(arg)))
+            if match:
                 arg = _get_protobuf_wrapped_class(arg_name).from_protobuf(arg)
             args.append(arg)
         return cls(*args)
