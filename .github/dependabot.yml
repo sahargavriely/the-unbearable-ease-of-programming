@@ -5,8 +5,8 @@
 
 version: 2
 updates:
-  # Enable version updates for python
-  - package-ecosystem: "python"
+  # Enable version updates for pip
+  - package-ecosystem: "pip"
     # Look for `requirements.txt` filesin the `root` directory
     directory: "/"
     schedule:
