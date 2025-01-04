@@ -51,9 +51,11 @@ class RabbitMQScheme:
         with _topic_exchange_channel(self.conn, self.exchange) as channel:
             # Declaring durable protects from mq restarts
             # Declaring exclusive deletes it once the connection closes
+            # Declaring auto_delete deletes when last consumer unsubscribes
             # But we don't want to delete a queue if it's part of a group
             result = channel.queue_declare(queue=subscriber_group,
                                            durable=True,
+                                           auto_delete=True,
                                            exclusive=not subscriber_group)
             queue_name = result.method.queue
             for binding_key in binding_keys:
