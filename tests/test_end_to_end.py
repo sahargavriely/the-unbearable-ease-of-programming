@@ -56,7 +56,7 @@ def test_end_to_end_finale_form(postgres, rabbitmq, protobuf_mind_file,
 
 def test_run_pipeline(protobuf_mind_file, user, snapshot, parsed_data, conf):
     try:
-        docker_env = pathlib.Path('docker.env')
+        docker_env = pathlib.Path('build/docker.env')
         original_content = docker_env.read_text()
         docker_env.write_text(
             _assign_variables(
