@@ -16,7 +16,7 @@ volumes:
 x-common-internal-service: &common-internal-service
   build:
     context: ..
-    dockerfile: build/base/Dockerfile
+    dockerfile: build/Dockerfile.base
   volumes:
     - shared-dir:${SHARED_PATH?err}
     - /etc/timezone:/etc/timezone:ro

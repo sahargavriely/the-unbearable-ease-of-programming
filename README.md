@@ -59,7 +59,7 @@ For further information take a look at [full documentation](https://the-unbearab
         ...
         ```
 
-    2. Selectively, run the packages one by one, choose which package to run. To do so you should go over each package's documentation and view how to run it. you can also run it in a docker environment with the `build_and_run_dockerfile.sh` in the scripts directory (based on `build/base/Dockerfile` file), and in the docker environment run the same command you would have used without the docker (again, you can find the specific command in the specific documentation).
+    2. Selectively, run the packages one by one, choose which package to run. To do so you should go over each package's documentation and view how to run it. you can also run it in a docker environment with the `build_and_run_dockerfile.sh` in the scripts directory (based on `build/Dockerfile.base` file), and in the docker environment run the same command you would have used without the docker (again, you can find the specific command in the specific documentation).
 
 ## Packages
 
