@@ -98,5 +98,4 @@ def user_snapshot_topic_data(id, datetime, topic):
     _request(f'/users/{id}/snapshots/{datetime}/{topic}/data')
 
 
-if __name__ == '__main__':
-    module_main_exe(__package__)
+module_main_exe(__package__)

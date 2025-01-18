@@ -28,5 +28,4 @@ def upload_mind_command(host, port, path):
     log(upload_mind(path, host, port))
 
 
-if __name__ == '__main__':
-    module_main_exe(__package__)
+module_main_exe(__package__)

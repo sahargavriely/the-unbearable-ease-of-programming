@@ -34,8 +34,7 @@ class Reader:
         return self.file
 
     def __exit__(self, exception, error, traceback):
-        if self.file:
-            self.file_pointer = self.file.tell()
-            logger.debug('reach to %s', self.file_pointer)
-            self.file.close()
-            del self.file
+        self.file_pointer = self.file.tell()
+        logger.debug('reach to %s', self.file_pointer)
+        self.file.close()
+        del self.file

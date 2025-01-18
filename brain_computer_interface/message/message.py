@@ -198,3 +198,5 @@ class Snapshot(ProtobufWrapper):
             self.depth_image = DepthImage(0, 0, list())
         elif key == keys.feelings:
             self.feelings = Feelings(0, 0, 0, 0)
+        else:
+            raise ValueError(f'Unknown key {key!r}')

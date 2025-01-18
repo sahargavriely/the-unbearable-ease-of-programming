@@ -45,10 +45,9 @@ class FileScheme:
             return list()
         snapshots = list()
         for item in user_dir.iterdir():
-            if item.is_dir():
-                datetime = dt.datetime.strptime(item.name, self.dt_format)
-                datetime = int(datetime.timestamp() * 1000)
-                snapshots.append(datetime)
+            datetime = dt.datetime.strptime(item.name, self.dt_format)
+            datetime = int(datetime.timestamp() * 1000)
+            snapshots.append(datetime)
         return snapshots
 
     def get_user_snapshot(self, user_id, datetime):
@@ -58,9 +57,8 @@ class FileScheme:
         if not snap_dir.exists():
             return dict()
         for topic in snap_dir.iterdir():
-            if topic.is_file():
-                with topic.open('r') as f:
-                    snapshot[topic.name] = json.load(f)
+            with topic.open('r') as f:
+                snapshot[topic.name] = json.load(f)
         return snapshot
 
     def get_user_snapshot_topic(self, user_id, datetime, topic):
@@ -73,5 +71,4 @@ class FileScheme:
             return json.load(f)
 
     def drop_db(self):
-        if self.path.exists():
-            shutil.rmtree(self.path)
+        shutil.rmtree(self.path)

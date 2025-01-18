@@ -47,5 +47,4 @@ def run_saver(database, distribute_scheme):
     log(Saver.run(database, distribute_scheme))
 
 
-if __name__ == '__main__':
-    module_main_exe(__package__)
+module_main_exe(__package__)

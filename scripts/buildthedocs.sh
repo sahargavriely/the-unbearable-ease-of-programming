@@ -5,10 +5,10 @@ function main {
     source venv/bin/activate
     cd docs/
     make html SPHINXOPTS="-W"
-    export TEST_REULST=$?
+    export TEST_RESULT=$?
     cd ..
     deactivate
-    exit ${TEST_REULST}
+    exit ${TEST_RESULT}
 }
 
 
