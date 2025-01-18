@@ -22,5 +22,4 @@ def run_server_command(distribute_scheme, host, port, shared_dir):
     log(run_server_by_scheme(distribute_scheme, host, port, shared_dir))
 
 
-if __name__ == '__main__':
-    module_main_exe(__package__)
+module_main_exe(__package__)

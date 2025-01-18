@@ -1,6 +1,7 @@
-import pathlib
 import logging
 from logging.handlers import SysLogHandler, RotatingFileHandler
+import pathlib
+import platform
 
 
 def setup_logging(name: str, log_lvl=logging.WARNING,
@@ -20,20 +21,22 @@ def setup_logging(name: str, log_lvl=logging.WARNING,
     format = f'{name} ' \
         '%(levelname)s %(filename)s:%(lineno)d %(funcName)s - %(message)s'
 
-    if stream_to_screen:
-        stream_handler = logging.StreamHandler()
-        stream_handler.setFormatter(logging.Formatter(f'%(asctime)s {format}'))
-        logging.root.addHandler(stream_handler)
-
-    if stream_to_syslog:
-        syslog_handler = SysLogHandler(address='/dev/log')
-        syslog_handler.setFormatter(logging.Formatter(format))
-        logging.root.addHandler(syslog_handler)
-
     logger = logging.getLogger(name)
     file_handler = RotatingFileHandler(
         str(logs_path), maxBytes=4 * 1024 * 1024, backupCount=4)
     file_handler.setFormatter(logging.Formatter(f'%(asctime)s {format}'))
     logger.addHandler(file_handler)
+
+    if stream_to_screen:
+        stream_handler = logging.StreamHandler()
+        stream_handler.setFormatter(logging.Formatter(f'%(asctime)s {format}'))
+        logger.addHandler(stream_handler)
+
+    if stream_to_syslog:
+        address = '/var/run/syslog' if platform.system() == 'Darwin' \
+            else '/dev/log'
+        syslog_handler = SysLogHandler(address=address)
+        syslog_handler.setFormatter(logging.Formatter(format))
+        logger.addHandler(syslog_handler)
 
     return logger

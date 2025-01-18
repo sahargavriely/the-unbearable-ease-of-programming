@@ -30,5 +30,4 @@ def run_parser_command(name, shared_dir, distribute_scheme, group):
     log(run_parser(name, shared_dir, distribute_scheme, group))
 
 
-if __name__ == '__main__':
-    module_main_exe(__package__)
+module_main_exe(__package__)

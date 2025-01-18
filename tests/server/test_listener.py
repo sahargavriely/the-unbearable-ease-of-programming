@@ -21,11 +21,11 @@ def listener():
     return Listener(_PORT, _HOST, _BACKLOG, _REUSEADDR, _TIMEOUT)
 
 
-def test_defaults():
-    listener = Listener(_PORT)
+def test_defaults_and_edges():
+    listener = Listener(_PORT, reuseaddr=False)
     assert listener.host == '0.0.0.0'
     assert listener.backlog == 1000
-    assert listener.reuseaddr
+    assert not listener.reuseaddr
     assert listener.timeout
 
 

@@ -18,9 +18,8 @@ class Log:
             return
         if self.traceback and sys.exc_info():  # there's an active exception
             trace = traceback.format_exc().strip()
-            if trace != 'NoneType: None':
-                message = message or ''
-                message += os.linesep + trace
+            message = message or ''
+            message += os.linesep + trace
         click.echo(message)
 
 

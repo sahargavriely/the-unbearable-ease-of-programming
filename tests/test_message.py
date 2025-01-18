@@ -23,6 +23,9 @@ def test_snapshot(snapshot: Snapshot):
     assert snapshot == Snapshot.from_json(snapshot.jsonify())
     for con in CONFIG_OPTIONS:
         snapshot.set_default(con)
+    key = 'not existing key'
+    with pytest.raises(ValueError, match=fr'Unknown key {key!r}'):
+        snapshot.set_default(key)
 
 
 def test_user(user: User):

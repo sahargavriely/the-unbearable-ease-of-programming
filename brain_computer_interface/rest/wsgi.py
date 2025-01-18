@@ -11,8 +11,7 @@ class StandaloneApplication(gunicorn.app.base.BaseApplication):
 
     def __init__(self, app, options=None):
         self.options = {'workers': number_of_workers()}
-        if options is not None:
-            self.options.update(options)
+        self.options.update(options or dict())
         self.application = app
         super().__init__()
 

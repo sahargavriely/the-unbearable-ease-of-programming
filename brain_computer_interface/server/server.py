@@ -58,11 +58,11 @@ def run_server(publish_method: typing.Callable,
 def _handle_connection(lock: threading.Lock, connection: Connection,
                        publish_method: typing.Callable, shared_dir: Path):
     with connection:
-        _recive_mind(lock, connection, publish_method, shared_dir)
+        _receive_mind(lock, connection, publish_method, shared_dir)
 
 
-def _recive_mind(lock: threading.Lock, connection: Connection,
-                 publish_method: typing.Callable, shared_dir: Path):
+def _receive_mind(lock: threading.Lock, connection: Connection,
+                  publish_method: typing.Callable, shared_dir: Path):
     user = User.from_bytes(connection.receive_length_follow_by_value())
     user_id = str(user.id)
     logger.debug('receiving mind from user %s', user_id)

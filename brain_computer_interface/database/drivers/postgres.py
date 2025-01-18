@@ -3,6 +3,7 @@ import psycopg2
 from psycopg2.errors import ForeignKeyViolation
 from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 from psycopg2.extras import RealDictCursor
+from psycopg2.sql import Identifier, SQL
 
 from brain_computer_interface.utils import keys
 
@@ -13,16 +14,21 @@ class PostgreSQL:
     def __init__(self, url: furl.furl):
         self.url = url
         self.db_name = str(url.path).removeprefix('/')
-        try:
+        db_exists = False
+        conn = _create_pg_conn(url)
+        with conn.cursor() as curs:
+            curs.execute(IS_DB_EXISTS, [self.db_name])
+            db_exists = curs.fetchall()[0][0]
+        if not db_exists:
+            self._create_db(url)
+        else:
             self.conn = _create_pg_conn(url, db_name=self.db_name)
-        except psycopg2.OperationalError as error:
-            if f'database "{self.db_name}" does not exist' in str(error):
-                self._create_db(url)
 
     def _create_db(self, url: furl.furl):
         conn = _create_pg_conn(url)
         with conn.cursor() as curs:
-            curs.execute(f'CREATE DATABASE {self.db_name}')
+            curs.execute(SQL('CREATE DATABASE {}')
+                         .format(Identifier(self.db_name)))
         conn.close()
         self.conn = _create_pg_conn(url, db_name=self.db_name)
         with self.conn.cursor() as curs:
@@ -100,7 +106,7 @@ def _pop_id_key(dictionary: dict):
 def _create_pg_conn(url: furl.furl, db_name=''):
     # postgres is the default name because it is always exists in pg servers
     # meaning with can connect to it always.
-    # unlike other names which won't not exists if not specifically created.
+    # unlike other names which will not exists if not specifically created.
     db_name = db_name or 'postgres'
     conn = psycopg2.connect(database=db_name, host=url.host, user=url.username,
                             password=url.password, port=url.port)
@@ -135,6 +141,13 @@ def _insert(curs, table_name, prim_key=keys.id, **kwargs):
     return curs.fetchone()
 
 
+IS_DB_EXISTS = '''
+    select exists(
+        SELECT datname
+        FROM pg_catalog.pg_database
+        WHERE datname = (%s)
+    );
+'''
 CREATE_USER_TABLE = '''
     CREATE TABLE users (
         id INTEGER PRIMARY KEY,
