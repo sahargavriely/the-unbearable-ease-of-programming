@@ -1,9 +1,10 @@
+import logging
 import pathlib
 
 from brain_computer_interface.utils import setup_logging
 
 
-def test_setup_logging(caplog, capsys):
+def test_different_records(caplog, capsys):
     file_only = 'file_only'
     also_screen = 'also_screen'
     also_syslog = 'also_syslog'
@@ -34,3 +35,20 @@ def test_setup_logging(caplog, capsys):
     assert 'all_of_them_msg' in capture
     # syslog check
     # I need to handle more than one OS and it's annoying
+
+
+def test_different_levels(caplog):
+    info_logger = setup_logging('info', logging.INFO)
+    should_see_this = 'my guy'
+    info_logger.info(should_see_this)
+    should_not_see_this = 'you guys'
+    info_logger.debug(should_not_see_this)
+    assert any(should_see_this in record.message for record in caplog.records)
+    assert all(should_not_see_this not in record.message
+               for record in caplog.records)
+    # setting another logger to make sure it doesn't effect the first
+    setup_logging('error', logging.ERROR)
+    should_still_see_this = 'should_still_see_this'
+    info_logger.info(should_still_see_this)
+    assert any(should_still_see_this in record.message
+               for record in caplog.records)
