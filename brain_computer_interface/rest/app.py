@@ -29,17 +29,17 @@ class App:
         for path, function in self._resources:
             handler = self._wrap_resource(function)
             self._app.route(path)(handler)
-        for status_code, *indetifiyers in self._error_resources:
+        for status_code, *identifiers in self._error_resources:
             handler = functools.partial(_handle_error, status_code)
             self._app.register_error_handler(status_code, handler)
-            for indetifiyer in indetifiyers:
-                self._app.register_error_handler(indetifiyer, handler)
+            for identifier in identifiers:
+                self._app.register_error_handler(identifier, handler)
 
     def resource(self, path):
         return self._collect(path)
 
-    def error_resource(self, status_code, *indetifiyers):
-        self._error_resources.append((status_code, *indetifiyers))
+    def error_resource(self, status_code, *identifiers):
+        self._error_resources.append((status_code, *identifiers))
 
     def _collect(self, path):
         def decorator(function):

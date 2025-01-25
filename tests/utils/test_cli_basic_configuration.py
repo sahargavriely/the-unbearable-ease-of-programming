@@ -3,6 +3,8 @@ import subprocess
 
 import pytest
 
+from brain_computer_interface.utils import log
+
 
 @pytest.fixture(scope='module')
 def some_script(tmp_path_factory):
@@ -31,3 +33,18 @@ def test_traceback_flag(some_script):
     cmd = ['python', str(some_script), '-t', 'error']
     stdout = subprocess.run(cmd, capture_output=True, timeout=5).stdout
     assert b'traceback (most recent call last)' in stdout.lower()
+
+
+def test_log_nonetype(capsys):
+    pre_value = log.traceback
+    try:
+        log.traceback = True
+        msg = 'some message with no errors - no reason for trace'
+        log(msg)
+        capture = capsys.readouterr()
+        assert msg in capture.out
+        assert msg not in capture.err
+        assert 'NoneType: None' not in capture.out
+        assert 'NoneType: None' not in capture.err
+    finally:
+        log.traceback = pre_value
