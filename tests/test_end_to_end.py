@@ -81,7 +81,7 @@ def _test_full_setup(protobuf_mind_file, conf, parsed_data, user, snapshot):
     time.sleep(2)
     # client
     upload_mind(str(protobuf_mind_file), conf.REQUEST_HOST, conf.SERVER_PORT)
-    time.sleep(2)
+    time.sleep(5)
     assert _get_command(conf, 'user', user.id) == user.jsonify()
     dt = snapshot.datetime
     expected_snap = dict(datetime=dt)
