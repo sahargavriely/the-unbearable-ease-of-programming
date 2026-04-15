@@ -78,7 +78,7 @@ def test_run_pipeline(protobuf_mind_file, user, snapshot, parsed_data, conf):
 
 
 def _test_full_setup(protobuf_mind_file, conf, parsed_data, user, snapshot):
-    time.sleep(2)
+    time.sleep(5)
     # client
     upload_mind(str(protobuf_mind_file), conf.REQUEST_HOST, conf.SERVER_PORT)
     time.sleep(2)
